@@ -1,0 +1,13 @@
+##docker run --name api-firstPatters-pg -e POSTGRESQL_USERNAME=docker  -e POSTGRESQL_PASSWORD=docker -e POSTGRESQL_DATABASE=firstPatters -p 5432:5432  bitnami/postgresql
+
+version: "3"
+
+services:
+  avalon_api:
+    image: bitnami/postgresql
+    ports:
+      - 543:5432
+    environment:
+      - POSTGRESQL_USERNAME=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=4hands

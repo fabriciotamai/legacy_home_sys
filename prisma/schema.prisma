@@ -12,55 +12,101 @@ enum Role {
   USER
 }
 
-model User {
-  id            Int        @id @default(autoincrement())
-  email         String     @unique
-  username      String     @unique
-  password      String
-  cpf           String?    @unique
-  address       String?
-  phone         String?
-  documentFront String?
-  documentBack  String?
-  role          Role       @default(USER)
-  isApproved    Boolean    @default(false)
-  twoFA         String?
-  isActive      Boolean    @default(true)
-  contracts     Contract[]
+enum ContractType {
+  MONEY
+  PROPERTY
+  HYBRID
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum InvestmentType {
+  MONEY
+  PROPERTY
+}
+
+model User {
+  id                Int                @id @default(autoincrement())
+  email             String             @unique
+  username          String             @unique
+  password          String
+  numberDocument    String?            @unique
+  phone             String?
+  documentFront     String?
+  documentBack      String?
+  proofOfAddress    String?
+  incomeTaxProof    String?
+  role              Role               @default(USER)
+  isApproved        Boolean            @default(false)
+  twoFA             String?
+  isActive          Boolean            @default(true)
+  addresses         Address[]
+  contracts         Contract[]
+  contractInterests ContractInterest[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model Address {
+  id           Int      @id @default(autoincrement())
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Enterprise {
-  id          Int        @id @default(autoincrement())
-  name        String
-  description String
-  status      String
-  contract    Contract[]
-  phases      Phase[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String
+  status           String
+  isAvailable      Boolean            @default(false)
+  investmentType   InvestmentType
+  contract         Contract[]
+  phases           Phase[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  ContractInterest ContractInterest[]
 }
 
 model Contract {
-  id           String     @id @default(uuid())
-  type         String
+  id           String       @id @default(uuid())
+  type         ContractType
   percentage   Float
-  user         User?      @relation(fields: [userId], references: [id])
+  hasReturns   Boolean      @default(true)
+  returnAt     DateTime?
+  selectedBy   Role?
+  user         User?        @relation(fields: [userId], references: [id])
   userId       Int?
-  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  enterprise   Enterprise   @relation(fields: [enterpriseId], references: [id])
   enterpriseId Int
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model Phase {
   id           Int        @id @default(autoincrement())
   phaseName    String
   description  String
+  order        Int
   enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
   enterpriseId Int
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+model ContractInterest {
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       Int
+  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  enterpriseId Int
+  status       String
+  createdAt    DateTime   @default(now())
 }

@@ -41,6 +41,7 @@ model User {
   documentBack      String?
   proofOfAddress    String?
   incomeTaxProof    String?
+  tokenVersion      Int                @default(0)
   role              Role               @default(USER)
   isApproved        Boolean            @default(false)
   twoFA             String?

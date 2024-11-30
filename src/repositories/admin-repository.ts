@@ -2,7 +2,7 @@
 
 import type { Prisma, User as PrismaUser } from '@prisma/client';
 
-export interface UserRepository {
+export interface AdminRepository {
   create(data: Prisma.UserCreateInput): Promise<PrismaUser>;
   findByEmail(email: string): Promise<PrismaUser | null>;
   findByUsername(username: string): Promise<PrismaUser | null>;

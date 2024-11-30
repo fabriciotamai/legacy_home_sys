@@ -2,9 +2,9 @@
 
 import type { Prisma, User as PrismaUser } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
-import type { UserRepository } from '../userRepository';
+import type { AdminRepository } from '../admin-repository';
 
-export class PrismaUserRepository implements UserRepository {
+export class PrismaAdminRepository implements AdminRepository {
   async create(data: Prisma.UserCreateInput): Promise<PrismaUser> {
     return await prisma.user.create({ data });
   }

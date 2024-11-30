@@ -1,4 +1,4 @@
-import { type UserRepository } from '@/repositories/userRepository';
+import { type AdminRepository } from '@/repositories/admin-repository';
 import { Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
@@ -11,8 +11,8 @@ interface RegisterUserInput {
   role: Role;
 }
 
-export class RegisterUserUseCase {
-  constructor(private readonly userRepository: UserRepository) {}
+export class AdminRegisterUsersUseCase {
+  constructor(private readonly userRepository: AdminRepository) {}
 
   async execute(input: RegisterUserInput): Promise<void> {
     const { email, username, password, numberDocument, phone, role } = input;
@@ -31,7 +31,7 @@ export class RegisterUserUseCase {
     
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    
+
     await this.userRepository.create({
       email,
       username,

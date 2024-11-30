@@ -1,10 +1,9 @@
 import { app } from './app';
 import { env } from './env';
 
-// Função para iniciar o servidor
+
 const iniciarServidor = async () => {
   try {
-    
     const port = env.PORT || 3000;
 
     
@@ -17,5 +16,5 @@ const iniciarServidor = async () => {
   }
 };
 
-// Iniciar a função de servidor
+
 void iniciarServidor();

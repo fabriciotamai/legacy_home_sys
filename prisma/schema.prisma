@@ -23,6 +23,13 @@ enum InvestmentType {
   PROPERTY
 }
 
+enum InterestStatus {
+  PENDING
+  IN_CONTACT
+  APPROVED
+  REJECTED
+}
+
 model User {
   id                Int                @id @default(autoincrement())
   email             String             @unique
@@ -43,6 +50,8 @@ model User {
   contractInterests ContractInterest[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+
+  @@index([isApproved])
 }
 
 model Address {
@@ -62,17 +71,19 @@ model Address {
 }
 
 model Enterprise {
-  id               Int                @id @default(autoincrement())
-  name             String
-  description      String
-  status           String
-  isAvailable      Boolean            @default(false)
-  investmentType   InvestmentType
-  contract         Contract[]
-  phases           Phase[]
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  ContractInterest ContractInterest[]
+  id                Int                @id @default(autoincrement())
+  name              String
+  description       String
+  status            String
+  isAvailable       Boolean            @default(false)
+  investmentType    InvestmentType
+  contract          Contract[]
+  phases            Phase[]
+  contractInterests ContractInterest[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([isAvailable])
 }
 
 model Contract {
@@ -88,6 +99,8 @@ model Contract {
   enterpriseId Int
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+
+  @@index([type])
 }
 
 model Phase {
@@ -95,18 +108,22 @@ model Phase {
   phaseName    String
   description  String
   order        Int
+  startDate    DateTime
+  endDate      DateTime
   enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
   enterpriseId Int
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+
+  @@index([order])
 }
 
 model ContractInterest {
-  id           Int        @id @default(autoincrement())
-  user         User       @relation(fields: [userId], references: [id])
+  id           Int            @id @default(autoincrement())
+  user         User           @relation(fields: [userId], references: [id])
   userId       Int
-  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  enterprise   Enterprise     @relation(fields: [enterpriseId], references: [id])
   enterpriseId Int
-  status       String
-  createdAt    DateTime   @default(now())
+  status       InterestStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
 }

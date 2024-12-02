@@ -12,6 +12,11 @@ enum Role {
   USER
 }
 
+enum UserType {
+  INDIVIDUAL //
+  BUSINESS
+}
+
 enum ContractType {
   MONEY
   PROPERTY
@@ -31,26 +36,31 @@ enum InterestStatus {
 }
 
 model User {
-  id                Int                @id @default(autoincrement())
-  email             String             @unique
-  username          String             @unique
-  password          String
-  numberDocument    String?            @unique
-  phone             String?
-  documentFront     String?
-  documentBack      String?
-  proofOfAddress    String?
-  incomeTaxProof    String?
-  tokenVersion      Int                @default(0)
-  role              Role               @default(USER)
-  isApproved        Boolean            @default(false)
-  twoFA             String?
-  isActive          Boolean            @default(true)
-  addresses         Address[]
-  contracts         Contract[]
-  contractInterests ContractInterest[]
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id                 Int                @id @default(autoincrement())
+  email              String             @unique
+  username           String             @unique
+  password           String
+  firstName          String
+  lastName           String
+  birthDate          DateTime?
+  userType           UserType
+  numberDocument     String?            @unique
+  phone              String?
+  documentFront      String?
+  documentBack       String?
+  mustChangePassword Boolean            @default(true)
+  proofOfAddress     String?
+  incomeTaxProof     String?
+  tokenVersion       Int                @default(0)
+  role               Role               @default(USER)
+  isApproved         Boolean            @default(false)
+  twoFA              String?
+  isActive           Boolean            @default(true)
+  addresses          Address[]
+  contracts          Contract[]
+  contractInterests  ContractInterest[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
   @@index([isApproved])
 }

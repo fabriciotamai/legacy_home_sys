@@ -1,6 +1,4 @@
-// src/repositories/usersRepository.ts
-
-import type { Prisma, User as PrismaUser } from '@prisma/client';
+import type { Prisma, Address as PrismaAddress, User as PrismaUser } from '@prisma/client';
 
 export interface AdminRepository {
   create(data: Prisma.UserCreateInput): Promise<PrismaUser>;
@@ -8,4 +6,6 @@ export interface AdminRepository {
   findByUsername(username: string): Promise<PrismaUser | null>;
   findById(userId: number): Promise<PrismaUser | null>;
   updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<PrismaUser>;
+  findByDocument(numberDocument: string): Promise<PrismaUser | null>;
+  addAddress(userId: number, data: Prisma.AddressCreateInput): Promise<PrismaAddress>;
 }

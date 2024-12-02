@@ -1,90 +1,41 @@
-import { prisma } from '@/lib/prisma';
+import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
 import { generateToken, verifyToken } from '@/utils/jwt';
-import { Role } from '@prisma/client';
+import { User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { JwtPayload } from 'jsonwebtoken';
 
+export class AuthService {
+  constructor(private readonly userRepository: PrismaUsersRepository) {}
 
-export async function loginUser(email: string, password: string): Promise<string> {
-  
-  const user = await prisma.user.findUnique({ where: { email } });
-
-  if (!user) {
-    throw new Error('Credenciais inválidas.');
+  async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
   }
 
-  
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new Error('Credenciais inválidas.');
+  async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
   }
 
-  
-  const updatedUser = await prisma.user.update({
-    where: { id: user.id },
-    data: { tokenVersion: user.tokenVersion + 1 },
-  });
-
-  
-  return generateToken(
-    { id: updatedUser.id, email: updatedUser.email, role: updatedUser.role },
-    updatedUser.tokenVersion,
-  );
-}
-
-
-export async function validateToken(token: string): Promise<JwtPayload> {
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    throw new Error('Token inválido ou expirado.');
+  generateToken(payload: { id: number; email: string; role: string }, tokenVersion: number): string {
+    return generateToken({ ...payload, tokenVersion });
   }
 
-  
-  const user = await prisma.user.findUnique({ where: { id: payload.id } });
-
-  if (!user) {
-    throw new Error('Usuário não encontrado.');
+  validateToken(token: string): JwtPayload {
+    try {
+      const payload = verifyToken(token);
+      if (!payload) {
+        throw new Error('Payload inválido ou ausente no token.');
+      }
+      return payload;
+    } catch (error) {
+      throw new Error('Token inválido ou expirado.');
+    }
   }
 
-  
-  if (user.tokenVersion !== payload.tokenVersion) {
-    throw new Error('Token inválido ou expirado.');
+  async getUserById(userId: number): Promise<User | null> {
+    return this.userRepository.findById(userId);
   }
 
-  return payload;
-}
-
-
-export async function registerUser(email: string, username: string, password: string, role: string) {
-  
-  if (!Object.values(Role).includes(role as Role)) {
-    throw new Error('O valor de role é inválido.');
+  isTokenVersionValid(tokenVersion: number, currentVersion: number): boolean {
+    return tokenVersion === currentVersion;
   }
-
-  
-  const existingEmail = await prisma.user.findUnique({ where: { email } });
-  if (existingEmail) {
-    throw new Error('Email já está em uso.');
-  }
-
-  
-  const existingUsername = await prisma.user.findUnique({ where: { username } });
-  if (existingUsername) {
-    throw new Error('Nome de usuário já está em uso.');
-  }
-
-  
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  
-  return await prisma.user.create({
-    data: {
-      email,
-      username,
-      password: hashedPassword,
-      role: role as Role, 
-      tokenVersion: 0, 
-    },
-  });
 }

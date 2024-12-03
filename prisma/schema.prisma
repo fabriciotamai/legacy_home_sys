@@ -13,7 +13,7 @@ enum Role {
 }
 
 enum UserType {
-  INDIVIDUAL //
+  INDIVIDUAL
   BUSINESS
 }
 
@@ -35,6 +35,20 @@ enum InterestStatus {
   REJECTED
 }
 
+enum ComplianceStatus {
+  PENDING_ADDRESS
+  PENDING_DOCUMENTS
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum DocumentType {
+  RG
+  CNH
+  PASSPORT
+}
+
 model User {
   id                 Int                @id @default(autoincrement())
   email              String             @unique
@@ -46,14 +60,16 @@ model User {
   userType           UserType
   numberDocument     String?            @unique
   phone              String?
+  documentType       DocumentType?
   documentFront      String?
   documentBack       String?
-  mustChangePassword Boolean            @default(true)
   proofOfAddress     String?
   incomeTaxProof     String?
+  mustChangePassword Boolean            @default(true)
   tokenVersion       Int                @default(0)
   role               Role               @default(USER)
   isApproved         Boolean            @default(false)
+  complianceStatus   ComplianceStatus   @default(PENDING_ADDRESS)
   twoFA              String?
   isActive           Boolean            @default(true)
   addresses          Address[]

@@ -24,35 +24,40 @@ export class SigninUsers {
   async execute(input: LoginInput): Promise<LoginOutput> {
     const { email, password } = input;
 
-   
+    // Busca o usuário pelo email
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new Error('Credenciais inválidas.');
     }
 
-   
+    // Verifica se a senha está correta
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error('Credenciais inválidas.');
     }
 
-  
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      tokenVersion: user.tokenVersion,
+    // Incrementa a versão do token no banco de dados
+    const updatedUser = await this.userRepository.updateUser(user.id, {
+      tokenVersion: user.tokenVersion + 1, // Incrementa o tokenVersion
     });
 
-   
+    // Gera o token com a nova versão do token
+    const token = generateToken({
+      id: updatedUser.id,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      tokenVersion: updatedUser.tokenVersion, // Usa o tokenVersion atualizado
+    });
+
+    // Retorna o token e os dados do usuário
     return {
       token,
-      mustChangePassword: user.mustChangePassword,
+      mustChangePassword: updatedUser.mustChangePassword,
       user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        role: user.role,
+        id: updatedUser.id,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        role: updatedUser.role,
       },
     };
   }

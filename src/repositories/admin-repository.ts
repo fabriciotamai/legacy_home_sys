@@ -1,4 +1,4 @@
-import type { Prisma, Address as PrismaAddress, User as PrismaUser } from '@prisma/client';
+import type { Enterprise, Prisma, Address as PrismaAddress, Enterprise as PrismaEnterprise, User as PrismaUser } from '@prisma/client';
 
 export interface AdminRepository {
   create(data: Prisma.UserCreateInput): Promise<PrismaUser>;
@@ -8,4 +8,6 @@ export interface AdminRepository {
   updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<PrismaUser>;
   findByDocument(numberDocument: string): Promise<PrismaUser | null>;
   addAddress(userId: number, data: Prisma.AddressCreateInput): Promise<PrismaAddress>;
+  findEnterpriseByName(name: string): Promise<PrismaEnterprise | null>; 
+  createEnterprise(data: Prisma.EnterpriseCreateInput): Promise<Enterprise>; 
 }

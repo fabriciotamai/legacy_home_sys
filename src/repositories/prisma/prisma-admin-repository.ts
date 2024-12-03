@@ -1,4 +1,4 @@
-import type { Prisma, Address as PrismaAddress, User as PrismaUser } from '@prisma/client';
+import type { Enterprise, Prisma, Address as PrismaAddress, User as PrismaUser } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import type { AdminRepository } from '../admin-repository';
 
@@ -7,6 +7,19 @@ export class PrismaAdminRepository implements AdminRepository {
   async create(data: Prisma.UserCreateInput): Promise<PrismaUser> {
     return await prisma.user.create({ data });
   }
+
+  async findEnterpriseByName(name: string) {
+    return await prisma.enterprise.findFirst({
+      where: { name },
+    });
+  }
+
+  async createEnterprise(data: Prisma.EnterpriseCreateInput): Promise<Enterprise> {
+    return await prisma.enterprise.create({
+      data,
+    });
+  }
+  
 
   
   async findByEmail(email: string): Promise<PrismaUser | null> {

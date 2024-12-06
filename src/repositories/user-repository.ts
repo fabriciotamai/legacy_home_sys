@@ -1,5 +1,3 @@
-// src/repositories/usersRepository.ts
-
 import type { Prisma, User as PrismaUser } from '@prisma/client';
 
 export interface UsersRepository {

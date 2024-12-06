@@ -7,6 +7,11 @@ import { userSiginHandler } from '@/http/controllers/users/user-sigin-handler';
 import { authMiddleware } from '@/middlewares/auth/auth-middleware';
 import { roleMiddleware } from '@/middlewares/auth/role-middleware';
 import { FastifyInstance } from 'fastify';
+import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
+import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
+import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
+import { getPhasesHandler } from './controllers/admin/get-phases-handler';
+import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 
 export async function appRoutes(app: FastifyInstance): Promise<void> {
   app.register(async (publicRoutes) => {
@@ -21,6 +26,11 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
       protectedRoutes.post('/users/add-address', addAddressHandler);
       protectedRoutes.post('/users/send-document', sendDocumentsHandler);
       protectedRoutes.put('/admin/:userId/compliance',{ preHandler: roleMiddleware,},manageComplianceHandler );
+      protectedRoutes.get('/admin/phases', getPhasesHandler); 
+      protectedRoutes.post('/admin/create-enterprise',{ preHandler: roleMiddleware,}, createEnterpriseHandler); 
+      protectedRoutes.get('/admin/get-enterprise',{ preHandler: roleMiddleware,}, getAllEnterprisesHandler); 
+      protectedRoutes.post('/admin/link-enterprise',{ preHandler: roleMiddleware,}, linkEnterpriseToUserHandler); 
+      protectedRoutes.get('/admin/get-all-users',{ preHandler: roleMiddleware,}, getAllUsersHandler); 
     },
   );
 }

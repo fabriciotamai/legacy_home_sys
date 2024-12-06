@@ -1,25 +1,14 @@
-import type { Enterprise, Prisma, Address as PrismaAddress, User as PrismaUser } from '@prisma/client';
+
+
+import { Prisma, Address as PrismaAddress, User as PrismaUser, User } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
-import type { AdminRepository } from '../admin-repository';
+import { AdminRepository } from '../admin-repository';
 
 export class PrismaAdminRepository implements AdminRepository {
   
   async create(data: Prisma.UserCreateInput): Promise<PrismaUser> {
     return await prisma.user.create({ data });
   }
-
-  async findEnterpriseByName(name: string) {
-    return await prisma.enterprise.findFirst({
-      where: { name },
-    });
-  }
-
-  async createEnterprise(data: Prisma.EnterpriseCreateInput): Promise<Enterprise> {
-    return await prisma.enterprise.create({
-      data,
-    });
-  }
-  
 
   
   async findByEmail(email: string): Promise<PrismaUser | null> {
@@ -32,6 +21,13 @@ export class PrismaAdminRepository implements AdminRepository {
   async findByUsername(username: string): Promise<PrismaUser | null> {
     return await prisma.user.findUnique({
       where: { username },
+    });
+  }
+
+  async findAllUsers(): Promise<User[]> {
+    return await prisma.user.findMany({
+      where: { isActive: true }, 
+      orderBy: { createdAt: 'desc' }, 
     });
   }
 
@@ -57,7 +53,7 @@ export class PrismaAdminRepository implements AdminRepository {
         ...data,
         user: {
           connect: {
-            id: userId, 
+            id: userId,
           },
         },
       },

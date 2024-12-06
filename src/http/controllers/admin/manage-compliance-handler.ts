@@ -16,10 +16,8 @@ export async function manageComplianceHandler(
     
     const { userId } = request.params as { userId: string };
 
-    
     const body = manageComplianceSchema.parse(request.body);
 
-    
     const manageComplianceUseCase = makeManageComplianceUseCase();
 
     

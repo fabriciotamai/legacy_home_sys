@@ -1,19 +1,47 @@
-import { AdminRepository } from '@/repositories/admin-repository';
+import { EnterpriseRepository } from '@/repositories/enterprise-repository';
+import { Enterprise } from '@prisma/client';
 
 interface CreateEnterpriseInput {
   name: string;
   description: string;
-  investmentType: 'MONEY' | 'PROPERTY'; 
-  isAvailable: boolean; 
+  investmentType: 'MONEY' | 'PROPERTY';
+  isAvailable: boolean;
+  currentPhaseId?: number; // Fase opcional
+  currentTaskId?: number; // Tarefa opcional
+  constructionType: string;
+  fundingAmount: number;
+  transferAmount: number;
+  postalCode: string;
+  city: string;
+  squareMeterValue: number;
+  area: number;
+  floors?: number;
+  completionDate?: Date;
 }
 
 export class CreateEnterpriseUseCase {
-  constructor(private readonly adminRepository: AdminRepository) {}
+  constructor(private readonly enterpriseRepository: EnterpriseRepository) {}
 
-  async execute(input: CreateEnterpriseInput): Promise<void> {
-    const { name, description, investmentType, isAvailable } = input;
+  async execute(input: CreateEnterpriseInput): Promise<Enterprise> {
+    const {
+      name,
+      description,
+      investmentType,
+      isAvailable,
+      currentPhaseId,
+      currentTaskId,
+      constructionType,
+      fundingAmount,
+      transferAmount,
+      postalCode,
+      city,
+      squareMeterValue,
+      area,
+      floors,
+      completionDate,
+    } = input;
 
-    
+    // Validações obrigatórias
     if (!name || !description) {
       throw new Error('Nome e descrição são obrigatórios.');
     }
@@ -22,19 +50,63 @@ export class CreateEnterpriseUseCase {
       throw new Error('Tipo de investimento inválido.');
     }
 
-    
-    const existingEnterprise = await this.adminRepository.findEnterpriseByName(name);
+    if (!constructionType) {
+      throw new Error('O tipo de construção é obrigatório.');
+    }
+
+    if (fundingAmount <= 0) {
+      throw new Error('O valor de aporte deve ser maior que zero.');
+    }
+
+    if (area <= 0) {
+      throw new Error('A metragem total deve ser maior que zero.');
+    }
+
+    // Verificar se o nome do empreendimento já existe
+    const existingEnterprise = await this.enterpriseRepository.findByName(name);
     if (existingEnterprise) {
       throw new Error('Já existe um empreendimento com esse nome.');
     }
 
-    
-    await this.adminRepository.createEnterprise({
+    // Validações da fase e tarefa, se fornecidas
+    if (currentPhaseId) {
+      const phase = await this.enterpriseRepository.findPhaseById(currentPhaseId);
+      if (!phase) {
+        throw new Error(`A fase com ID ${currentPhaseId} especificada não existe.`);
+      }
+
+      if (currentTaskId) {
+        const task = await this.enterpriseRepository.findTaskById(currentTaskId);
+        if (!task) {
+          throw new Error(`A tarefa com ID ${currentTaskId} especificada não existe.`);
+        }
+
+        if (task.phaseId !== currentPhaseId) {
+          throw new Error(`A tarefa com ID ${currentTaskId} não pertence à fase especificada.`);
+        }
+      }
+    }
+
+    // Criar o empreendimento com associações opcionais
+    const enterprise = await this.enterpriseRepository.create({
       name,
       description,
       investmentType,
       isAvailable,
-      status: 'NEW', 
+      status: 'NEW',
+      currentPhase: currentPhaseId ? { connect: { id: currentPhaseId } } : undefined,
+      currentTask: currentTaskId ? { connect: { id: currentTaskId } } : undefined,
+      constructionType,
+      fundingAmount,
+      transferAmount,
+      postalCode,
+      city,
+      squareMeterValue,
+      area,
+      floors,
+      completionDate,
     });
+
+    return enterprise;
   }
 }

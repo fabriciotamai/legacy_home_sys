@@ -6,8 +6,8 @@ interface CreateEnterpriseInput {
   description: string;
   investmentType: 'MONEY' | 'PROPERTY';
   isAvailable: boolean;
-  currentPhaseId?: number; // Fase opcional
-  currentTaskId?: number; // Tarefa opcional
+  currentPhaseId?: number; 
+  currentTaskId?: number; 
   constructionType: string;
   fundingAmount: number;
   transferAmount: number;
@@ -41,7 +41,7 @@ export class CreateEnterpriseUseCase {
       completionDate,
     } = input;
 
-    // Validações obrigatórias
+    
     if (!name || !description) {
       throw new Error('Nome e descrição são obrigatórios.');
     }
@@ -62,13 +62,13 @@ export class CreateEnterpriseUseCase {
       throw new Error('A metragem total deve ser maior que zero.');
     }
 
-    // Verificar se o nome do empreendimento já existe
+    
     const existingEnterprise = await this.enterpriseRepository.findByName(name);
     if (existingEnterprise) {
       throw new Error('Já existe um empreendimento com esse nome.');
     }
 
-    // Validações da fase e tarefa, se fornecidas
+    
     if (currentPhaseId) {
       const phase = await this.enterpriseRepository.findPhaseById(currentPhaseId);
       if (!phase) {
@@ -87,7 +87,7 @@ export class CreateEnterpriseUseCase {
       }
     }
 
-    // Criar o empreendimento com associações opcionais
+    
     const enterprise = await this.enterpriseRepository.create({
       name,
       description,

@@ -12,11 +12,7 @@ export interface EnterpriseRepository {
   
   findById(enterpriseId: number): Promise<Enterprise | null>;
   findByName(name: string): Promise<Enterprise | null>;
-  findAll(filters: {
-    status?: EnterpriseStatus;
-    investmentType?: 'MONEY' | 'PROPERTY';
-    isAvailable?: boolean;
-  }): Promise<Enterprise[]>;
+  findAll(filters: { status?: EnterpriseStatus;  investmentType?: 'MONEY' | 'PROPERTY'; isAvailable?: boolean;  }): Promise<Enterprise[]>;
   create(data: Prisma.EnterpriseCreateInput): Promise<Enterprise>;
   update(
     enterpriseId: number,
@@ -33,6 +29,7 @@ export interface EnterpriseRepository {
     userId: number,
     enterpriseId: number
   ): Promise<ContractInterest>;
+    findByUserId(userId: number): Promise<Enterprise[]>;
 
 
 

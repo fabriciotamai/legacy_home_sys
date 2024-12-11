@@ -1,5 +1,4 @@
 
-
 import { prisma } from '@/lib/prisma';
 import {
   ContractInterest,
@@ -12,9 +11,6 @@ import {
 import { EnterpriseRepository } from '../enterprise-repository';
 
 export class PrismaEnterpriseRepository implements EnterpriseRepository {
-  
-
-  
   async findById(enterpriseId: number): Promise<Enterprise | null> {
     return await prisma.enterprise.findUnique({
       where: { id: enterpriseId },
@@ -114,6 +110,36 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
         },
       });
     }
+  }
+
+  async findByUserId(userId: number): Promise<Enterprise[]> {
+    return await prisma.enterprise.findMany({
+      where: {
+        OR: [
+          {
+            contracts: {
+              some: {
+                userId,
+              },
+            },
+          },
+          {
+            contractInterests: {
+              some: {
+                userId,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        currentPhase: true,
+        currentTask: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   

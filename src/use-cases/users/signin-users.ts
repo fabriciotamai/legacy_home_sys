@@ -26,19 +26,18 @@ export class SigninUsers {
 
     // Busca o usuário pelo email
     const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      throw new Error('Credenciais inválidas.');
-    }
 
-    // Verifica se a senha está correta
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new Error('Credenciais inválidas.');
+    // Verifica se o usuário existe e se a senha é válida
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw {
+        status: 401,
+        message: 'E-mail ou senha estão incorretos.', // Mensagem clara e específica
+      };
     }
 
     // Incrementa a versão do token no banco de dados
     const updatedUser = await this.userRepository.updateUser(user.id, {
-      tokenVersion: user.tokenVersion + 1, // Incrementa o tokenVersion
+      tokenVersion: user.tokenVersion + 1,
     });
 
     // Gera o token com a nova versão do token
@@ -46,7 +45,7 @@ export class SigninUsers {
       id: updatedUser.id,
       email: updatedUser.email,
       role: updatedUser.role,
-      tokenVersion: updatedUser.tokenVersion, // Usa o tokenVersion atualizado
+      tokenVersion: updatedUser.tokenVersion,
     });
 
     // Retorna o token e os dados do usuário

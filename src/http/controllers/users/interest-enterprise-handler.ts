@@ -8,15 +8,15 @@ export async function interestEnterpriseHandler(
 ): Promise<void> {
   const interestSchema = z.object({
     enterpriseId: z.number(), 
-    userId: z.number().optional(), 
   });
 
   try {
-    const { enterpriseId, userId } = interestSchema.parse(request.body);
+    const { enterpriseId } = interestSchema.parse(request.body);
 
     const interestEnterpriseUseCase = makeInterestEnterpriseUseCase();
 
-    const effectiveUserId = userId || request.user?.id; 
+    
+    const effectiveUserId = request.user?.id;
 
     if (!effectiveUserId) {
       return reply.status(400).send({ message: 'Usuário não autenticado.' });

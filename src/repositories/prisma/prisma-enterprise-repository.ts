@@ -112,8 +112,8 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     }
   }
 
-  async findByUserId(userId: number): Promise<Enterprise[]> {
-    return await prisma.enterprise.findMany({
+  async findByUserId(userId: number): Promise<(Enterprise & { interestStatus?: string })[]> {
+    const enterprises = await prisma.enterprise.findMany({
       where: {
         OR: [
           {
@@ -135,12 +135,27 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       include: {
         currentPhase: true,
         currentTask: true,
+        contractInterests: {
+          where: {
+            userId, 
+          },
+          select: {
+            status: true, 
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
+  
+    
+    return enterprises.map((enterprise) => ({
+      ...enterprise,
+      interestStatus: enterprise.contractInterests[0]?.status || null, 
+    }));
   }
+  
 
   
 }

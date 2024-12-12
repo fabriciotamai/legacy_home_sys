@@ -13,6 +13,7 @@ import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
+import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
 
 export async function appRoutes(app: FastifyInstance): Promise<void> {
   app.register(async (publicRoutes) => {
@@ -36,6 +37,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
       protectedRoutes.post('/users/add-address', addAddressHandler);
       protectedRoutes.post('/users/send-document', sendDocumentsHandler);
       protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
+      protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);
  
     },
   );

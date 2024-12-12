@@ -3,15 +3,12 @@ import { prisma } from '../src/lib/prisma';
 export const seedPhasesIfNeeded = async () => {
   console.log('Verificando necessidade de seed de fases...');
 
-  
   const existingPhase = await prisma.phase.findFirst();
 
   if (!existingPhase) {
-
     const startDate = new Date();
     const endDate = new Date(new Date().setFullYear(startDate.getFullYear() + 1));
 
-    
     const phases = [
       {
         phaseName: 'Etapa 1',
@@ -84,7 +81,6 @@ export const seedPhasesIfNeeded = async () => {
       },
     ];
 
-    
     for (const phase of phases) {
       await prisma.phase.create({
         data: {
@@ -97,7 +93,6 @@ export const seedPhasesIfNeeded = async () => {
             create: phase.tasks.map((task) => ({
               taskName: task.taskName,
               description: task.description,
-              isCompleted: false, 
             })),
           },
         },

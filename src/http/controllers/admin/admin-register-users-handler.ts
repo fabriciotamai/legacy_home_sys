@@ -34,7 +34,7 @@ export async function adminRegisterUsersHandler(
 
     await adminRegisterUsersUseCase.execute({
       ...validatedData,
-      birthDate: validatedData.birthDate ? new Date(validatedData.birthDate) : undefined, 
+      birthDate: validatedData.birthDate ? new Date(validatedData.birthDate).toISOString() : undefined, 
     });
 
     reply.status(201).send({ message: 'Usuário registrado com sucesso!' });

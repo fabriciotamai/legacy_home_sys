@@ -4,6 +4,7 @@ import {
   ContractInterest,
   Enterprise,
   EnterpriseStatus,
+  InterestStatus,
   Phase,
   Prisma,
   Task
@@ -25,6 +26,56 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   async findByName(name: string): Promise<Enterprise | null> {
     return await prisma.enterprise.findFirst({
       where: { name },
+    });
+  }
+
+  
+
+  async findWithInterests(): Promise<Enterprise[]> {
+    return await prisma.enterprise.findMany({
+      where: {
+        contractInterests: {
+          some: {}, 
+        },
+      },
+      include: {
+        contractInterests: {
+          include: {
+            user: true, 
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findInterestById(interestId: string): Promise<ContractInterest | null> {
+    return await prisma.contractInterest.findUnique({
+      where: { interestId }, 
+    });
+  }
+
+  async removeOtherInterests(enterpriseId: number, approvedInterestId: string): Promise<void> {
+    await prisma.contractInterest.deleteMany({
+      where: {
+        enterpriseId, 
+        interestId: {
+          not: approvedInterestId, 
+        },
+      },
+    });
+  }
+  
+
+  async updateInterestStatus(
+    interestId: string, 
+    status: InterestStatus
+  ): Promise<ContractInterest> {
+    return await prisma.contractInterest.update({
+      where: { interestId }, 
+      data: { status },
     });
   }
 
@@ -112,6 +163,8 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     }
   }
 
+
+
   async findByUserId(userId: number): Promise<(Enterprise & { interestStatus?: string })[]> {
     const enterprises = await prisma.enterprise.findMany({
       where: {
@@ -155,6 +208,8 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       interestStatus: enterprise.contractInterests[0]?.status || null, 
     }));
   }
+
+  
   
 
   

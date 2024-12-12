@@ -1,5 +1,5 @@
-import { AdminRepository } from '@/repositories/admin-repository';
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
+import { UsersRepository } from '@/repositories/user-repository';
 import { ContractInterest } from '@prisma/client';
 
 interface InterestEnterpriseInput {
@@ -9,7 +9,7 @@ interface InterestEnterpriseInput {
 
 export class InterestEnterpriseUseCase {
   constructor(
-    private readonly adminRepository: AdminRepository,
+    private readonly usersRepository: UsersRepository,
     private readonly enterpriseRepository: EnterpriseRepository
   ) {}
 
@@ -17,7 +17,7 @@ export class InterestEnterpriseUseCase {
     const { userId, enterpriseId } = input;
 
     
-    const user = await this.adminRepository.findById(userId);
+    const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new Error('Usuário não encontrado.');
     }

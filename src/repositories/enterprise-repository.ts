@@ -1,18 +1,21 @@
-
-
 import {
   ContractInterest,
   Enterprise,
   EnterpriseStatus,
+  InterestStatus,
   Phase,
   Prisma,
-  Task
+  Task,
 } from '@prisma/client';
+
 export interface EnterpriseRepository {
-  
   findById(enterpriseId: number): Promise<Enterprise | null>;
   findByName(name: string): Promise<Enterprise | null>;
-  findAll(filters: { status?: EnterpriseStatus;  investmentType?: 'MONEY' | 'PROPERTY'; isAvailable?: boolean;  }): Promise<Enterprise[]>;
+  findAll(filters: {
+    status?: EnterpriseStatus;
+    investmentType?: 'MONEY' | 'PROPERTY';
+    isAvailable?: boolean;
+  }): Promise<Enterprise[]>;
   create(data: Prisma.EnterpriseCreateInput): Promise<Enterprise>;
   update(
     enterpriseId: number,
@@ -29,9 +32,15 @@ export interface EnterpriseRepository {
     userId: number,
     enterpriseId: number
   ): Promise<ContractInterest>;
-    findByUserId(userId: number): Promise<Enterprise[]>;
-
-
-
-  
+  findByUserId(userId: number): Promise<Enterprise[]>;
+  findInterestById(interestId: string): Promise<ContractInterest | null>;
+  updateInterestStatus(
+    interestId: string, 
+    status: InterestStatus
+  ): Promise<ContractInterest>;
+  removeOtherInterests(
+    enterpriseId: number,
+    approvedInterestId: string
+  ): Promise<void>;
+  findWithInterests(): Promise<Enterprise[]>;
 }

@@ -13,13 +13,11 @@ export class GetAllEnterprisesUseCase {
   async execute(filters: GetAllEnterprisesInput): Promise<Enterprise[]> {
     const { status, investmentType, isAvailable } = filters;
 
-    
     const queryFilters = {
       status: status || undefined,
       investmentType: investmentType || undefined,
       isAvailable: isAvailable !== undefined ? isAvailable : undefined,
-    };
-
+    };    
     
     return this.enterpriseRepository.findAll(queryFilters);
   }

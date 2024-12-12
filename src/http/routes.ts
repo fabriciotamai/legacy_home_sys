@@ -7,9 +7,11 @@ import { userSiginHandler } from '@/http/controllers/users/user-sigin-handler';
 import { authMiddleware } from '@/middlewares/auth/auth-middleware';
 import { roleMiddleware } from '@/middlewares/auth/role-middleware';
 import { FastifyInstance } from 'fastify';
+import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
 import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
+import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-interest-with-enterprise-handler';
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
@@ -30,6 +32,8 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
       protectedRoutes.get('/admin/get-enterprise',{ preHandler: roleMiddleware,}, getAllEnterprisesHandler); 
       protectedRoutes.post('/admin/link-enterprise',{ preHandler: roleMiddleware,}, linkEnterpriseToUserHandler); 
       protectedRoutes.get('/admin/get-all-users',{ preHandler: roleMiddleware,}, getAllUsersHandler);
+      protectedRoutes.get('/admin/get-interest-enterprise',{ preHandler: roleMiddleware,}, getEnterprisesWithInterestsHandler);
+      protectedRoutes.post('/admin/accept-or-reject-enterprise',{ preHandler: roleMiddleware,}, acceptOrRejectInterestHandler);
 
       
       // ------------------------------- USERS-------------------------------------------------------

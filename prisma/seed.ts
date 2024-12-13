@@ -14,6 +14,7 @@ export const seedPhasesIfNeeded = async () => {
         phaseName: 'Etapa 1',
         description: 'Preparação inicial.',
         order: 1,
+        progress: 0.0, 
         tasks: [
           { taskName: 'Topografia', description: 'Preparação do terreno.' },
           { taskName: 'Hidráulica subterrânea', description: 'Instalações iniciais.' },
@@ -25,6 +26,7 @@ export const seedPhasesIfNeeded = async () => {
         phaseName: 'Etapa 2',
         description: 'Construção básica.',
         order: 2,
+        progress: 0.0,
         tasks: [
           { taskName: 'Alvenaria', description: 'Construção das paredes.' },
           { taskName: 'Estruturação', description: 'Reforço estrutural.' },
@@ -35,6 +37,7 @@ export const seedPhasesIfNeeded = async () => {
         phaseName: 'Etapa 3',
         description: 'Instalações e inspeções.',
         order: 3,
+        progress: 0.0,
         tasks: [
           { taskName: 'Inspeções', description: 'Inspeções iniciais da obra.' },
           { taskName: 'Instalações hidráulicas', description: 'Sistema de água e esgoto.' },
@@ -46,6 +49,7 @@ export const seedPhasesIfNeeded = async () => {
         phaseName: 'Etapa 4',
         description: 'Acabamento interno.',
         order: 4,
+        progress: 0.0,
         tasks: [
           { taskName: 'Isolamento térmico das paredes', description: 'Proteção contra variação térmica.' },
           { taskName: 'Drywall', description: 'Montagem de divisórias internas.' },
@@ -58,6 +62,7 @@ export const seedPhasesIfNeeded = async () => {
         phaseName: 'Etapa 5',
         description: 'Acabamento externo.',
         order: 5,
+        progress: 0.0,
         tasks: [
           { taskName: 'Isolamento térmico do telhado', description: 'Proteção do telhado.' },
           { taskName: 'Pisos', description: 'Instalação de pisos.' },
@@ -70,6 +75,7 @@ export const seedPhasesIfNeeded = async () => {
         phaseName: 'Etapa 6',
         description: 'Finalização e entrega.',
         order: 6,
+        progress: 0.0,
         tasks: [
           { taskName: 'Portas', description: 'Instalação das portas externas.' },
           { taskName: 'Prateleiras', description: 'Instalação de prateleiras.' },
@@ -87,17 +93,19 @@ export const seedPhasesIfNeeded = async () => {
           phaseName: phase.phaseName,
           description: phase.description,
           order: phase.order,
+          progress: phase.progress, 
           startDate,
           endDate,
           tasks: {
             create: phase.tasks.map((task) => ({
               taskName: task.taskName,
               description: task.description,
+              isCompleted: false, 
             })),
           },
         },
       });
-      console.log(`Fase "${phase.phaseName}" criada com tarefas.`);
+      console.log(`Fase "${phase.phaseName}" criada com progresso inicial ${phase.progress}%.`);
     }
 
     console.log('Seed concluído com sucesso.');

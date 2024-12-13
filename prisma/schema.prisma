@@ -132,7 +132,7 @@ model Enterprise {
   city              String
   squareMeterValue  Float
   area              Float
-  progress          Float                  @default(0.0)
+  progress          Float                  @default(0.0) // Progresso geral do empreendimento (0-100)
   floors            Int?
   completionDate    DateTime?
   currentPhaseId    Int?
@@ -146,6 +146,33 @@ model Enterprise {
   updatedAt         DateTime               @updatedAt
 
   @@index([status, investmentType])
+}
+
+model Phase {
+  id          Int          @id @default(autoincrement())
+  phaseName   String
+  description String
+  order       Int
+  startDate   DateTime
+  endDate     DateTime?
+  progress    Float        @default(0.0) // Progresso da fase (0-100)
+  tasks       Task[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Enterprise  Enterprise[]
+}
+
+model Task {
+  id           Int                    @id @default(autoincrement())
+  taskName     String
+  description  String
+  phaseId      Int
+  phase        Phase                  @relation(fields: [phaseId], references: [id])
+  taskStatuses EnterpriseTaskStatus[]
+  isCompleted  Boolean                @default(false) // Status de conclusão da tarefa
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  Enterprise   Enterprise[]
 }
 
 model Contract {
@@ -174,31 +201,6 @@ model ContractSignature {
   signedAt   DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-}
-
-model Phase {
-  id          Int          @id @default(autoincrement())
-  phaseName   String
-  description String
-  order       Int
-  startDate   DateTime
-  endDate     DateTime?
-  tasks       Task[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  Enterprise  Enterprise[]
-}
-
-model Task {
-  id           Int                    @id @default(autoincrement())
-  taskName     String
-  description  String
-  phaseId      Int
-  phase        Phase                  @relation(fields: [phaseId], references: [id])
-  taskStatuses EnterpriseTaskStatus[]
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  Enterprise   Enterprise[]
 }
 
 model ContractInterest {

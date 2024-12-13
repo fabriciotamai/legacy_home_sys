@@ -12,55 +12,216 @@ enum Role {
   USER
 }
 
-model User {
-  id            Int        @id @default(autoincrement())
-  email         String     @unique
-  username      String     @unique
-  password      String
-  cpf           String?    @unique
-  address       String?
-  phone         String?
-  documentFront String?
-  documentBack  String?
-  role          Role       @default(USER)
-  isApproved    Boolean    @default(false)
-  twoFA         String?
-  isActive      Boolean    @default(true)
-  contracts     Contract[]
+enum UserType {
+  INDIVIDUAL
+  BUSINESS
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum ContractType {
+  MONEY
+  PROPERTY
+  HYBRID
+}
+
+enum InvestmentType {
+  MONEY
+  PROPERTY
+}
+
+enum InterestStatus {
+  PENDING
+  IN_CONTACT
+  APPROVED
+  REJECTED
+}
+
+enum ComplianceStatus {
+  PENDING_ADDRESS
+  PENDING_DOCUMENTS
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum DocumentType {
+  RG
+  CNH
+  PASSPORT
+}
+
+enum EnterpriseStatus {
+  NEW
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+enum ContractTemplateType {
+  TYPE1
+  TYPE2
+  TYPE3
+}
+
+enum ContractStatus {
+  PENDING
+  SIGNED
+  CANCELLED
+}
+
+model User {
+  id                 Int                 @id @default(autoincrement())
+  email              String              @unique
+  username           String              @unique
+  password           String
+  firstName          String
+  lastName           String
+  birthDate          DateTime?
+  userType           UserType
+  numberDocument     String?             @unique
+  phone              String?
+  documentType       DocumentType?
+  documentFront      String?
+  documentBack       String?
+  proofOfAddress     String?
+  incomeTaxProof     String?
+  mustChangePassword Boolean             @default(true)
+  tokenVersion       Int                 @default(0)
+  role               Role                @default(USER)
+  isApproved         Boolean             @default(false)
+  complianceStatus   ComplianceStatus    @default(PENDING_ADDRESS)
+  twoFA              String?
+  isActive           Boolean             @default(true)
+  addresses          Address[]
+  contracts          Contract[]
+  contractInterests  ContractInterest[]
+  contractSignatures ContractSignature[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([isApproved])
+}
+
+model Address {
+  id           Int      @id @default(autoincrement())
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Enterprise {
-  id          Int        @id @default(autoincrement())
-  name        String
-  description String
-  status      String
-  contract    Contract[]
-  phases      Phase[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-}
+  id                Int                    @id @default(autoincrement())
+  name              String                 @unique
+  description       String
+  status            EnterpriseStatus       @default(NEW)
+  isAvailable       Boolean                @default(false)
+  investmentType    InvestmentType
+  constructionType  String
+  fundingAmount     Float
+  transferAmount    Float
+  postalCode        String
+  city              String
+  squareMeterValue  Float
+  area              Float
+  progress          Float                  @default(0.0) // Progresso geral do empreendimento (0-100)
+  floors            Int?
+  completionDate    DateTime?
+  currentPhaseId    Int?
+  currentTaskId     Int?
+  currentPhase      Phase?                 @relation(fields: [currentPhaseId], references: [id])
+  currentTask       Task?                  @relation(fields: [currentTaskId], references: [id])
+  contracts         Contract[]
+  contractInterests ContractInterest[]
+  taskStatuses      EnterpriseTaskStatus[]
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
 
-model Contract {
-  id           String     @id @default(uuid())
-  type         String
-  percentage   Float
-  user         User?      @relation(fields: [userId], references: [id])
-  userId       Int?
-  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
-  enterpriseId Int
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  @@index([status, investmentType])
 }
 
 model Phase {
-  id           Int        @id @default(autoincrement())
-  phaseName    String
+  id          Int          @id @default(autoincrement())
+  phaseName   String
+  description String
+  order       Int
+  startDate   DateTime
+  endDate     DateTime?
+  progress    Float        @default(0.0) // Progresso da fase (0-100)
+  tasks       Task[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Enterprise  Enterprise[]
+}
+
+model Task {
+  id           Int                    @id @default(autoincrement())
+  taskName     String
   description  String
-  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  phaseId      Int
+  phase        Phase                  @relation(fields: [phaseId], references: [id])
+  taskStatuses EnterpriseTaskStatus[]
+  isCompleted  Boolean                @default(false) // Status de conclusão da tarefa
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  Enterprise   Enterprise[]
+}
+
+model Contract {
+  id           String               @id @default(uuid())
+  type         ContractType
+  templateType ContractTemplateType
+  documentUrl  String?
+  status       ContractStatus       @default(PENDING)
+  signedAt     DateTime?
+  user         User                 @relation(fields: [userId], references: [id])
+  userId       Int
+  enterprise   Enterprise           @relation(fields: [enterpriseId], references: [id])
   enterpriseId Int
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  signatures   ContractSignature[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+}
+
+model ContractSignature {
+  id         Int       @id @default(autoincrement())
+  contract   Contract  @relation(fields: [contractId], references: [id])
+  contractId String
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     Int?
+  role       Role
+  signedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model ContractInterest {
+  interestId   String         @id @default(dbgenerated("substring(md5(random()::text), 1, 8)"))
+  user         User           @relation(fields: [userId], references: [id])
+  userId       Int
+  enterprise   Enterprise     @relation(fields: [enterpriseId], references: [id])
+  enterpriseId Int
+  status       InterestStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+}
+
+model EnterpriseTaskStatus {
+  enterpriseId Int
+  taskId       Int
+  isCompleted  Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+
+  enterprise Enterprise @relation(fields: [enterpriseId], references: [id])
+  task       Task       @relation(fields: [taskId], references: [id])
+
+  @@id([enterpriseId, taskId])
 }

@@ -2,17 +2,13 @@ import { makeChangePassword } from '@/use-cases/factories/users/make-change-pass
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function changePasswordHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function changePasswordHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const changePasswordSchema = z.object({
     currentPassword: z.string().min(6, 'A senha atual deve ter pelo menos 6 caracteres.'),
     newPassword: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres.'),
   });
 
   try {
-    
     if (!request.user) {
       console.error('Erro: Usuário não autenticado.');
       return reply.status(401).send({ error: 'Usuário não autenticado.' });

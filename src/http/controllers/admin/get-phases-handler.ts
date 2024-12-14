@@ -1,10 +1,7 @@
 import { makeGetPhasesUseCase } from '@/use-cases/factories/admin/make-get-phases-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function getPhasesHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function getPhasesHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const getPhasesUseCase = makeGetPhasesUseCase();
 

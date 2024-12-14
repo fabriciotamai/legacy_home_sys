@@ -2,16 +2,12 @@ import { makeAcceptOrRejectInterestUseCase } from '@/use-cases/factories/admin/m
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-
 const acceptOrRejectZodSchema = z.object({
-  interestId: z.string().length(8), 
+  interestId: z.string().length(8),
   status: z.enum(['APPROVED', 'REJECTED']),
 });
 
-export async function acceptOrRejectInterestHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function acceptOrRejectInterestHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { interestId, status } = acceptOrRejectZodSchema.parse(request.body);
 

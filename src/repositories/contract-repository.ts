@@ -1,5 +1,3 @@
-// src/repositories/contract-repository.ts
-
 import { Contract, Prisma } from '@prisma/client';
 
 export interface ContractRepository {

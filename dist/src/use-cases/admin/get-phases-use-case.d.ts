@@ -1,4 +1,4 @@
-import { EnterpriseRepository } from '@/repositories/enterprise-repository';
+import { EnterpriseRepository } from "@/repositories/enterprise-repository";
 export declare class GetPhasesUseCase {
     private readonly enterpriseRepository;
     constructor(enterpriseRepository: EnterpriseRepository);

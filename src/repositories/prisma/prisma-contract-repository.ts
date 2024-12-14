@@ -12,6 +12,4 @@ export class PrismaContractRepository implements ContractRepository {
   async findById(contractId: string): Promise<Contract | null> {
     return await prisma.contract.findUnique({ where: { id: contractId } });
   }
-
-  // Outros métodos relacionados a contratos
 }

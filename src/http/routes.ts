@@ -14,6 +14,7 @@ import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
 import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-interest-with-enterprise-handler';
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
+import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
 
@@ -23,26 +24,31 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     publicRoutes.post('/users/signin', userSiginHandler);
   });
 
-  app.register(
-    async (protectedRoutes) => {
-      protectedRoutes.addHook('preHandler', authMiddleware); 
-      protectedRoutes.put('/admin/:userId/compliance',{ preHandler: roleMiddleware,},manageComplianceHandler );
-      protectedRoutes.get('/admin/phases', getPhasesHandler); 
-      protectedRoutes.post('/admin/create-enterprise',{ preHandler: roleMiddleware,}, createEnterpriseHandler); 
-      protectedRoutes.get('/admin/get-enterprise',{ preHandler: roleMiddleware,}, getAllEnterprisesHandler); 
-      protectedRoutes.post('/admin/link-enterprise',{ preHandler: roleMiddleware,}, linkEnterpriseToUserHandler); 
-      protectedRoutes.get('/admin/get-all-users',{ preHandler: roleMiddleware,}, getAllUsersHandler);
-      protectedRoutes.get('/admin/get-interest-enterprise',{ preHandler: roleMiddleware,}, getEnterprisesWithInterestsHandler);
-      protectedRoutes.post('/admin/accept-or-reject-enterprise',{ preHandler: roleMiddleware,}, acceptOrRejectInterestHandler);
+  app.register(async (protectedRoutes) => {
+    protectedRoutes.addHook('preHandler', authMiddleware);
+    protectedRoutes.put('/admin/:userId/compliance', { preHandler: roleMiddleware }, manageComplianceHandler);
+    protectedRoutes.get('/admin/phases', getPhasesHandler);
+    protectedRoutes.post('/admin/create-enterprise', { preHandler: roleMiddleware }, createEnterpriseHandler);
+    protectedRoutes.get('/admin/get-enterprise', { preHandler: roleMiddleware }, getAllEnterprisesHandler);
+    protectedRoutes.post('/admin/link-enterprise', { preHandler: roleMiddleware }, linkEnterpriseToUserHandler);
+    protectedRoutes.get('/admin/get-all-users', { preHandler: roleMiddleware }, getAllUsersHandler);
+    protectedRoutes.get(
+      '/admin/get-interest-enterprise',
+      { preHandler: roleMiddleware },
+      getEnterprisesWithInterestsHandler,
+    );
+    protectedRoutes.post(
+      '/admin/accept-or-reject-enterprise',
+      { preHandler: roleMiddleware },
+      acceptOrRejectInterestHandler,
+    );
+    protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
 
-      
-      // ------------------------------- USERS-------------------------------------------------------
-      protectedRoutes.post('/users/change-password', changePasswordHandler);
-      protectedRoutes.post('/users/add-address', addAddressHandler);
-      protectedRoutes.post('/users/send-document', sendDocumentsHandler);
-      protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
-      protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);
- 
-    },
-  );
+    // ------------------------------- USERS-------------------------------------------------------
+    protectedRoutes.post('/users/change-password', changePasswordHandler);
+    protectedRoutes.post('/users/add-address', addAddressHandler);
+    protectedRoutes.post('/users/send-document', sendDocumentsHandler);
+    protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
+    protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);
+  });
 }

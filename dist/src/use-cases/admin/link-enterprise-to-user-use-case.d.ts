@@ -1,6 +1,6 @@
-import { AdminRepository } from '@/repositories/admin-repository';
-import { EnterpriseRepository } from '@/repositories/enterprise-repository';
-import { ContractInterest } from '@prisma/client';
+import { AdminRepository } from "@/repositories/admin-repository";
+import { EnterpriseRepository } from "@/repositories/enterprise-repository";
+import { ContractInterest } from "@prisma/client";
 interface LinkUserToEnterpriseInput {
     userId: number;
     enterpriseId: number;

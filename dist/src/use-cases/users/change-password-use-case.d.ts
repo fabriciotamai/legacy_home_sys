@@ -1,4 +1,4 @@
-import { UsersRepository } from '@/repositories/user-repository';
+import { UsersRepository } from "@/repositories/user-repository";
 interface ChangePasswordInput {
     userId: number;
     currentPassword: string;

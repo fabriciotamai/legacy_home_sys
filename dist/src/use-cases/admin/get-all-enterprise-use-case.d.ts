@@ -1,8 +1,8 @@
-import { EnterpriseRepository } from '@/repositories/enterprise-repository';
-import { Enterprise, EnterpriseStatus } from '@prisma/client';
+import { EnterpriseRepository } from "@/repositories/enterprise-repository";
+import { Enterprise, EnterpriseStatus } from "@prisma/client";
 interface GetAllEnterprisesInput {
     status?: EnterpriseStatus;
-    investmentType?: 'MONEY' | 'PROPERTY';
+    investmentType?: "MONEY" | "PROPERTY";
     isAvailable?: boolean;
 }
 export declare class GetAllEnterprisesUseCase {

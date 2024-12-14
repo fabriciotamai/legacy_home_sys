@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,9 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LinkUserToEnterpriseUseCase = void 0;
-class LinkUserToEnterpriseUseCase {
+export class LinkUserToEnterpriseUseCase {
     constructor(adminRepository, enterpriseRepository) {
         this.adminRepository = adminRepository;
         this.enterpriseRepository = enterpriseRepository;
@@ -20,15 +17,14 @@ class LinkUserToEnterpriseUseCase {
             const { userId, enterpriseId } = input;
             const user = yield this.adminRepository.findById(userId);
             if (!user) {
-                throw new Error('Usuário não encontrado.');
+                throw new Error("Usuário não encontrado.");
             }
             const enterprise = yield this.enterpriseRepository.findById(enterpriseId);
             if (!enterprise) {
-                throw new Error('Empreendimento não encontrado.');
+                throw new Error("Empreendimento não encontrado.");
             }
             const contractInterest = yield this.enterpriseRepository.linkUserToEnterprise(userId, enterpriseId);
             return contractInterest;
         });
     }
 }
-exports.LinkUserToEnterpriseUseCase = LinkUserToEnterpriseUseCase;

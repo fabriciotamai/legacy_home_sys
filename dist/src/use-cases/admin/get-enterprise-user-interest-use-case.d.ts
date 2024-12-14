@@ -1,5 +1,5 @@
-import { EnterpriseRepository } from '@/repositories/enterprise-repository';
-import { Enterprise } from '@prisma/client';
+import { EnterpriseRepository } from "@/repositories/enterprise-repository";
+import { Enterprise } from "@prisma/client";
 export declare class GetEnterprisesWithInterestsUseCase {
     private readonly enterpriseRepository;
     constructor(enterpriseRepository: EnterpriseRepository);

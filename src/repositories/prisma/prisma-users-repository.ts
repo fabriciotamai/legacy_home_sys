@@ -1,4 +1,3 @@
-
 import type { UsersRepository } from '@/repositories/user-repository';
 import type { Prisma, User as PrismaUser } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
@@ -21,8 +20,6 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-
-
   async findByUsername(username: string): Promise<PrismaUser | null> {
     return await prisma.user.findUnique({
       where: { username },
@@ -41,6 +38,4 @@ export class PrismaUsersRepository implements UsersRepository {
       data,
     });
   }
-
-
 }

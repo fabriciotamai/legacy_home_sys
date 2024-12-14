@@ -2,7 +2,7 @@ import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { ContractInterest } from '@prisma/client';
 
 interface AcceptOrRejectInterestInput {
-  interestId: string; // Ajustado para string
+  interestId: string;
   status: 'APPROVED' | 'REJECTED';
 }
 
@@ -17,17 +17,10 @@ export class AcceptOrRejectInterestUseCase {
       throw new Error('Interesse não encontrado.');
     }
 
-    const updatedInterest = await this.enterpriseRepository.updateInterestStatus(
-      interestId,
-      status
-    );
+    const updatedInterest = await this.enterpriseRepository.updateInterestStatus(interestId, status);
 
     if (status === 'APPROVED') {
-      
-      await this.enterpriseRepository.removeOtherInterests(
-        interest.enterpriseId,
-        interestId
-      );
+      await this.enterpriseRepository.removeOtherInterests(interest.enterpriseId, interestId);
     }
 
     return updatedInterest;

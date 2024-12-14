@@ -4,8 +4,6 @@ import fastify from 'fastify';
 
 export const app = fastify({ logger: true });
 
-
 app.register(fastifyMultipart);
-
 
 app.register(appRoutes);

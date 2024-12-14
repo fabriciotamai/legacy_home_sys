@@ -19,25 +19,19 @@ export class ManageComplianceUseCase {
   async execute(input: ManageComplianceInput): Promise<ManageComplianceOutput> {
     const { userId, action, reason } = input;
 
-    
     const user = await this.adminRepository.findById(userId);
     if (!user) {
       throw new Error(`Usuário não encontrado. ID: ${userId}`);
     }
 
-    
     this.validateAction(user, action, reason);
 
-    
     const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED';
     await this.adminRepository.updateUser(userId, {
       complianceStatus: newStatus,
       ...(action === 'reject' ? { rejectionReason: reason } : {}),
     });
 
-    
-  
-    
     return {
       userId,
       previousStatus: user.complianceStatus,
@@ -49,7 +43,7 @@ export class ManageComplianceUseCase {
   private validateAction(user: any, action: string, reason?: string): void {
     if (user.complianceStatus !== 'UNDER_REVIEW') {
       throw new Error(
-        `Ação inválida. O status atual do compliance é ${user.complianceStatus}. Só é possível ${action} usuários em revisão.`
+        `Ação inválida. O status atual do compliance é ${user.complianceStatus}. Só é possível ${action} usuários em revisão.`,
       );
     }
 

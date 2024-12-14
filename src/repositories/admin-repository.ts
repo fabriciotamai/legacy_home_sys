@@ -1,5 +1,3 @@
-
-
 import { Address, Prisma, User } from '@prisma/client';
 
 export interface AdminRepository {

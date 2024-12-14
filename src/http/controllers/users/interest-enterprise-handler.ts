@@ -2,12 +2,9 @@ import { makeInterestEnterpriseUseCase } from '@/use-cases/factories/users/make-
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function interestEnterpriseHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function interestEnterpriseHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const interestSchema = z.object({
-    enterpriseId: z.number(), 
+    enterpriseId: z.number(),
   });
 
   try {
@@ -15,7 +12,6 @@ export async function interestEnterpriseHandler(
 
     const interestEnterpriseUseCase = makeInterestEnterpriseUseCase();
 
-    
     const effectiveUserId = request.user?.id;
 
     if (!effectiveUserId) {

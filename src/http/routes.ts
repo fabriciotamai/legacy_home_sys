@@ -8,6 +8,7 @@ import { authMiddleware } from '@/middlewares/auth/auth-middleware';
 import { roleMiddleware } from '@/middlewares/auth/role-middleware';
 import { FastifyInstance } from 'fastify';
 import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-handler';
+import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
 import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
@@ -43,6 +44,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
       acceptOrRejectInterestHandler,
     );
     protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
+    protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
 
     // ------------------------------- USERS-------------------------------------------------------
     protectedRoutes.post('/users/change-password', changePasswordHandler);

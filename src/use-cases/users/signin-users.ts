@@ -15,6 +15,7 @@ interface LoginOutput {
     email: string;
     username: string;
     role: string;
+    complianceStatus: string;
   };
 }
 
@@ -52,6 +53,7 @@ export class SigninUsers {
         email: updatedUser.email,
         username: updatedUser.username,
         role: updatedUser.role,
+        complianceStatus: user.complianceStatus,
       },
     };
   }

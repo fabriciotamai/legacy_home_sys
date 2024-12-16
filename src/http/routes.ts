@@ -17,6 +17,7 @@ import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
+import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
 
 export async function appRoutes(app: FastifyInstance): Promise<void> {
@@ -51,6 +52,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
+    protectedRoutes.get('/users/me/data', getUserWithAddressHandler);
     protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);
   });
 }

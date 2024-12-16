@@ -1,4 +1,5 @@
 import type { UsersRepository } from '@/repositories/user-repository';
+import { PrismaUserWithAddress } from '@/types';
 import type { Prisma, User as PrismaUser } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 
@@ -36,6 +37,15 @@ export class PrismaUsersRepository implements UsersRepository {
     return await prisma.user.update({
       where: { id: userId },
       data,
+    });
+  }
+
+  async findUserWithAddress(id: number): Promise<PrismaUserWithAddress | null> {
+    return await prisma.user.findUnique({
+      where: { id },
+      include: {
+        addresses: true,
+      },
     });
   }
 }

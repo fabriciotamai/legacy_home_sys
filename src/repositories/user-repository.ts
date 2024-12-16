@@ -1,3 +1,4 @@
+import { PrismaUserWithAddress } from '@/types';
 import type { Prisma, User as PrismaUser } from '@prisma/client';
 
 export interface UsersRepository {
@@ -7,4 +8,5 @@ export interface UsersRepository {
   findById(userId: number): Promise<PrismaUser | null>;
   updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<PrismaUser>;
   updatePassword(userId: number, hashedPassword: string): Promise<PrismaUser>;
+  findUserWithAddress(id: number): Promise<PrismaUserWithAddress | null>;
 }

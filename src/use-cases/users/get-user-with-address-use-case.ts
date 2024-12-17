@@ -6,13 +6,14 @@ interface GetUserWithAddressOutput {
   username: string;
   firstName: string;
   lastName: string;
-  numberDocument: string | null; //
+  numberDocument: string | null;
   birthDate: string | null;
   userType: string;
   phone: string | null;
   documentFront: string | null;
   documentBack: string | null;
   proofOfAddress: string | null;
+  incomeTaxProof: string | null;
   complianceStatus: string;
   addresses: {
     id: number;
@@ -49,6 +50,7 @@ export class GetUserWithAddressUseCase {
       phone: user.phone ?? null,
       documentFront: user.documentFront ?? null,
       documentBack: user.documentBack ?? null,
+      incomeTaxProof: user.incomeTaxProof ?? null,
       proofOfAddress: user.proofOfAddress ?? null,
       complianceStatus: user.complianceStatus,
       addresses: user.addresses.map((address) => ({

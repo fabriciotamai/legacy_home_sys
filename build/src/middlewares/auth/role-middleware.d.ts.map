@@ -1,1 +1,0 @@
-{"version":3,"file":"role-middleware.d.ts","sourceRoot":"","sources":["../../../../src/middlewares/auth/role-middleware.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,cAAc,EAAE,MAAM,SAAS,CAAC;AAEvD,wBAAsB,cAAc,CAClC,OAAO,EAAE,cAAc,EACvB,KAAK,EAAE,YAAY,GAClB,OAAO,CAAC,IAAI,CAAC,CAOf"}

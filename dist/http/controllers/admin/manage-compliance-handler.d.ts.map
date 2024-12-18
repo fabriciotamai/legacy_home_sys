@@ -1,1 +1,0 @@
-{"version":3,"file":"manage-compliance-handler.d.ts","sourceRoot":"","sources":["../../../../src/http/controllers/admin/manage-compliance-handler.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,YAAY,EAAE,cAAc,EAAE,MAAM,SAAS,CAAC;AAGvD,wBAAsB,uBAAuB,CAC3C,OAAO,EAAE,cAAc,EACvB,KAAK,EAAE,YAAY,GAClB,OAAO,CAAC,IAAI,CAAC,CAoCf"}

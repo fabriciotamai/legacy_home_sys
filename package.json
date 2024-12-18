@@ -7,11 +7,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
     "lint": "eslint . --ext .ts,.js",
     "lint:fix": "eslint . --ext .ts,.js --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "prisma migrate deploy && prisma generate && tsc && tsc-alias",
+    "start": "node build/src/server.js"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +40,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.13.0",
     "prettier": "^3.4.2",
+    "tsc-alias": "^1.8.10",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.18.0"

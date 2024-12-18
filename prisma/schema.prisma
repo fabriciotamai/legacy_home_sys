@@ -118,48 +118,28 @@ model Address {
   updatedAt    DateTime @updatedAt
 }
 
-model Enterprise {
-  id                Int                    @id @default(autoincrement())
-  name              String                 @unique
-  description       String
-  status            EnterpriseStatus       @default(NEW)
-  isAvailable       Boolean                @default(false)
-  investmentType    InvestmentType
-  constructionType  String
-  fundingAmount     Float
-  transferAmount    Float
-  postalCode        String
-  city              String
-  squareMeterValue  Float
-  area              Float
-  progress          Float                  @default(0.0) // Progresso geral do empreendimento (0-100)
-  floors            Int?
-  completionDate    DateTime?
-  currentPhaseId    Int?
-  currentTaskId     Int?
-  currentPhase      Phase?                 @relation(fields: [currentPhaseId], references: [id])
-  currentTask       Task?                  @relation(fields: [currentTaskId], references: [id])
-  contracts         Contract[]
-  contractInterests ContractInterest[]
-  taskStatuses      EnterpriseTaskStatus[]
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-
-  @@index([status, investmentType])
+model Phase {
+  id                    Int                     @id @default(autoincrement())
+  phaseName             String
+  description           String
+  order                 Int
+  tasks                 Task[]
+  enterprises           Enterprise[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  EnterprisePhaseStatus EnterprisePhaseStatus[]
 }
 
-model Phase {
-  id          Int          @id @default(autoincrement())
-  phaseName   String
-  description String
-  order       Int
-  startDate   DateTime
-  endDate     DateTime?
-  progress    Float        @default(0.0) // Progresso da fase (0-100)
-  tasks       Task[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  Enterprise  Enterprise[]
+model EnterprisePhaseStatus {
+  enterpriseId Int
+  phaseId      Int
+  progress     Float      @default(0.0)
+  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime   @default(now())
+  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  phase        Phase      @relation(fields: [phaseId], references: [id])
+
+  @@id([enterpriseId, phaseId])
 }
 
 model Task {
@@ -168,11 +148,44 @@ model Task {
   description  String
   phaseId      Int
   phase        Phase                  @relation(fields: [phaseId], references: [id])
-  taskStatuses EnterpriseTaskStatus[]
-  isCompleted  Boolean                @default(false) // Status de conclusão da tarefa
   createdAt    DateTime               @default(now())
   updatedAt    DateTime               @updatedAt
+  taskProgress EnterpriseTaskStatus[]
   Enterprise   Enterprise[]
+}
+
+model Enterprise {
+  id               Int              @id @default(autoincrement())
+  name             String           @unique
+  description      String
+  status           EnterpriseStatus @default(NEW)
+  isAvailable      Boolean          @default(false)
+  investmentType   InvestmentType
+  constructionType String
+  fundingAmount    Float
+  transferAmount   Float
+  postalCode       String
+  city             String
+  squareMeterValue Float
+  area             Float
+  progress         Float            @default(0.0)
+  floors           Int?
+  completionDate   DateTime?
+
+  currentPhaseId Int?
+  currentPhase   Phase? @relation(fields: [currentPhaseId], references: [id])
+  currentTaskId  Int?
+  currentTask    Task?  @relation(fields: [currentTaskId], references: [id])
+
+  taskStatuses  EnterpriseTaskStatus[]
+  phaseStatuses EnterprisePhaseStatus[]
+
+  contracts         Contract[]
+  contractInterests ContractInterest[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([status, investmentType])
 }
 
 model Contract {
@@ -216,12 +229,11 @@ model ContractInterest {
 model EnterpriseTaskStatus {
   enterpriseId Int
   taskId       Int
-  isCompleted  Boolean  @default(false)
-  updatedAt    DateTime @updatedAt
-  createdAt    DateTime @default(now())
-
-  enterprise Enterprise @relation(fields: [enterpriseId], references: [id])
-  task       Task       @relation(fields: [taskId], references: [id])
+  isCompleted  Boolean    @default(false)
+  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime   @default(now())
+  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  task         Task       @relation(fields: [taskId], references: [id])
 
   @@id([enterpriseId, taskId])
 }

@@ -18,13 +18,11 @@ export class AddAddressUseCase {
   async execute(input: AddAddressInput): Promise<void> {
     const { userId, street, number, complement, neighborhood, city, state, postalCode, country } = input;
 
-    
     const existingAddresses = await this.addressRepository.findByUserId(userId);
     if (existingAddresses.length > 0) {
       throw new Error('Usuário já possui um endereço cadastrado.');
     }
 
-    // Cria o endereço associado ao usuário
     await this.addressRepository.create({
       user: { connect: { id: userId } },
       street,
@@ -37,7 +35,6 @@ export class AddAddressUseCase {
       country,
     });
 
-    
     await this.addressRepository.updateUserComplianceStatus(userId, 'PENDING_DOCUMENTS');
   }
 }

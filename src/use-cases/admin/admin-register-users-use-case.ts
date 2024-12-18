@@ -8,10 +8,10 @@ interface RegisterUserInput {
   password: string;
   firstName: string;
   lastName: string;
-  birthDate?: string; 
+  birthDate?: string;
   userType: UserType;
-  numberDocument?: string; 
-  phone?: string; 
+  numberDocument?: string;
+  phone?: string;
   role: Role;
 }
 
@@ -19,20 +19,8 @@ export class AdminRegisterUsersUseCase {
   constructor(private readonly userRepository: AdminRepository) {}
 
   async execute(input: RegisterUserInput): Promise<void> {
-    const {
-      email,
-      username,
-      password,
-      firstName,
-      lastName,
-      birthDate,
-      userType,
-      numberDocument,
-      phone,
-      role,
-    } = input;
+    const { email, username, password, firstName, lastName, birthDate, userType, numberDocument, phone, role } = input;
 
-    
     if (!email || !username || !password || !firstName || !lastName || !userType || !role) {
       throw new Error('Campos obrigatórios estão faltando.');
     }
@@ -42,13 +30,11 @@ export class AdminRegisterUsersUseCase {
       throw new Error('E-mail já está em uso.');
     }
 
-    
     const existingUserByUsername = await this.userRepository.findByUsername(username);
     if (existingUserByUsername) {
       throw new Error('Nome de usuário já está em uso.');
     }
 
-    
     if (numberDocument) {
       const existingUserByDocument = await this.userRepository.findByDocument(numberDocument);
       if (existingUserByDocument) {
@@ -58,10 +44,8 @@ export class AdminRegisterUsersUseCase {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    
     const parsedBirthDate = birthDate ? new Date(birthDate) : undefined;
 
-    
     await this.userRepository.create({
       email,
       username,
@@ -73,8 +57,8 @@ export class AdminRegisterUsersUseCase {
       numberDocument,
       phone,
       role,
-      isApproved: false, 
-      complianceStatus: 'PENDING_ADDRESS', 
+      isApproved: false,
+      complianceStatus: 'PENDING_ADDRESS',
     });
   }
 }

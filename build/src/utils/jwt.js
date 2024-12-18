@@ -1,0 +1,29 @@
+import jwt from 'jsonwebtoken';
+const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
+export function generateToken(payload) {
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+}
+export function verifyToken(token) {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (typeof decoded === 'object' && decoded !== null) {
+            const { id, email, role, tokenVersion } = decoded;
+            // Validar campos obrigatórios no payload
+            if (!id || !email || !role || tokenVersion === undefined) {
+                throw new Error('Payload inválido no token.');
+            }
+            return decoded;
+        }
+        throw new Error('Token inválido.');
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            throw new Error('Erro ao validar o token: ' + error.message);
+        }
+        throw new Error('Erro desconhecido ao validar o token.');
+    }
+}
+export function isTokenVersionValid(tokenVersion, currentVersion) {
+    return tokenVersion === currentVersion;
+}

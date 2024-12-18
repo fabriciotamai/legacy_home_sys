@@ -9,14 +9,10 @@ const getAllEnterprisesQuerySchema = z.object({
   isAvailable: z.boolean().optional(),
 });
 
-export async function getAllEnterprisesHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function getAllEnterprisesHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const filters = getAllEnterprisesQuerySchema.parse(request.query);
 
-    
     const status = filters.status as EnterpriseStatus | undefined;
 
     const getAllEnterprisesUseCase = makeGetAllEnterprisesUseCase();

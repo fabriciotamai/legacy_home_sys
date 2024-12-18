@@ -1,7 +1,17 @@
 // types.ts
-import { Enterprise, Phase, Task } from '@prisma/client';
+import { Enterprise, Phase, Prisma, Task } from '@prisma/client';
 
 export type PhaseWithEnterpriseAndTasks = Phase & {
   tasks: Task[];
-  Enterprise: Enterprise[];
+  enterprise: Enterprise;
 };
+
+export type PrismaUserWithAddress = Prisma.UserGetPayload<{ include: { addresses: true } }>;
+
+export type EnterpriseWithRelations = Prisma.EnterpriseGetPayload<{
+  include: {
+    currentPhase: true;
+    currentTask: true;
+    contractInterests: true;
+  };
+}>;

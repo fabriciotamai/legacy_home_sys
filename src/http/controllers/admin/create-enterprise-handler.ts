@@ -6,11 +6,11 @@ const createEnterpriseSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório.'),
   description: z.string().min(1, 'A descrição é obrigatória.'),
   investmentType: z.enum(['MONEY', 'PROPERTY'], {
-    errorMap: () => ({ message: 'O tipo de investimento deve ser MONEY ou PROPERTY.' }),
+    errorMap: () => ({
+      message: 'O tipo de investimento deve ser MONEY ou PROPERTY.',
+    }),
   }),
   isAvailable: z.boolean(),
-  currentPhaseId: z.number().int().positive().optional(), 
-  currentTaskId: z.number().int().positive().optional(),  
   constructionType: z.string().min(1, 'O tipo de construção é obrigatório.'),
   fundingAmount: z.number().positive('O valor de aporte deve ser maior que zero.'),
   transferAmount: z.number().positive('O valor repassado deve ser maior que zero.'),
@@ -18,36 +18,30 @@ const createEnterpriseSchema = z.object({
   city: z.string().min(1, 'A cidade é obrigatória.'),
   squareMeterValue: z.number().positive('O valor por metro quadrado deve ser maior que zero.'),
   area: z.number().positive('A metragem total deve ser maior que zero.'),
-  floors: z.number().int().positive().optional(), 
-  completionDate: z.coerce.date().optional(), 
+  floors: z.number().int().positive().optional(),
+  completionDate: z.coerce
+    .date()
+    .optional()
+    .refine((date) => !date || date > new Date(), 'A data de conclusão deve ser no futuro.'),
 });
 
-export async function createEnterpriseHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function createEnterpriseHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    
     const validatedBody = createEnterpriseSchema.parse(request.body);
 
-    
-    console.log('Dados validados:', validatedBody);
+    console.info('Criando empreendimento com os dados fornecidos.');
 
-    
     const createEnterpriseUseCase = makeCreateEnterpriseUseCase();
 
-    
     const enterprise = await createEnterpriseUseCase.execute(validatedBody);
 
-    
     reply.status(201).send({
       message: 'Empreendimento criado com sucesso.',
-      enterprise, 
+      enterprise,
     });
   } catch (error) {
-    
     if (error instanceof z.ZodError) {
-      console.error('Erro de validação:', error.errors);
+      console.warn('Erro de validação:', error.errors);
 
       reply.status(422).send({
         errors: error.errors.map((err) => ({
@@ -58,7 +52,6 @@ export async function createEnterpriseHandler(
       return;
     }
 
-    
     console.error('Erro ao criar empreendimento:', error);
 
     reply.status(400).send({

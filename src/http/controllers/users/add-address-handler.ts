@@ -2,10 +2,7 @@ import { makeAddAddressUseCase } from '@/use-cases/factories/users/make-address-
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function addAddressHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function addAddressHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const addAddressSchema = z.object({
     street: z.string().min(1, 'A rua é obrigatória.'),
     number: z.string().min(1, 'O número é obrigatório.'),

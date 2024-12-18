@@ -13,7 +13,6 @@ export class GetUserEnterprisesUseCase {
       throw new Error('O ID do usuário é obrigatório.');
     }
 
-  
     const enterprises = await this.enterpriseRepository.findByUserId(userId);
 
     return enterprises;

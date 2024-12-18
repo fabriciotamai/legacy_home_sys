@@ -3,17 +3,12 @@ import { saveFile } from '@/utils/save-file';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function sendDocumentsHandler(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
- 
+export async function sendDocumentsHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const sendDocumentsSchema = z.object({
     documentType: z.enum(['RG', 'CNH', 'PASSPORT']),
   });
 
   try {
-    
     if (!request.user) {
       return reply.status(401).send({ error: 'Usuário não autenticado.' });
     }
@@ -28,22 +23,21 @@ export async function sendDocumentsHandler(
     for await (const part of parts) {
       if (part.type === 'field') {
         if (typeof part.value === 'string') {
-          fields[part.fieldname] = part.value; 
+          fields[part.fieldname] = part.value;
         } else {
           throw new Error(`O campo ${part.fieldname} não é do tipo string.`);
         }
       } else if (part.fieldname === 'documentFront') {
-        documentFront = await saveFile(part); 
+        documentFront = await saveFile(part);
       } else if (part.fieldname === 'documentBack') {
-        documentBack = await saveFile(part); 
+        documentBack = await saveFile(part);
       } else if (part.fieldname === 'proofOfAddress') {
-        proofOfAddress = await saveFile(part); 
+        proofOfAddress = await saveFile(part);
       } else if (part.fieldname === 'incomeTaxProof') {
-        incomeTaxProof = await saveFile(part); 
+        incomeTaxProof = await saveFile(part);
       }
     }
 
-    
     const parsedFields = sendDocumentsSchema.parse(fields);
 
     if (!documentFront) {
@@ -58,7 +52,7 @@ export async function sendDocumentsHandler(
       return reply.status(400).send({ error: 'O comprovante de imposto de renda é obrigatório.' });
     }
 
-    const userId = request.user.id; 
+    const userId = request.user.id;
 
     const sendDocumentsUseCase = makeSendDocumentsUseCase();
 

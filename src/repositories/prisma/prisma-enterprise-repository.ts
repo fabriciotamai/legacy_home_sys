@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { EnterpriseWithRelations } from '@/types';
 import {
   ContractInterest,
   Enterprise,
@@ -87,7 +88,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     status?: EnterpriseStatus;
     investmentType?: 'MONEY' | 'PROPERTY';
     isAvailable?: boolean;
-  }): Promise<Enterprise[]> {
+  }): Promise<EnterpriseWithRelations[]> {
     const where: Prisma.EnterpriseWhereInput = {};
 
     if (filters.status !== undefined) where.status = filters.status;
@@ -99,6 +100,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       include: {
         currentPhase: true,
         currentTask: true,
+        contractInterests: true,
       },
       orderBy: { createdAt: 'desc' },
     });

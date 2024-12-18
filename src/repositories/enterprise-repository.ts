@@ -1,3 +1,4 @@
+import { EnterpriseWithRelations } from '@/types';
 import {
   ContractInterest,
   Enterprise,
@@ -9,14 +10,15 @@ import {
   Task,
 } from '@prisma/client';
 
+interface FindAllFilters {
+  status?: EnterpriseStatus;
+  investmentType?: 'MONEY' | 'PROPERTY';
+  isAvailable?: boolean;
+}
 export interface EnterpriseRepository {
   findById(enterpriseId: number): Promise<Enterprise | null>;
   findByName(name: string): Promise<Enterprise | null>;
-  findAll(filters: {
-    status?: EnterpriseStatus;
-    investmentType?: 'MONEY' | 'PROPERTY';
-    isAvailable?: boolean;
-  }): Promise<Enterprise[]>;
+  findAll(filters: FindAllFilters): Promise<EnterpriseWithRelations[]>;
   create(data: Prisma.EnterpriseCreateInput): Promise<Enterprise>;
   update(enterpriseId: number, data: Prisma.EnterpriseUpdateInput): Promise<Enterprise>;
   updateEnterprisePhaseAndTask(enterpriseId: number, phaseId: number, taskId?: number): Promise<Enterprise>;

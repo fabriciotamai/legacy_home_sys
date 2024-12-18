@@ -7,3 +7,11 @@ export type PhaseWithEnterpriseAndTasks = Phase & {
 };
 
 export type PrismaUserWithAddress = Prisma.UserGetPayload<{ include: { addresses: true } }>;
+
+export type EnterpriseWithRelations = Prisma.EnterpriseGetPayload<{
+  include: {
+    currentPhase: true;
+    currentTask: true;
+    contractInterests: true;
+  };
+}>;

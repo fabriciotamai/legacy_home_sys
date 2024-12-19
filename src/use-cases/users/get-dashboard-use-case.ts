@@ -1,4 +1,5 @@
 import { UsersRepository } from '@/repositories/user-repository';
+import { ConstructionType } from '@prisma/client';
 
 interface GetDashboardDataUseCaseRequest {
   userId: number;
@@ -6,11 +7,11 @@ interface GetDashboardDataUseCaseRequest {
 
 interface GetDashboardDataUseCaseResponse {
   pieChart: {
-    casas: number;
-    terrenos: number;
+    houses: number;
+    lands: number;
     walletBalance: number;
   };
-  numeroEmpreendimentos: number;
+  enterpriseCount: number;
   totalFundingAmount: number;
   totalTransferAmount: number;
 }
@@ -19,26 +20,26 @@ export class GetDashboardDataUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({ userId }: GetDashboardDataUseCaseRequest): Promise<GetDashboardDataUseCaseResponse> {
-    const [casasCount, terrenosCount, walletBalance, contracts] = await Promise.all([
-      this.usersRepository.countEnterprisesByType('CASA'),
-      this.usersRepository.countEnterprisesByType('TERRENO'),
+    const [housesCount, landsCount, walletBalance, contracts] = await Promise.all([
+      this.usersRepository.countEnterprisesByType(ConstructionType.HOUSE),
+      this.usersRepository.countEnterprisesByType(ConstructionType.LAND),
       this.usersRepository.getWalletBalance(userId),
       this.usersRepository.getSignedContractsWithEnterprise(userId),
     ]);
 
-    const empreendimentoIds = new Set(contracts.map((c) => c.enterpriseId));
-    const numeroEmpreendimentos = empreendimentoIds.size;
+    const enterpriseIds = new Set(contracts.map((c) => c.enterpriseId));
+    const enterpriseCount = enterpriseIds.size;
 
     const totalFundingAmount = contracts.reduce((acc, c) => acc + c.enterprise.fundingAmount, 0);
     const totalTransferAmount = contracts.reduce((acc, c) => acc + c.enterprise.transferAmount, 0);
 
     return {
       pieChart: {
-        casas: casasCount,
-        terrenos: terrenosCount,
+        houses: housesCount,
+        lands: landsCount,
         walletBalance,
       },
-      numeroEmpreendimentos,
+      enterpriseCount,
       totalFundingAmount,
       totalTransferAmount,
     };

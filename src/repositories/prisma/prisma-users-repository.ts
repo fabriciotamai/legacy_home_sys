@@ -1,6 +1,6 @@
 import type { UsersRepository } from '@/repositories/user-repository';
 import { PrismaUserWithAddress } from '@/types';
-import type { Prisma, User as PrismaUser } from '@prisma/client';
+import type { ConstructionType, Prisma, User as PrismaUser } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaUsersRepository implements UsersRepository {
@@ -45,6 +45,32 @@ export class PrismaUsersRepository implements UsersRepository {
       where: { id },
       include: {
         addresses: true,
+      },
+    });
+  }
+
+  async getWalletBalance(userId: number): Promise<number> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { walletBalance: true },
+    });
+    return user?.walletBalance ?? 0;
+  }
+
+  async countEnterprisesByType(type: ConstructionType): Promise<number> {
+    return prisma.enterprise.count({
+      where: { constructionType: type },
+    });
+  }
+
+  async getSignedContractsWithEnterprise(userId: number) {
+    return prisma.contract.findMany({
+      where: {
+        userId,
+        status: 'SIGNED',
+      },
+      include: {
+        enterprise: true,
       },
     });
   }

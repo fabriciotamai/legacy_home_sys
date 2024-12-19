@@ -69,6 +69,13 @@ enum ContractStatus {
   CANCELLED
 }
 
+enum ConstructionType {
+  HOUSE
+  LAND
+  APARTMENT
+  COMMERCIAL
+}
+
 model User {
   id                 Int                 @id @default(autoincrement())
   email              String              @unique
@@ -94,6 +101,7 @@ model User {
   isActive           Boolean             @default(true)
   addresses          Address[]
   contracts          Contract[]
+  walletBalance      Float?              @default(0.0)
   contractInterests  ContractInterest[]
   contractSignatures ContractSignature[]
   createdAt          DateTime            @default(now())
@@ -155,35 +163,32 @@ model Task {
 }
 
 model Enterprise {
-  id               Int              @id @default(autoincrement())
-  name             String           @unique
-  description      String
-  status           EnterpriseStatus @default(NEW)
-  isAvailable      Boolean          @default(false)
-  investmentType   InvestmentType
-  constructionType String
-  fundingAmount    Float
-  transferAmount   Float
-  postalCode       String
-  city             String
-  squareMeterValue Float
-  area             Float
-  progress         Float            @default(0.0)
-  floors           Int?
-  completionDate   DateTime?
-
-  currentPhaseId Int?
-  currentPhase   Phase? @relation(fields: [currentPhaseId], references: [id])
-  currentTaskId  Int?
-  currentTask    Task?  @relation(fields: [currentTaskId], references: [id])
-
-  taskStatuses  EnterpriseTaskStatus[]
-  phaseStatuses EnterprisePhaseStatus[]
-
+  id                Int                     @id @default(autoincrement())
+  name              String                  @unique
+  description       String
+  status            EnterpriseStatus        @default(NEW)
+  isAvailable       Boolean                 @default(false)
+  investmentType    InvestmentType
+  constructionType  ConstructionType
+  fundingAmount     Float
+  transferAmount    Float
+  postalCode        String
+  city              String
+  squareMeterValue  Float
+  area              Float
+  progress          Float                   @default(0.0)
+  floors            Int?
+  completionDate    DateTime?
+  currentPhaseId    Int?
+  currentPhase      Phase?                  @relation(fields: [currentPhaseId], references: [id])
+  currentTaskId     Int?
+  currentTask       Task?                   @relation(fields: [currentTaskId], references: [id])
+  taskStatuses      EnterpriseTaskStatus[]
+  phaseStatuses     EnterprisePhaseStatus[]
   contracts         Contract[]
   contractInterests ContractInterest[]
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
 
   @@index([status, investmentType])
 }

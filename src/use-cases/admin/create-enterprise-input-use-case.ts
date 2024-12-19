@@ -1,12 +1,12 @@
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
-import { Phase, Task } from '@prisma/client';
+import { ConstructionType, InvestmentType, Phase, Task } from '@prisma/client';
 
 interface CreateEnterpriseInput {
   name: string;
   description: string;
-  investmentType: 'MONEY' | 'PROPERTY';
+  investmentType: InvestmentType;
   isAvailable: boolean;
-  constructionType: string;
+  constructionType: ConstructionType;
   fundingAmount: number;
   transferAmount: number;
   postalCode: string;
@@ -25,8 +25,8 @@ interface CreateEnterpriseOutput {
     description: string;
     status: string;
     isAvailable: boolean;
-    investmentType: string;
-    constructionType: string;
+    investmentType: InvestmentType;
+    constructionType: ConstructionType;
     fundingAmount: number;
     transferAmount: number;
     postalCode: string;
@@ -171,14 +171,10 @@ export class CreateEnterpriseUseCase {
   }
 
   private validateInput(input: CreateEnterpriseInput): void {
-    const { name, description, investmentType, fundingAmount, area } = input;
+    const { name, description, fundingAmount, area } = input;
 
     if (!name || !description) {
       throw new Error('Nome e descrição são obrigatórios.');
-    }
-
-    if (!['MONEY', 'PROPERTY'].includes(investmentType)) {
-      throw new Error('Tipo de investimento inválido.');
     }
 
     if (fundingAmount <= 0 || area <= 0) {

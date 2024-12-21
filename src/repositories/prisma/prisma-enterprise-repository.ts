@@ -329,7 +329,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       data: {
         enterpriseId: data.enterpriseId,
         taskId: data.taskId,
-        isCompleted: data.isCompleted, // Agora explicitamente parte do tipo
+        isCompleted: data.isCompleted,
       },
     });
   }

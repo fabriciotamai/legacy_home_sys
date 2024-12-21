@@ -16,6 +16,7 @@ import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-inte
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
+import { getDashboardDataHandler } from './controllers/users/get-dashboard-handler';
 import { getEnterprisesAvailableHandler } from './controllers/users/get-enterprise-available-handler';
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
@@ -56,5 +57,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/users/me/data', getUserWithAddressHandler);
     protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);
     protectedRoutes.get('/users/enterprise/available', getEnterprisesAvailableHandler);
+    protectedRoutes.get('/users/dashboard', getDashboardDataHandler);
   });
 }

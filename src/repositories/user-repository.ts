@@ -1,5 +1,5 @@
 import { PrismaUserWithAddress } from '@/types';
-import type { Prisma, User as PrismaUser } from '@prisma/client';
+import type { ConstructionType, ContractInterest, Enterprise, Prisma, User as PrismaUser } from '@prisma/client';
 
 export interface UsersRepository {
   create(data: Prisma.UserCreateInput): Promise<PrismaUser>;
@@ -9,4 +9,11 @@ export interface UsersRepository {
   updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<PrismaUser>;
   updatePassword(userId: number, hashedPassword: string): Promise<PrismaUser>;
   findUserWithAddress(id: number): Promise<PrismaUserWithAddress | null>;
+  getWalletBalance(userId: number): Promise<number>;
+  countEnterprisesByType(userId: number, type: ConstructionType): Promise<number>;
+  getApprovedContractsWithEnterprise(
+    userId: number,
+  ): Promise<(ContractInterest & { enterprise: { id: number; fundingAmount: number; transferAmount: number } })[]>;
+  getRecentEnterprisesWithoutApprovedInterests(): Promise<Enterprise[]>;
+  getUserRecentEnterprises(userId: number): Promise<(Enterprise & { interestStatus?: string })[]>;
 }

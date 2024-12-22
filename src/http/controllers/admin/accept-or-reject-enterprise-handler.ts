@@ -1,4 +1,4 @@
-import { makeAcceptOrRejectInterestUseCase } from '@/use-cases/factories/admin/make-accept-or-reject-use-case';
+import { makeAcceptOrRejectInterestUseCase } from '@/use-cases/factories/admin/make-accept-or-reject-enterprise-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 

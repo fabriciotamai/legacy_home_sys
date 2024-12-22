@@ -16,4 +16,11 @@ export interface UsersRepository {
   ): Promise<(ContractInterest & { enterprise: { id: number; fundingAmount: number; transferAmount: number } })[]>;
   getRecentEnterprisesWithoutApprovedInterests(): Promise<Enterprise[]>;
   getUserRecentEnterprises(userId: number): Promise<(Enterprise & { interestStatus?: string })[]>;
+  updateWalletBalance(userId: number, newBalance: number): Promise<void>;
+  updateUserFinancials(
+    userId: number,
+    walletBalance: number,
+    investedIncrement: number,
+    valuationIncrement: number,
+  ): Promise<void>;
 }

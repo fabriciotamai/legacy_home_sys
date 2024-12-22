@@ -3,6 +3,8 @@ import { ConstructionType, InvestmentType, Phase, Task } from '@prisma/client';
 
 interface CreateEnterpriseInput {
   name: string;
+  corporateName: string;
+  address: string;
   description: string;
   investmentType: InvestmentType;
   isAvailable: boolean;
@@ -22,6 +24,8 @@ interface CreateEnterpriseOutput {
   enterprise: {
     id: number;
     name: string;
+    corporateName: string;
+    address: string;
     description: string;
     status: string;
     isAvailable: boolean;
@@ -65,6 +69,8 @@ export class CreateEnterpriseUseCase {
   async execute(input: CreateEnterpriseInput): Promise<CreateEnterpriseOutput> {
     const {
       name,
+      corporateName,
+      address,
       description,
       investmentType,
       isAvailable,
@@ -88,6 +94,8 @@ export class CreateEnterpriseUseCase {
 
     const enterprise = await this.enterpriseRepository.create({
       name,
+      corporateName,
+      address,
       description,
       investmentType,
       isAvailable,
@@ -135,6 +143,8 @@ export class CreateEnterpriseUseCase {
       enterprise: {
         id: updatedEnterprise.id,
         name: updatedEnterprise.name,
+        corporateName: updatedEnterprise.corporateName,
+        address: updatedEnterprise.address,
         description: updatedEnterprise.description,
         status: updatedEnterprise.status,
         isAvailable: updatedEnterprise.isAvailable,
@@ -171,10 +181,10 @@ export class CreateEnterpriseUseCase {
   }
 
   private validateInput(input: CreateEnterpriseInput): void {
-    const { name, description, fundingAmount, area } = input;
+    const { name, description, fundingAmount, area, corporateName, address } = input;
 
-    if (!name || !description) {
-      throw new Error('Nome e descrição são obrigatórios.');
+    if (!name || !description || !corporateName || !address) {
+      throw new Error('Nome, descrição, razão social e endereço são obrigatórios.');
     }
 
     if (fundingAmount <= 0 || area <= 0) {

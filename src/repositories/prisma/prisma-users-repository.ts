@@ -127,4 +127,31 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     });
   }
+
+  async updateWalletBalance(userId: number, newBalance: number): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { walletBalance: newBalance },
+    });
+  }
+
+  async updateUserFinancials(
+    userId: number,
+    walletBalance: number,
+    investedIncrement: number,
+    valuationIncrement: number,
+  ): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        walletBalance,
+        totalInvested: {
+          increment: investedIncrement,
+        },
+        totalValuation: {
+          increment: valuationIncrement,
+        },
+      },
+    });
+  }
 }

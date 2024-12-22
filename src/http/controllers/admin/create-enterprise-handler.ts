@@ -1,9 +1,12 @@
 import { makeCreateEnterpriseUseCase } from '@/use-cases/factories/admin/make-create-enterprise-input-use-case';
+import { ConstructionType } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 const createEnterpriseSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório.'),
+  corporateName: z.string().min(1, 'A razão social é obrigatória.'),
+  address: z.string().min(1, 'O endereço é obrigatório.'),
   description: z.string().min(1, 'A descrição é obrigatória.'),
   investmentType: z.enum(['MONEY', 'PROPERTY'], {
     errorMap: () => ({
@@ -11,7 +14,9 @@ const createEnterpriseSchema = z.object({
     }),
   }),
   isAvailable: z.boolean(),
-  constructionType: z.string().min(1, 'O tipo de construção é obrigatório.'),
+  constructionType: z
+    .nativeEnum(ConstructionType)
+    .refine((val) => !!val, 'O tipo de construção é obrigatório e deve ser um valor válido.'),
   fundingAmount: z.number().positive('O valor de aporte deve ser maior que zero.'),
   transferAmount: z.number().positive('O valor repassado deve ser maior que zero.'),
   postalCode: z.string().min(1, 'O código postal é obrigatório.'),

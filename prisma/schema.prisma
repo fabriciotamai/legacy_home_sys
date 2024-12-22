@@ -102,6 +102,8 @@ model User {
   addresses          Address[]
   contracts          Contract[]
   walletBalance      Float?              @default(0.0)
+  totalInvested      Float?              @default(0.0)
+  totalValuation     Float?
   contractInterests  ContractInterest[]
   contractSignatures ContractSignature[]
   createdAt          DateTime            @default(now())
@@ -165,6 +167,7 @@ model Task {
 model Enterprise {
   id                Int                     @id @default(autoincrement())
   name              String                  @unique
+  corporateName     String
   description       String
   status            EnterpriseStatus        @default(NEW)
   isAvailable       Boolean                 @default(false)
@@ -173,12 +176,14 @@ model Enterprise {
   fundingAmount     Float
   transferAmount    Float
   postalCode        String
+  address           String
   city              String
   squareMeterValue  Float
   area              Float
   progress          Float                   @default(0.0)
   floors            Int?
   completionDate    DateTime?
+  startDate         DateTime?
   currentPhaseId    Int?
   currentPhase      Phase?                  @relation(fields: [currentPhaseId], references: [id])
   currentTaskId     Int?

@@ -7,7 +7,8 @@ import { userSiginHandler } from '@/http/controllers/users/user-sigin-handler';
 import { authMiddleware } from '@/middlewares/auth/auth-middleware';
 import { roleMiddleware } from '@/middlewares/auth/role-middleware';
 import { FastifyInstance } from 'fastify';
-import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-handler';
+import { acceptOrRejectComplianceHandler } from './controllers/admin/accept-or-reject-compliance-handler';
+import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-enterprise-handler';
 import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
@@ -36,6 +37,8 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/get-enterprise', { preHandler: roleMiddleware }, getAllEnterprisesHandler);
     protectedRoutes.post('/admin/link-enterprise', { preHandler: roleMiddleware }, linkEnterpriseToUserHandler);
     protectedRoutes.get('/admin/get-all-users', { preHandler: roleMiddleware }, getAllUsersHandler);
+    protectedRoutes.put('/admin/updatecompliance/:userId', acceptOrRejectComplianceHandler);
+
     protectedRoutes.get(
       '/admin/get-interest-enterprise',
       { preHandler: roleMiddleware },
@@ -53,6 +56,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/change-password', changePasswordHandler);
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
+
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
     protectedRoutes.get('/users/me/data', getUserWithAddressHandler);
     protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);

@@ -1,10 +1,11 @@
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { UsersRepository } from '@/repositories/user-repository';
-import { ContractInterest } from '@prisma/client';
+import { ContractInterest, InterestStatus, WalletTransactionType } from '@prisma/client';
 
 interface AcceptOrRejectInterestInput {
   interestId: string;
   status: 'APPROVED' | 'REJECTED';
+  reason?: string;
 }
 
 export class AcceptOrRejectInterestUseCase {
@@ -14,7 +15,7 @@ export class AcceptOrRejectInterestUseCase {
   ) {}
 
   async execute(input: AcceptOrRejectInterestInput): Promise<ContractInterest> {
-    const { interestId, status } = input;
+    const { interestId, status, reason } = input;
 
     const interest = await this.enterpriseRepository.findInterestById(interestId);
     if (!interest) {
@@ -33,6 +34,7 @@ export class AcceptOrRejectInterestUseCase {
 
     if (status === 'APPROVED') {
       const userWalletBalance = user.walletBalance ?? 0;
+
       if (userWalletBalance < enterprise.fundingAmount) {
         throw new Error('Saldo insuficiente para aprovar o interesse.');
       }
@@ -46,10 +48,33 @@ export class AcceptOrRejectInterestUseCase {
         enterprise.fundingAmount,
       );
 
+      await this.usersRepository.addWalletTransaction({
+        userId: user.id,
+        type: WalletTransactionType.DEBIT,
+        amount: enterprise.fundingAmount,
+        balanceBefore: userWalletBalance,
+        balanceAfter: updatedWalletBalance,
+        description: `Investimento aprovado para o empreendimento "${enterprise.name}".`,
+      });
+
+      await this.enterpriseRepository.addInvestment({
+        userId: user.id,
+        enterpriseId: enterprise.id,
+        investedAmount: enterprise.fundingAmount,
+      });
+
       await this.enterpriseRepository.removeOtherInterests(enterprise.id, interestId);
     }
 
     const updatedInterest = await this.enterpriseRepository.updateInterestStatus(interestId, status);
+
+    await this.enterpriseRepository.addInterestLog({
+      userId: user.id,
+      enterpriseId: enterprise.id,
+      interestId,
+      status: status as InterestStatus,
+      reason: status === 'REJECTED' ? reason : undefined,
+    });
 
     return updatedInterest;
   }

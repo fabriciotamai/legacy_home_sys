@@ -182,7 +182,7 @@ model InterestLog {
   user         User           @relation(fields: [userId], references: [id])
   enterpriseId Int
   enterprise   Enterprise     @relation(fields: [enterpriseId], references: [id])
-  interestId   String         @unique
+  interestId   String
   status       InterestStatus
   reason       String?
   createdAt    DateTime       @default(now())

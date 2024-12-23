@@ -28,8 +28,8 @@ export class GetDashboardDataUseCase {
         this.usersRepository.countEnterprisesByType(userId, ConstructionType.LAND),
         this.usersRepository.getWalletBalance(userId),
         this.usersRepository.getApprovedContractsWithEnterprise(userId),
-        this.usersRepository.getRecentEnterprisesWithoutApprovedInterests(), // Mantém os recentes sem interesses aprovados
-        this.usersRepository.getUserRecentEnterprises(userId), // Método atualizado já filtra os 3 mais recentes
+        this.usersRepository.getRecentEnterprisesWithoutApprovedInterests(),
+        this.usersRepository.getUserRecentEnterprises(userId),
       ]);
 
     const enterpriseIds = new Set(approvedInterests.map((interest) => interest.enterprise.id));
@@ -41,7 +41,6 @@ export class GetDashboardDataUseCase {
       0,
     );
 
-    // Processar os 3 empreendimentos mais recentes
     const userRecentEnterprises = rawUserRecentEnterprises.map((enterprise) => ({
       ...enterprise,
       interestStatus: enterprise.interestStatus ?? 'PENDING',

@@ -78,6 +78,34 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return taskStatus ? taskStatus.task : null;
   }
 
+  async addInterestLog(data: {
+    userId: number;
+    enterpriseId: number;
+    interestId: string;
+    status: InterestStatus;
+    reason?: string;
+  }): Promise<void> {
+    await prisma.interestLog.create({
+      data: {
+        userId: data.userId,
+        enterpriseId: data.enterpriseId,
+        interestId: data.interestId,
+        status: data.status,
+        reason: data.reason,
+      },
+    });
+  }
+
+  async addInvestment(data: { userId: number; enterpriseId: number; investedAmount: number }): Promise<void> {
+    await prisma.investment.create({
+      data: {
+        userId: data.userId,
+        enterpriseId: data.enterpriseId,
+        investedAmount: data.investedAmount,
+      },
+    });
+  }
+
   async findByName(name: string): Promise<Enterprise | null> {
     return prisma.enterprise.findFirst({
       where: { name },
@@ -176,10 +204,13 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   }
 
   async removeOtherInterests(enterpriseId: number, approvedInterestId: string): Promise<void> {
-    await prisma.contractInterest.deleteMany({
+    await prisma.contractInterest.updateMany({
       where: {
         enterpriseId,
         interestId: { not: approvedInterestId },
+      },
+      data: {
+        status: 'REJECTED',
       },
     });
   }
@@ -187,10 +218,17 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   async findWithInterests(): Promise<Enterprise[]> {
     return prisma.enterprise.findMany({
       where: {
-        contractInterests: { some: {} },
+        contractInterests: {
+          some: {
+            status: 'PENDING',
+          },
+        },
       },
       include: {
         contractInterests: {
+          where: {
+            status: 'PENDING',
+          },
           include: { user: true },
         },
       },

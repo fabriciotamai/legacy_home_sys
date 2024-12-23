@@ -1,6 +1,6 @@
 import type { UsersRepository } from '@/repositories/user-repository';
 import { PrismaUserWithAddress } from '@/types';
-import type { ConstructionType, Enterprise, Prisma, User as PrismaUser } from '@prisma/client';
+import type { ConstructionType, Enterprise, Prisma, User as PrismaUser, WalletTransactionType } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaUsersRepository implements UsersRepository {
@@ -151,6 +151,26 @@ export class PrismaUsersRepository implements UsersRepository {
         totalValuation: {
           increment: valuationIncrement,
         },
+      },
+    });
+  }
+
+  async addWalletTransaction(data: {
+    userId: number;
+    type: WalletTransactionType;
+    amount: number;
+    balanceBefore: number;
+    balanceAfter: number;
+    description: string;
+  }): Promise<void> {
+    await prisma.walletTransaction.create({
+      data: {
+        userId: data.userId,
+        type: data.type,
+        amount: data.amount,
+        balanceBefore: data.balanceBefore,
+        balanceAfter: data.balanceAfter,
+        description: data.description,
       },
     });
   }

@@ -174,4 +174,22 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     });
   }
+  async getUserFinancials(userId: number): Promise<{ totalValuation: number; totalInvested: number }> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        totalValuation: true,
+        totalInvested: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return {
+      totalValuation: user.totalValuation ?? 0,
+      totalInvested: user.totalInvested ?? 0,
+    };
+  }
 }

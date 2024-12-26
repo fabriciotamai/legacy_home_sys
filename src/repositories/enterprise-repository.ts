@@ -57,4 +57,10 @@ export interface EnterpriseRepository {
     status: InterestStatus;
     reason?: string;
   }): Promise<void>;
+  addChangeLog(data: {
+    enterpriseId: number;
+    changeType: 'STATUS_CHANGED' | 'PHASE_CHANGED' | 'TASK_CHANGED';
+    description: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<void>;
 }

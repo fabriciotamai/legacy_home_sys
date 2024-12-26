@@ -41,11 +41,14 @@ export class AcceptOrRejectInterestUseCase {
 
       const updatedWalletBalance = userWalletBalance - enterprise.fundingAmount;
 
+      const updatedTotalInvested = (user.totalInvested ?? 0) + enterprise.fundingAmount;
+      const updatedTotalValuation = (user.totalValuation ?? 0) + enterprise.transferAmount;
+
       await this.usersRepository.updateUserFinancials(
         user.id,
         updatedWalletBalance,
-        enterprise.fundingAmount,
-        enterprise.fundingAmount,
+        updatedTotalInvested,
+        updatedTotalValuation,
       );
 
       await this.usersRepository.addWalletTransaction({

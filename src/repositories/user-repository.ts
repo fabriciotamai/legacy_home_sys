@@ -38,4 +38,5 @@ export interface UsersRepository {
     balanceAfter: number;
     description: string;
   }): Promise<void>;
+  getUserFinancials(userId: number): Promise<{ totalValuation: number; totalInvested: number }>;
 }

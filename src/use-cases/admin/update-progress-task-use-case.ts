@@ -13,9 +13,9 @@ export class UpdateProgressUseCase {
   async execute(input: UpdateTaskStatusInput): Promise<void> {
     const { enterpriseId, phaseId, taskId, isCompleted } = input;
 
-    const task = await this.enterpriseRepository.findTaskWithPhaseAndEnterprise(enterpriseId, taskId);
+    const taskWithPhase = await this.enterpriseRepository.findTaskWithPhaseAndEnterprise(enterpriseId, taskId);
 
-    if (!task || task.phase.id !== phaseId) {
+    if (!taskWithPhase || taskWithPhase.phase.id !== phaseId) {
       throw new Error(
         `Tarefa não encontrada ou não pertence à fase (${phaseId}) ou ao empreendimento (${enterpriseId}).`,
       );
@@ -25,15 +25,31 @@ export class UpdateProgressUseCase {
       await this.enterpriseRepository.updateTaskStatus(enterpriseId, taskId, isCompleted);
       const phaseProgress = await this.recalculatePhaseProgress(enterpriseId, phaseId);
       const enterpriseProgress = await this.recalculateEnterpriseProgress(enterpriseId);
-      await this.moveToNextTaskOrPhase(enterpriseId, phaseId, taskId);
+      const phaseChanged = await this.moveToNextTaskOrPhase(enterpriseId, phaseId, taskId);
 
-      console.log(
-        `Progresso atualizado: Fase ${phaseId} -> ${phaseProgress.toFixed(
-          2,
-        )}%, Empreendimento ${enterpriseId} -> ${enterpriseProgress.toFixed(2)}%.`,
-      );
+      if (!phaseChanged) {
+        await this.enterpriseRepository.addChangeLog({
+          enterpriseId,
+          changeType: 'TASK_CHANGED',
+          description: `Tarefa "${taskWithPhase.taskName}" marcada como concluída.`,
+          metadata: {
+            phaseId,
+            taskId,
+          },
+        });
+      }
     } else {
       await this.moveToPreviousTaskAndReset(enterpriseId, phaseId, taskId);
+
+      await this.enterpriseRepository.addChangeLog({
+        enterpriseId,
+        changeType: 'TASK_CHANGED',
+        description: `Progresso da tarefa "${taskWithPhase.taskName}" foi resetado.`,
+        metadata: {
+          phaseId,
+          taskId,
+        },
+      });
     }
   }
 
@@ -70,7 +86,7 @@ export class UpdateProgressUseCase {
     return enterpriseProgress;
   }
 
-  private async moveToNextTaskOrPhase(enterpriseId: number, phaseId: number, taskId: number): Promise<void> {
+  private async moveToNextTaskOrPhase(enterpriseId: number, phaseId: number, taskId: number): Promise<boolean> {
     const tasks = await this.enterpriseRepository.findTasksInPhaseByEnterprise(enterpriseId, phaseId);
 
     if (!tasks.length) {
@@ -88,6 +104,7 @@ export class UpdateProgressUseCase {
 
     if (nextTask) {
       await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterpriseId, phaseId, nextTask.task.id);
+      return false;
     } else {
       const allPhases = await this.enterpriseRepository.findAllPhasesByEnterprise(enterpriseId);
       const currentPhaseIndex = allPhases.findIndex((p) => p.id === phaseId);
@@ -95,12 +112,25 @@ export class UpdateProgressUseCase {
       const nextPhase = allPhases[currentPhaseIndex + 1];
       if (nextPhase) {
         const nextPhaseFirstTask = nextPhase.tasks.sort((a, b) => a.id - b.id)[0];
-
         const nextTaskId = nextPhaseFirstTask?.id ?? undefined;
 
         await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterpriseId, nextPhase.id, nextTaskId);
+
+        await this.enterpriseRepository.addChangeLog({
+          enterpriseId,
+          changeType: 'PHASE_CHANGED',
+          description: `Mudança para a fase "${nextPhase.phaseName}" com a tarefa inicial "${nextPhaseFirstTask?.taskName}".`,
+          metadata: {
+            previousPhaseId: phaseId,
+            nextPhaseId: nextPhase.id,
+            nextTaskId,
+          },
+        });
+
+        return true;
       } else {
         console.log(`Empreendimento ${enterpriseId} completo!`);
+        return true;
       }
     }
   }

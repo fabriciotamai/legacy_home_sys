@@ -258,6 +258,21 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       return { ...rest, interestStatus };
     });
   }
+  async addChangeLog(data: {
+    enterpriseId: number;
+    changeType: 'STATUS_CHANGED' | 'PHASE_CHANGED' | 'TASK_CHANGED';
+    description: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<void> {
+    await prisma.enterpriseChangeLog.create({
+      data: {
+        enterpriseId: data.enterpriseId,
+        changeType: data.changeType,
+        description: data.description,
+        metadata: (data.metadata as Prisma.InputJsonValue) || undefined,
+      },
+    });
+  }
 
   async updateEnterprisePhaseAndTask(enterpriseId: number, phaseId: number, taskId?: number): Promise<Enterprise> {
     return prisma.enterprise.update({

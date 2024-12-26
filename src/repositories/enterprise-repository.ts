@@ -49,4 +49,18 @@ export interface EnterpriseRepository {
   createTaskProgress(data: { enterpriseId: number; taskId: number; isCompleted: boolean }): Promise<void>;
   findPhaseWithTasks(phaseId: number): Promise<(Phase & { tasks: Task[] }) | null>;
   findTaskWithPhaseAndEnterprise(enterpriseId: number, taskId: number): Promise<(Task & { phase: Phase }) | null>;
+  addInvestment(data: { userId: number; enterpriseId: number; investedAmount: number }): Promise<void>;
+  addInterestLog(data: {
+    userId: number;
+    enterpriseId: number;
+    interestId: string;
+    status: InterestStatus;
+    reason?: string;
+  }): Promise<void>;
+  addChangeLog(data: {
+    enterpriseId: number;
+    changeType: 'STATUS_CHANGED' | 'PHASE_CHANGED' | 'TASK_CHANGED';
+    description: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<void>;
 }

@@ -1,5 +1,12 @@
 import { PrismaUserWithAddress } from '@/types';
-import type { ConstructionType, ContractInterest, Enterprise, Prisma, User as PrismaUser } from '@prisma/client';
+import type {
+  ConstructionType,
+  ContractInterest,
+  Enterprise,
+  Prisma,
+  User as PrismaUser,
+  WalletTransactionType,
+} from '@prisma/client';
 
 export interface UsersRepository {
   create(data: Prisma.UserCreateInput): Promise<PrismaUser>;
@@ -23,4 +30,13 @@ export interface UsersRepository {
     investedIncrement: number,
     valuationIncrement: number,
   ): Promise<void>;
+  addWalletTransaction(data: {
+    userId: number;
+    type: WalletTransactionType;
+    amount: number;
+    balanceBefore: number;
+    balanceAfter: number;
+    description: string;
+  }): Promise<void>;
+  getUserFinancials(userId: number): Promise<{ totalValuation: number; totalInvested: number }>;
 }

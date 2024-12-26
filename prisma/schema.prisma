@@ -76,6 +76,19 @@ enum ConstructionType {
   COMMERCIAL
 }
 
+enum WalletTransactionType {
+  CREDIT
+  DEBIT
+  PIX
+  TRANSFER
+}
+
+enum EnterpriseChangeType {
+  STATUS_CHANGED
+  PHASE_CHANGED
+  TASK_CHANGED
+}
+
 model User {
   id                 Int                 @id @default(autoincrement())
   email              String              @unique
@@ -99,13 +112,16 @@ model User {
   complianceStatus   ComplianceStatus    @default(PENDING_ADDRESS)
   twoFA              String?
   isActive           Boolean             @default(true)
-  addresses          Address[]
-  contracts          Contract[]
   walletBalance      Float?              @default(0.0)
   totalInvested      Float?              @default(0.0)
   totalValuation     Float?
+  addresses          Address[]
+  contracts          Contract[]
   contractInterests  ContractInterest[]
   contractSignatures ContractSignature[]
+  walletTransactions WalletTransaction[]
+  investments        Investment[]
+  interestLogs       InterestLog[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
@@ -128,40 +144,48 @@ model Address {
   updatedAt    DateTime @updatedAt
 }
 
-model Phase {
-  id                    Int                     @id @default(autoincrement())
-  phaseName             String
-  description           String
-  order                 Int
-  tasks                 Task[]
-  enterprises           Enterprise[]
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  EnterprisePhaseStatus EnterprisePhaseStatus[]
+model WalletTransaction {
+  id            Int                   @id @default(autoincrement())
+  userId        Int
+  user          User                  @relation(fields: [userId], references: [id])
+  type          WalletTransactionType
+  amount        Float
+  balanceBefore Float
+  balanceAfter  Float
+  description   String
+  createdAt     DateTime              @default(now())
 }
 
-model EnterprisePhaseStatus {
+model Investment {
+  id             Int        @id @default(autoincrement())
+  userId         Int
+  user           User       @relation(fields: [userId], references: [id])
+  enterpriseId   Int
+  enterprise     Enterprise @relation(fields: [enterpriseId], references: [id])
+  investedAmount Float
+  createdAt      DateTime   @default(now())
+}
+
+model EnterpriseChangeLog {
+  id           Int                  @id @default(autoincrement())
   enterpriseId Int
-  phaseId      Int
-  progress     Float      @default(0.0)
-  updatedAt    DateTime   @updatedAt
-  createdAt    DateTime   @default(now())
-  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
-  phase        Phase      @relation(fields: [phaseId], references: [id])
-
-  @@id([enterpriseId, phaseId])
+  enterprise   Enterprise           @relation(fields: [enterpriseId], references: [id])
+  changeType   EnterpriseChangeType
+  description  String
+  metadata     Json?
+  createdAt    DateTime             @default(now())
 }
 
-model Task {
-  id           Int                    @id @default(autoincrement())
-  taskName     String
-  description  String
-  phaseId      Int
-  phase        Phase                  @relation(fields: [phaseId], references: [id])
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  taskProgress EnterpriseTaskStatus[]
-  Enterprise   Enterprise[]
+model InterestLog {
+  id           Int            @id @default(autoincrement())
+  userId       Int
+  user         User           @relation(fields: [userId], references: [id])
+  enterpriseId Int
+  enterprise   Enterprise     @relation(fields: [enterpriseId], references: [id])
+  interestId   String
+  status       InterestStatus
+  reason       String?
+  createdAt    DateTime       @default(now())
 }
 
 model Enterprise {
@@ -192,8 +216,11 @@ model Enterprise {
   phaseStatuses     EnterprisePhaseStatus[]
   contracts         Contract[]
   contractInterests ContractInterest[]
+  investments       Investment[]
+  changeLogs        EnterpriseChangeLog[]
   createdAt         DateTime                @default(now())
   updatedAt         DateTime                @updatedAt
+  InterestLog       InterestLog[]
 
   @@index([status, investmentType])
 }
@@ -234,6 +261,42 @@ model ContractInterest {
   enterpriseId Int
   status       InterestStatus @default(PENDING)
   createdAt    DateTime       @default(now())
+}
+
+model Phase {
+  id                    Int                     @id @default(autoincrement())
+  phaseName             String
+  description           String
+  order                 Int
+  tasks                 Task[]
+  enterprises           Enterprise[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  EnterprisePhaseStatus EnterprisePhaseStatus[]
+}
+
+model EnterprisePhaseStatus {
+  enterpriseId Int
+  phaseId      Int
+  progress     Float      @default(0.0)
+  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime   @default(now())
+  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  phase        Phase      @relation(fields: [phaseId], references: [id])
+
+  @@id([enterpriseId, phaseId])
+}
+
+model Task {
+  id           Int                    @id @default(autoincrement())
+  taskName     String
+  description  String
+  phaseId      Int
+  phase        Phase                  @relation(fields: [phaseId], references: [id])
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  taskProgress EnterpriseTaskStatus[]
+  Enterprise   Enterprise[]
 }
 
 model EnterpriseTaskStatus {

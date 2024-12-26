@@ -114,7 +114,7 @@ model User {
   isActive           Boolean             @default(true)
   walletBalance      Float?              @default(0.0)
   totalInvested      Float?              @default(0.0)
-  totalValuation     Float?
+  totalValuation     Float?              @default(0.0)
   addresses          Address[]
   contracts          Contract[]
   contractInterests  ContractInterest[]
@@ -197,8 +197,8 @@ model Enterprise {
   isAvailable       Boolean                 @default(false)
   investmentType    InvestmentType
   constructionType  ConstructionType
-  fundingAmount     Float
-  transferAmount    Float
+  fundingAmount     Float                   @default(0.0)
+  transferAmount    Float                   @default(0.0)
   postalCode        String
   address           String
   city              String

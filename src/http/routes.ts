@@ -17,6 +17,7 @@ import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-inte
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
+import { updateEnterpriseValuationHandler } from './controllers/admin/update-valution-enterprise-handler';
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
 import { getDashboardDataHandler } from './controllers/users/get-dashboard-handler';
 import { getEnterprisesAvailableHandler } from './controllers/users/get-enterprise-available-handler';
@@ -37,6 +38,11 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/admin/create-enterprise', { preHandler: roleMiddleware }, createEnterpriseHandler);
     protectedRoutes.get('/admin/get-enterprise', { preHandler: roleMiddleware }, getAllEnterprisesHandler);
     protectedRoutes.post('/admin/link-enterprise', { preHandler: roleMiddleware }, linkEnterpriseToUserHandler);
+    protectedRoutes.put(
+      '/admin/update/:enterpriseId/valution',
+      { preHandler: roleMiddleware },
+      updateEnterpriseValuationHandler,
+    );
     protectedRoutes.get('/admin/get-all-users', { preHandler: roleMiddleware }, getAllUsersHandler);
     protectedRoutes.put(
       '/admin/updatecompliance/:userId',

@@ -5,6 +5,7 @@ import {
   EnterpriseStatus,
   EnterpriseTaskStatus,
   InterestStatus,
+  Investment,
   Phase,
   Prisma,
   Task,
@@ -63,4 +64,5 @@ export interface EnterpriseRepository {
     description: string;
     metadata?: Record<string, unknown>;
   }): Promise<void>;
+  findSingleInvestmentByEnterpriseId(enterpriseId: number): Promise<Investment | null>;
 }

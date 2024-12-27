@@ -1,28 +1,28 @@
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { UsersRepository } from '@/repositories/user-repository';
 
-/**
- * Estrutura de entrada do Use Case
- */
 interface UpdateEnterpriseValuationInput {
   enterpriseId: number;
   newValuation: number;
   mode: 'consulting' | 'confirmed';
 }
 
-/**
- * Estrutura de saída (retorno) do Use Case
- */
 interface UpdateEnterpriseValuationOutput {
-  enterpriseValuationBefore: number;
-  enterpriseValuationAfter: number;
-  difference: number;
-  enterprisePercentageChange: number;
-  userId: number;
-  userValuationBefore: number;
-  userValuationAfter: number;
-  userValuationDifference: number;
-  userValuationPercentageChange: number;
+  enterprise: {
+    valuationBefore: number;
+    valuationAfter: number;
+    difference: number;
+    percentageChange: number;
+  };
+  user: {
+    id: number;
+    email: string;
+    username: string;
+    valuationBefore: number;
+    valuationAfter: number;
+    difference: number;
+    percentageChange: number;
+  };
 }
 
 export class UpdateEnterpriseValuationUseCase {
@@ -40,17 +40,9 @@ export class UpdateEnterpriseValuationUseCase {
     }
 
     const enterpriseValuationBefore = enterprise.transferAmount ?? 0;
-
     const difference = newValuation - enterpriseValuationBefore;
-
     const enterprisePercentageChange =
-      enterpriseValuationBefore !== 0
-        ? (difference / enterpriseValuationBefore) * 100
-        : difference > 0
-          ? 100
-          : difference < 0
-            ? -100
-            : 0;
+      enterpriseValuationBefore !== 0 ? (difference / enterpriseValuationBefore) * 100 : 100;
 
     const investment = await this.enterpriseRepository.findSingleInvestmentByEnterpriseId(enterpriseId);
     if (!investment) {
@@ -63,50 +55,48 @@ export class UpdateEnterpriseValuationUseCase {
     }
 
     const userValuationBefore = user.totalValuation ?? 0;
-    const userValuationDifference = difference;
-    const userValuationAfter = userValuationBefore + userValuationDifference;
-
-    const userValuationPercentageChange =
-      userValuationBefore !== 0
-        ? (userValuationDifference / userValuationBefore) * 100
-        : userValuationDifference > 0
-          ? 100
-          : userValuationDifference < 0
-            ? -100
-            : 0;
+    const userValuationAfter = userValuationBefore + difference;
+    const userValuationPercentageChange = userValuationBefore !== 0 ? (difference / userValuationBefore) * 100 : 100;
 
     if (mode === 'consulting') {
       return {
-        enterpriseValuationBefore,
-        enterpriseValuationAfter: newValuation,
-        difference,
-        enterprisePercentageChange,
-        userId: user.id,
-        userValuationBefore,
-        userValuationAfter,
-        userValuationDifference,
-        userValuationPercentageChange,
+        enterprise: {
+          valuationBefore: enterpriseValuationBefore,
+          valuationAfter: newValuation,
+          difference,
+          percentageChange: enterprisePercentageChange,
+        },
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          valuationBefore: userValuationBefore,
+          valuationAfter: userValuationAfter,
+          difference,
+          percentageChange: userValuationPercentageChange,
+        },
       };
     }
 
-    await this.enterpriseRepository.update(enterpriseId, {
-      transferAmount: newValuation,
-    });
-
-    await this.usersRepository.updateUser(user.id, {
-      totalValuation: userValuationAfter,
-    });
+    await this.enterpriseRepository.update(enterpriseId, { transferAmount: newValuation });
+    await this.usersRepository.updateUser(user.id, { totalValuation: userValuationAfter });
 
     return {
-      enterpriseValuationBefore,
-      enterpriseValuationAfter: newValuation,
-      difference,
-      enterprisePercentageChange,
-      userId: user.id,
-      userValuationBefore,
-      userValuationAfter,
-      userValuationDifference,
-      userValuationPercentageChange,
+      enterprise: {
+        valuationBefore: enterpriseValuationBefore,
+        valuationAfter: newValuation,
+        difference,
+        percentageChange: enterprisePercentageChange,
+      },
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        valuationBefore: userValuationBefore,
+        valuationAfter: userValuationAfter,
+        difference,
+        percentageChange: userValuationPercentageChange,
+      },
     };
   }
 }

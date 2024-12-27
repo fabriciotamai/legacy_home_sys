@@ -2,11 +2,14 @@ import { makeUpdateEnterpriseValuationUseCase } from '@/use-cases/factories/admi
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
+/// 💡- 1 OPCIONAL- CASO QUEIRA EXIBIR PRO ADM OS VALORES ANTES DE CONFIRMAR AS ALTERAÇÃO - MODE COMO (consulting)
+/// 💡  2 - CASO NÃO QUEIRA EXIBIR OS DADOS ANTES E EFETUAR ATERAÇÃO SEM MOSTRAR OS DADOS ENVIAR COMO (confirmed)
+
 const updateEnterpriseValuationBodySchema = z.object({
   newValuation: z.number(),
   mode: z.enum(['consulting', 'confirmed']),
 });
-
+//-❌❌❌❌❌❌❌❌❌❌❌❌❌❌  LEIA------❌❌❌❌❌❌❌❌❌❌❌❌❌❌
 const updateEnterpriseValuationParamsSchema = z.object({
   enterpriseId: z.coerce.number(),
 });

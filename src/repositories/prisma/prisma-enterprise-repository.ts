@@ -6,6 +6,7 @@ import {
   EnterpriseStatus,
   EnterpriseTaskStatus,
   InterestStatus,
+  Investment,
   Phase,
   Prisma,
   Task,
@@ -374,6 +375,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
         phaseId: data.phaseId,
         progress: data.progress,
       },
+    });
+  }
+  async findSingleInvestmentByEnterpriseId(enterpriseId: number): Promise<Investment | null> {
+    return prisma.investment.findFirst({
+      where: { enterpriseId },
     });
   }
 

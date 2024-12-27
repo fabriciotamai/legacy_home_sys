@@ -130,6 +130,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
         currentPhase: true,
         currentTask: true,
         contractInterests: true,
+        investments: true,
       },
       orderBy: { createdAt: 'desc' },
     });

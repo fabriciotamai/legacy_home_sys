@@ -11,6 +11,7 @@ import { acceptOrRejectComplianceHandler } from './controllers/admin/accept-or-r
 import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-enterprise-handler';
 import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
+import { getAdminDashboardHandler } from './controllers/admin/get-admin-dashboard-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
 import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
 import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-interest-with-enterprise-handler';
@@ -63,6 +64,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     );
     protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
     protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
+    protectedRoutes.get('/admin/dashboard', { preHandler: roleMiddleware }, getAdminDashboardHandler);
 
     // ------------------------------- USERS-------------------------------------------------------
     protectedRoutes.post('/users/change-password', changePasswordHandler);

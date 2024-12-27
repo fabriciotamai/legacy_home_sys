@@ -39,7 +39,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/get-enterprise', { preHandler: roleMiddleware }, getAllEnterprisesHandler);
     protectedRoutes.post('/admin/link-enterprise', { preHandler: roleMiddleware }, linkEnterpriseToUserHandler);
     protectedRoutes.put(
-      '/admin/update/:enterpriseId/valution',
+      '/admin/update/:enterpriseId/valuation',
       { preHandler: roleMiddleware },
       updateEnterpriseValuationHandler,
     );

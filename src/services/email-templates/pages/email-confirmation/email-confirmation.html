@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmação de E-mail</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="http://localhost:3335/static/images/logo.png" alt="4 Hands Group Logo">
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <h1>Confirmação de E-mail</h1>
+      <p>Olá, <strong>{{name}}</strong>!</p>
+      <p>
+        Recebemos sua solicitação para ativar sua conta. Por favor, insira o código abaixo no sistema:
+      </p>
+      <div class="token-box">
+        {{token}}
+      </div>
+      <p>O código expira em <strong>15 minutos</strong>.</p>
+      <p>Se você não solicitou este e-mail, por favor, ignore-o.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Rua XXXXX, 158, Bairro - XXXXX-XXX<br>Curitiba – PR</p>
+      <p>Manage email preferences or <a href="#">unsubscribe</a></p>
+    </div>
+  </div>
+</body>
+</html>

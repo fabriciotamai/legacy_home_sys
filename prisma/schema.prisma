@@ -36,6 +36,7 @@ enum InterestStatus {
 }
 
 enum ComplianceStatus {
+  PENDING_EMAIL
   PENDING_ADDRESS
   PENDING_DOCUMENTS
   UNDER_REVIEW

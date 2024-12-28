@@ -25,6 +25,7 @@ import { getEnterprisesAvailableHandler } from './controllers/users/get-enterpri
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
+import { userRegisterHandler } from './controllers/users/user-register-use-handler';
 
 export async function appRoutes(app: FastifyInstance): Promise<void> {
   app.register(async (publicRoutes) => {
@@ -70,6 +71,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/change-password', changePasswordHandler);
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
+    protectedRoutes.post('/users/register', userRegisterHandler);
 
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
     protectedRoutes.get('/users/me/data', getUserWithAddressHandler);

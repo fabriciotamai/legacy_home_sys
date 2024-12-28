@@ -3,42 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bem-vindo!</title>
+  <title>Confirmação de E-mail</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #e0e0e0;">
-  <div class="container" style="max-width: 600px; margin: 0px auto; align-items: center; background-color: #333333; overflow: hidden; display: flex; flex-direction: column;">
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #121212; color: #ffffff;">
+  <div class="container" style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #333333; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); overflow: hidden;">
     
-    <div class="header" style="background-color: #232323; padding: 20px; text-align: center;">
-      <img src="http://localhost:3335/static/images/logo.png" alt="4 Hands Group Logo" style="max-width: 150px;">
-    </div>
-    <div class="main-image">
-      <img src="http://localhost:3335/static/images/welcome.png" alt="Imagem Principal" style="width: 100%; height: auto;">
-    </div>
-    <div class="content" style="padding: 20px; text-align: center; color: #333333; max-width: 340px;">
-      <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #E0E0E0;">Seja bem-vindo <br>à 4 Hands Group!</h1>
-      <p style="font-size: 0.70rem; line-height: 1.5; margin-bottom: 20px; color: #BDBDBD; text-align: center;">
-        Agora você faz parte do <b>mercado<b></b> imobiliário dos Estados Unidos.</b><br>
-        O mercado mais seguro e estável do mundo!
-      </p>
-      <p style="font-size: 0.70rem; line-height: 1.5; margin-bottom: 20px; color: #BDBDBD; text-align: center;">
-        Estamos à disposição para esclarecer qualquer dúvida que possa surgir!<br>
-        Conte conosco!
-      </p>
-      <p style="font-size: 0.70rem; line-height: 1.5; margin-bottom: 20px; color: #BDBDBD; text-align: center;">
-        <strong>suportesocio@4handsgroup.com.br</strong><br>
-        www.4handsgroup.com.br
-      </p>
-      <a href="{{actionUrl}}" class="cta-button" style="display: inline-block; padding: 10px 20px; background-color: #cddc39; color: #232323; text-decoration: none; border-radius: 5px; font-weight: bold;">FALE COM A GENTE NO WHATSAPP</a>
+    <div class="header" style="text-align: center; padding: 20px 0; background-color: #232323;">
+      <img src="http://localhost:3335/static/images/logo.png" alt="4 Hands Group Logo" style="max-width: 120px;">
     </div>
 
-    <!-- Rodapé -->
-    <div class="footer" style="background-color: #232323; color: #aaaaaa; padding: 20px; text-align: center; font-size: 14px;">
-      <div class="social-icons">
-        <a href="#" style="color: #aaaaaa; text-decoration: underline;"><img src="http://localhost:3335/static/images/welcome.png" alt="Instagram" style="width: 30px; margin: 0 5px;"></a>
-        <a href="#" style="color: #aaaaaa; text-decoration: underline;"><img src="http://localhost:3335/static/images/welcome.png" alt="Facebook" style="width: 30px; margin: 0 5px;"></a>
-        <a href="#" style="color: #aaaaaa; text-decoration: underline;"><img src="http://localhost:3335/static/images/welcome.png" alt="LinkedIn" style="width: 30px; margin: 0 5px;"></a>
+   
+    <div class="content" style="text-align: center; padding: 20px;">
+      <h1 style="font-size: 24px; font-weight: bold; color: #cddc39;">Confirmação de E-mail</h1>
+      <p style="margin: 10px 0; color: #bdbdbd;">Olá, <strong>{{name}}</strong>!</p>
+      <p style="margin: 10px 0; color: #bdbdbd;">
+        Recebemos sua solicitação para ativar sua conta. Por favor, insira o código abaixo no sistema:
+      </p>
+      <div class="token-box" style="display: inline-block; font-size: 24px; font-weight: bold; color: #232323; background-color: #cddc39; padding: 15px 25px; border-radius: 5px; margin: 20px 0;">
+        {{token}}
       </div>
-      <p>Rua XXXXX, 158<br>Bairro - XXXXX-XXX<br>Curitiba – PR</p>
+      <p style="margin: 10px 0; color: #bdbdbd;">O código expira em <strong>15 minutos</strong>.</p>
+      <p style="margin: 10px 0; color: #bdbdbd;">Se você não solicitou este e-mail, por favor, ignore-o.</p>
+    </div>
+
+ 
+    <div class="footer" style="text-align: center; padding: 15px 0; background-color: #232323; color: #aaaaaa; font-size: 14px;">
+      <p>Rua XXXXX, 158, Bairro - XXXXX-XXX<br>Curitiba – PR</p>
       <p>Manage email preferences or <a href="#" style="color: #aaaaaa; text-decoration: underline;">unsubscribe</a></p>
     </div>
   </div>

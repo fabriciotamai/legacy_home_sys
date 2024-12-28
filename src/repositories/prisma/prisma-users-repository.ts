@@ -154,6 +154,11 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     });
   }
+  async findByDocument(document: string): Promise<PrismaUser | null> {
+    return prisma.user.findUnique({
+      where: { numberDocument: document },
+    });
+  }
 
   async addWalletTransaction(data: {
     userId: number;

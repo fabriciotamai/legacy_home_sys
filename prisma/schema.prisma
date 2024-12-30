@@ -116,6 +116,7 @@ model User {
   walletBalance      Float?              @default(0.0)
   totalInvested      Float?              @default(0.0)
   totalValuation     Float?              @default(0.0)
+  emailVerified      Boolean             @default(false)
   addresses          Address[]
   contracts          Contract[]
   contractInterests  ContractInterest[]

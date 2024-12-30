@@ -19,18 +19,21 @@ export class GenerateEmailCodeUseCase {
     const emailCode = Math.floor(1000 + Math.random() * 9000).toString();
 
     await this.userRepository.updateUser(userId, {
-      twoFA: emailCode,
+      emailConfirmationCode: emailCode,
+      emailConfirmationExpires: new Date(Date.now() + 15 * 60 * 1000),
     });
 
     const emailData = {
-      name: user.firstName,
+      name: user.username,
       code: emailCode,
     };
+
+    console.log(emailData);
 
     await sendEmailWithTemplate(
       'Sua Empresa <no-reply@suaempresa.com>',
       user.email,
-      'Código de validação de e-mail',
+      'Código de confirmação de e-mail',
       'email-confirmation',
       'email-confirmation.html',
       'styles.css',

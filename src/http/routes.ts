@@ -11,6 +11,7 @@ import { acceptOrRejectComplianceHandler } from './controllers/admin/accept-or-r
 import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-enterprise-handler';
 import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
+import { getAdminDashboardHandler } from './controllers/admin/get-admin-dashboard-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
 import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
 import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-interest-with-enterprise-handler';
@@ -24,11 +25,13 @@ import { getEnterprisesAvailableHandler } from './controllers/users/get-enterpri
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
+import { userRegisterHandler } from './controllers/users/user-register-use-handler';
 
 export async function appRoutes(app: FastifyInstance): Promise<void> {
   app.register(async (publicRoutes) => {
     publicRoutes.post('/admin/register', adminRegisterUsersHandler);
     publicRoutes.post('/users/signin', userSiginHandler);
+    publicRoutes.post('/users/register', userRegisterHandler);
   });
 
   app.register(async (protectedRoutes) => {
@@ -63,6 +66,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     );
     protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
     protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
+    protectedRoutes.get('/admin/dashboard', { preHandler: roleMiddleware }, getAdminDashboardHandler);
 
     // ------------------------------- USERS-------------------------------------------------------
     protectedRoutes.post('/users/change-password', changePasswordHandler);

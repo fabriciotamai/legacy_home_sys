@@ -12,6 +12,7 @@ export type EnterpriseWithRelations = Prisma.EnterpriseGetPayload<{
     currentPhase: true;
     currentTask: true;
     contractInterests: true;
+    investments: true;
   };
 }>;
 

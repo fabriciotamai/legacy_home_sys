@@ -20,12 +20,14 @@ import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { updateEnterpriseValuationHandler } from './controllers/admin/update-valution-enterprise-handler';
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
+import { generateEmailCodeHandler } from './controllers/users/generate-token-email-handler';
 import { getDashboardDataHandler } from './controllers/users/get-dashboard-handler';
 import { getEnterprisesAvailableHandler } from './controllers/users/get-enterprise-available-handler';
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
 import { userRegisterHandler } from './controllers/users/user-register-use-handler';
+import { validateEmailHandler } from './controllers/users/validate-email-handler';
 
 export async function appRoutes(app: FastifyInstance): Promise<void> {
   app.register(async (publicRoutes) => {
@@ -72,11 +74,12 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/change-password', changePasswordHandler);
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
-
+    protectedRoutes.post('/users/validate-email', validateEmailHandler);
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
     protectedRoutes.get('/users/me/data', getUserWithAddressHandler);
     protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);
     protectedRoutes.get('/users/enterprise/available', getEnterprisesAvailableHandler);
+    protectedRoutes.get('/users/geratetoken', generateEmailCodeHandler);
     protectedRoutes.get('/users/dashboard', getDashboardDataHandler);
   });
 }

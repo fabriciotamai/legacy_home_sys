@@ -91,41 +91,43 @@ enum EnterpriseChangeType {
 }
 
 model User {
-  id                 Int                 @id @default(autoincrement())
-  email              String              @unique
-  username           String              @unique
-  password           String
-  firstName          String
-  lastName           String
-  birthDate          DateTime?
-  userType           UserType
-  numberDocument     String?             @unique
-  phone              String?
-  documentType       DocumentType?
-  documentFront      String?
-  documentBack       String?
-  proofOfAddress     String?
-  incomeTaxProof     String?
-  mustChangePassword Boolean             @default(true)
-  tokenVersion       Int                 @default(0)
-  role               Role                @default(USER)
-  isApproved         Boolean             @default(false)
-  complianceStatus   ComplianceStatus    @default(PENDING_ADDRESS)
-  twoFA              String?
-  isActive           Boolean             @default(true)
-  walletBalance      Float?              @default(0.0)
-  totalInvested      Float?              @default(0.0)
-  totalValuation     Float?              @default(0.0)
-  emailVerified      Boolean             @default(false)
-  addresses          Address[]
-  contracts          Contract[]
-  contractInterests  ContractInterest[]
-  contractSignatures ContractSignature[]
-  walletTransactions WalletTransaction[]
-  investments        Investment[]
-  interestLogs       InterestLog[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id                       Int                 @id @default(autoincrement())
+  email                    String              @unique
+  username                 String              @unique
+  password                 String
+  firstName                String
+  lastName                 String
+  birthDate                DateTime?
+  userType                 UserType
+  numberDocument           String?             @unique
+  phone                    String?
+  documentType             DocumentType?
+  documentFront            String?
+  documentBack             String?
+  proofOfAddress           String?
+  incomeTaxProof           String?
+  mustChangePassword       Boolean             @default(true)
+  tokenVersion             Int                 @default(0)
+  role                     Role                @default(USER)
+  isApproved               Boolean             @default(false)
+  complianceStatus         ComplianceStatus    @default(PENDING_ADDRESS)
+  twoFA                    String?
+  isActive                 Boolean             @default(true)
+  walletBalance            Float?              @default(0.0)
+  totalInvested            Float?              @default(0.0)
+  totalValuation           Float?              @default(0.0)
+  emailVerified            Boolean             @default(false)
+  emailConfirmationCode    String?
+  emailConfirmationExpires DateTime?
+  addresses                Address[]
+  contracts                Contract[]
+  contractInterests        ContractInterest[]
+  contractSignatures       ContractSignature[]
+  walletTransactions       WalletTransaction[]
+  investments              Investment[]
+  interestLogs             InterestLog[]
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
 
   @@index([isApproved])
 }

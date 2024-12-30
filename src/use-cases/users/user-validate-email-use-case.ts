@@ -21,13 +21,19 @@ export class ValidateEmailUseCase {
       throw new Error('Usuário não encontrado.');
     }
 
-    if (user.twoFA !== emailCode) {
+    if (user.emailConfirmationCode !== emailCode) {
       throw new Error('Código de e-mail inválido.');
     }
 
+    if (!user.emailConfirmationExpires || user.emailConfirmationExpires < new Date()) {
+      throw new Error('O código de e-mail expirou.');
+    }
+
     const updatedUser = await this.userRepository.updateUser(userId, {
-      twoFA: null,
+      emailConfirmationCode: null,
+      emailConfirmationExpires: null,
       emailVerified: true,
+      complianceStatus: 'PENDING_ADDRESS',
     });
 
     const token = generateToken({

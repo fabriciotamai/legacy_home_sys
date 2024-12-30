@@ -31,6 +31,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
   app.register(async (publicRoutes) => {
     publicRoutes.post('/admin/register', adminRegisterUsersHandler);
     publicRoutes.post('/users/signin', userSiginHandler);
+    publicRoutes.post('/users/register', userRegisterHandler);
   });
 
   app.register(async (protectedRoutes) => {
@@ -71,7 +72,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/change-password', changePasswordHandler);
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
-    protectedRoutes.post('/users/register', userRegisterHandler);
 
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
     protectedRoutes.get('/users/me/data', getUserWithAddressHandler);

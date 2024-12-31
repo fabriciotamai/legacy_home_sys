@@ -23,6 +23,13 @@ enum ContractType {
   HYBRID
 }
 
+enum DepositStatus {
+  WAITING_PROOF
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum InvestmentType {
   MONEY
   PROPERTY
@@ -128,6 +135,7 @@ model User {
   interestLogs             InterestLog[]
   createdAt                DateTime            @default(now())
   updatedAt                DateTime            @updatedAt
+  Deposit                  Deposit[]
 
   @@index([isApproved])
 }
@@ -178,6 +186,20 @@ model EnterpriseChangeLog {
   description  String
   metadata     Json?
   createdAt    DateTime             @default(now())
+}
+
+model Deposit {
+  id               Int           @id @default(autoincrement())
+  userId           Int
+  user             User          @relation(fields: [userId], references: [id])
+  amount           Float
+  status           DepositStatus @default(WAITING_PROOF)
+  proofUrl         String?
+  adminComment     String?
+  approvedAt       DateTime?
+  balanceUpdatedAt DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
 model InterestLog {

@@ -26,6 +26,7 @@ import { getEnterprisesAvailableHandler } from './controllers/users/get-enterpri
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
+import { createDepositHandler } from './controllers/users/user-create-deposit-handler';
 import { userRegisterHandler } from './controllers/users/user-register-use-handler';
 import { validateEmailHandler } from './controllers/users/validate-email-handler';
 
@@ -81,5 +82,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/users/enterprise/available', getEnterprisesAvailableHandler);
     protectedRoutes.get('/users/geratetoken', generateEmailCodeHandler);
     protectedRoutes.get('/users/dashboard', getDashboardDataHandler);
+    protectedRoutes.post('/users/deposit', createDepositHandler);
   });
 }

@@ -3,7 +3,7 @@
 version: "3"
 
 services:
-  avalon_api:
+  fourhands_api:
     image: bitnami/postgresql
     ports:
       - 5480:5432

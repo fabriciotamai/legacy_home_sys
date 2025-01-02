@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Enterprise" ADD COLUMN     "progress" DOUBLE PRECISION NOT NULL DEFAULT 0.0;

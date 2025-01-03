@@ -191,6 +191,7 @@ model EnterpriseChangeLog {
 model Deposit {
   id               Int           @id @default(autoincrement())
   userId           Int
+  codeDeposit      String        @unique @default(dbgenerated("substring(md5(random()::text), 1, 8)"))
   user             User          @relation(fields: [userId], references: [id])
   amount           Float
   status           DepositStatus @default(WAITING_PROOF)

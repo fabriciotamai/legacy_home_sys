@@ -8,7 +8,7 @@
       "@/*": ["src/*"]
     },
     "outDir": "build",
-    "rootDir": ".",
+    "rootDir": "src",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -16,7 +16,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "declarationDir": "build/types"  // Adiciona esse campo para declarar os arquivos .d.ts
   },
   "include": ["src", "src/types", "prisma/seed.ts"],
   "exclude": ["node_modules", "build"]

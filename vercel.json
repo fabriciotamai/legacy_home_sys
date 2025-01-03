@@ -11,5 +11,13 @@
       "src": "/(.*)",
       "dest": "build/src/serveless.js"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "TS_NODE_PROJECT": "tsconfig.json"
+    },
+    "commands": {
+      "build": "npm run build"
+    }
+  }
 }

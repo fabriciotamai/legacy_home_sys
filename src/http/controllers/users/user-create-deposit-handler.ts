@@ -1,22 +1,13 @@
 import { makeCreateDepositUseCase } from '@/use-cases/factories/users/make-user-deposit-use-case';
-import { saveFile } from '@/utils/save-file';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 export async function createDepositHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const createDepositSchema = z.object({
-    amount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: 'O valor do depósito deve ser maior que zero.',
-    }),
-    proofUrl: z.string().optional(),
+    amount: z.number().positive('O valor do depósito deve ser maior que zero.'),
   });
 
   try {
-    if (!request.isMultipart()) {
-      reply.status(400).send({ error: 'Formato da requisição inválido. Use multipart/form-data.' });
-      return;
-    }
-
     const userId = request.user?.id;
 
     if (!userId) {
@@ -24,29 +15,24 @@ export async function createDepositHandler(request: FastifyRequest, reply: Fasti
       return;
     }
 
-    const parts = request.parts();
-    let amount: string | undefined;
-    let proofUrl: string | undefined;
-
-    for await (const part of parts) {
-      if (part.type === 'field' && part.fieldname === 'amount') {
-        amount = part.value as string;
-      } else if (part.type === 'file' && part.fieldname === 'proof') {
-        proofUrl = await saveFile(part);
-      }
-    }
-
-    const validatedData = createDepositSchema.parse({ amount, proofUrl });
+    const validatedData = createDepositSchema.parse(request.body);
 
     const createDepositUseCase = makeCreateDepositUseCase();
-
     const result = await createDepositUseCase.execute({
       userId,
-      amount: Number(validatedData.amount),
-      proofUrl: validatedData.proofUrl || undefined,
+      amount: validatedData.amount,
     });
 
-    reply.status(201).send({ message: result.message });
+    reply.status(201).send({
+      message: result.message,
+      deposit: {
+        id: result.deposit.id,
+        codeDeposit: result.deposit.codeDeposit,
+        amount: result.deposit.amount,
+        status: result.deposit.status,
+        createdAt: result.deposit.createdAt,
+      },
+    });
   } catch (error) {
     console.error('Erro ao criar depósito:', error);
 

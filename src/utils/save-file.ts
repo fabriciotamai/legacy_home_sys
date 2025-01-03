@@ -1,13 +1,10 @@
 import { MultipartFile } from '@fastify/multipart';
 import { createWriteStream, promises as fs } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const uploadsDir = join(__dirname, '../../uploads');
 
 async function saveFile(file: MultipartFile): Promise<string> {
-  const uploadsDir = join(__dirname, '../../uploads');
   await fs.mkdir(uploadsDir, { recursive: true });
 
   const filePath = join(uploadsDir, file.filename);

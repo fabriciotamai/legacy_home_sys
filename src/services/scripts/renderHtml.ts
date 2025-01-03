@@ -1,17 +1,11 @@
 import fs from 'fs';
 import juice from 'juice';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const renderAndSaveHtml = async () => {
   try {
     const templatePath = path.join(__dirname, '../email-templates/pages/email-confirmation/email-confirmation.html');
-
     const cssPath = path.join(__dirname, '../email-templates/pages/email-confirmation/styles.css');
-
     const outputPath = path.join(__dirname, '../email-templates/output/rendered-inline.html');
 
     const htmlContent = fs.readFileSync(templatePath, 'utf8');

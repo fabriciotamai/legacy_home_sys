@@ -5,7 +5,6 @@ import fastifyStatic from '@fastify/static';
 import fastify from 'fastify';
 import path from 'path';
 
-// 🔥 Em CommonJS, __dirname já existe automaticamente
 export const app = fastify({ logger: true });
 
 const corsOptions = {

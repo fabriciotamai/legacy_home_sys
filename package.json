@@ -8,6 +8,7 @@
     "test": "jest",
     "start:dev": "tsx watch src/server.ts",
     "lint": "eslint . --ext .ts,.js",
+    "check-ts-version": "npx tsc --version && node -v",
     "lint:fix": "eslint . --ext .ts,.js --fix",
     "format": "prettier --write .",
     "build": "prisma migrate deploy && prisma generate && tsc && tsc-alias",
@@ -28,7 +29,7 @@
     "@prisma/client": "^5.20.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
-    "fastify": "^5.0.0",
+    "fastify": "^5.2.0",
     "form-data": "^4.0.1",
     "handlebars": "^4.7.8",
     "jsonwebtoken": "^9.0.2",
@@ -53,7 +54,7 @@
     "prettier": "^3.4.2",
     "tsc-alias": "^1.8.10",
     "tsx": "^4.19.1",
-    "typescript": "^5.6.3",
+    "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.0"
   }
 }

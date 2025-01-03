@@ -1,37 +1,20 @@
 {
   "compilerOptions": {
-    // Qualquer versão de saída JS que você deseje
     "target": "ES2020",
-
-    // Aqui é a chave: vamos gerar CommonJS
     "module": "commonjs",
-
-    // "moduleResolution": "node" funciona bem em CommonJS
     "moduleResolution": "node",
-
-    // Mantemos o baseUrl e paths se você quiser usar `@/*`:
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
     },
-
-    // A pasta de saída
     "outDir": "build",
-
-    // Raiz do projeto (se seu código está todo em src, você pode usar "src" como rootDir).
     "rootDir": ".",
-
-    // Permite importar libs CommonJS no TS (como `import express from 'express'`)
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-
-    // Regras de boas práticas do TypeScript
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-
-    // Opcional: gerar arquivos .d.ts
     "declaration": true,
     "declarationMap": true
   },

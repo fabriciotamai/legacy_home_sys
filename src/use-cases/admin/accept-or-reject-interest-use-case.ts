@@ -1,6 +1,6 @@
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { UsersRepository } from '@/repositories/user-repository';
-import { ContractInterest, InterestStatus, WalletTransactionType } from '@prisma/client';
+import { ContractInterest, Enterprise, InterestStatus, User, WalletTransactionType } from '@prisma/client';
 
 interface AcceptOrRejectInterestInput {
   interestId: string;
@@ -13,6 +13,50 @@ export class AcceptOrRejectInterestUseCase {
     private readonly enterpriseRepository: EnterpriseRepository,
     private readonly usersRepository: UsersRepository,
   ) {}
+
+  private calculateFinancialUpdate(user: User, enterprise: Enterprise) {
+    const userWalletBalance = user.walletBalance ?? 0;
+    if (userWalletBalance < enterprise.fundingAmount) {
+      throw new Error('Saldo insuficiente para aprovar o interesse.');
+    }
+
+    return {
+      updatedWalletBalance: userWalletBalance - enterprise.fundingAmount,
+      updatedTotalInvested: (user.totalInvested ?? 0) + enterprise.fundingAmount,
+      updatedTotalValuation: (user.totalValuation ?? 0) + enterprise.transferAmount,
+    };
+  }
+
+  private async approveInterest(user: User, enterprise: Enterprise, interestId: string): Promise<void> {
+    const { updatedWalletBalance, updatedTotalInvested, updatedTotalValuation } = this.calculateFinancialUpdate(
+      user,
+      enterprise,
+    );
+
+    await this.usersRepository.updateUserFinancials(
+      user.id,
+      updatedWalletBalance,
+      updatedTotalInvested,
+      updatedTotalValuation,
+    );
+
+    await this.usersRepository.addWalletTransaction({
+      userId: user.id,
+      type: WalletTransactionType.DEBIT,
+      amount: enterprise.fundingAmount,
+      balanceBefore: user.walletBalance ?? 0,
+      balanceAfter: updatedWalletBalance,
+      description: `Investimento aprovado para o empreendimento "${enterprise.name}".`,
+    });
+
+    await this.enterpriseRepository.addInvestment({
+      userId: user.id,
+      enterpriseId: enterprise.id,
+      investedAmount: enterprise.fundingAmount,
+    });
+
+    await this.enterpriseRepository.removeOtherInterests(enterprise.id, interestId);
+  }
 
   async execute(input: AcceptOrRejectInterestInput): Promise<ContractInterest> {
     const { interestId, status, reason } = input;
@@ -33,40 +77,7 @@ export class AcceptOrRejectInterestUseCase {
     }
 
     if (status === 'APPROVED') {
-      const userWalletBalance = user.walletBalance ?? 0;
-
-      if (userWalletBalance < enterprise.fundingAmount) {
-        throw new Error('Saldo insuficiente para aprovar o interesse.');
-      }
-
-      const updatedWalletBalance = userWalletBalance - enterprise.fundingAmount;
-
-      const updatedTotalInvested = (user.totalInvested ?? 0) + enterprise.fundingAmount;
-      const updatedTotalValuation = (user.totalValuation ?? 0) + enterprise.transferAmount;
-
-      await this.usersRepository.updateUserFinancials(
-        user.id,
-        updatedWalletBalance,
-        updatedTotalInvested,
-        updatedTotalValuation,
-      );
-
-      await this.usersRepository.addWalletTransaction({
-        userId: user.id,
-        type: WalletTransactionType.DEBIT,
-        amount: enterprise.fundingAmount,
-        balanceBefore: userWalletBalance,
-        balanceAfter: updatedWalletBalance,
-        description: `Investimento aprovado para o empreendimento "${enterprise.name}".`,
-      });
-
-      await this.enterpriseRepository.addInvestment({
-        userId: user.id,
-        enterpriseId: enterprise.id,
-        investedAmount: enterprise.fundingAmount,
-      });
-
-      await this.enterpriseRepository.removeOtherInterests(enterprise.id, interestId);
+      await this.approveInterest(user, enterprise, interestId);
     }
 
     const updatedInterest = await this.enterpriseRepository.updateInterestStatus(interestId, status);

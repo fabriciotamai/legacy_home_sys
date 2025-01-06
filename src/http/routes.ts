@@ -17,6 +17,7 @@ import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
 import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-interest-with-enterprise-handler';
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
+import { adminListDepositsHandler } from './controllers/admin/list-deposit-handler';
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { updateEnterpriseValuationHandler } from './controllers/admin/update-valution-enterprise-handler';
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
@@ -27,6 +28,7 @@ import { getEnterprisesAvailableHandler } from './controllers/users/get-enterpri
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
+import { sendOrUpdateProofHandler } from './controllers/users/send-or-update-proof-handler';
 import { createDepositHandler } from './controllers/users/user-create-deposit-handler';
 import { userRegisterHandler } from './controllers/users/user-register-use-handler';
 import { validateEmailHandler } from './controllers/users/validate-email-handler';
@@ -71,6 +73,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
     protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
     protectedRoutes.get('/admin/dashboard', { preHandler: roleMiddleware }, getAdminDashboardHandler);
+    protectedRoutes.get('/admin/deposits', adminListDepositsHandler);
 
     // ------------------------------- USERS-------------------------------------------------------
     protectedRoutes.post('/users/change-password', changePasswordHandler);
@@ -85,5 +88,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/users/dashboard', getDashboardDataHandler);
     protectedRoutes.post('/users/deposit', createDepositHandler);
     protectedRoutes.get('/users/getalldeposit', getAllDepositsHandler);
+    protectedRoutes.post('/users/proof-payment', sendOrUpdateProofHandler);
   });
 }

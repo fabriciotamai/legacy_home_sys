@@ -8,7 +8,7 @@ export class PrismaDepositsRepository implements DepositsRepository {
     return prisma.deposit.create({
       data: {
         user: {
-          connect: { id: data.userId }, // Conecta o userId ao campo user
+          connect: { id: data.userId },
         },
         amount: data.amount,
         proofUrl: data.proofUrl || null,
@@ -32,6 +32,23 @@ export class PrismaDepositsRepository implements DepositsRepository {
     return prisma.deposit.update({
       where: { id: depositId },
       data: { status, adminComment },
+    });
+  }
+
+  async findAll(status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_PROOF'): Promise<Deposit[]> {
+    return prisma.deposit.findMany({
+      where: status ? { status } : {},
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

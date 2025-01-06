@@ -17,6 +17,13 @@ export class PrismaDepositsRepository implements DepositsRepository {
     });
   }
 
+  async updateBalanceUpdatedAt(depositId: number): Promise<Deposit> {
+    return prisma.deposit.update({
+      where: { id: depositId },
+      data: { balanceUpdatedAt: new Date() },
+    });
+  }
+
   async updateProofUrl(depositId: number, proofUrl: string): Promise<Deposit> {
     return prisma.deposit.update({
       where: { id: depositId },

@@ -10,6 +10,7 @@ import { FastifyInstance } from 'fastify';
 import { acceptOrRejectComplianceHandler } from './controllers/admin/accept-or-reject-compliance-handler';
 import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-enterprise-handler';
 import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
+import { adminApproveOrRejectDepositHandler } from './controllers/admin/admin-approve-or-reject-deposit-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
 import { getAdminDashboardHandler } from './controllers/admin/get-admin-dashboard-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
@@ -47,6 +48,11 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/admin/create-enterprise', { preHandler: roleMiddleware }, createEnterpriseHandler);
     protectedRoutes.get('/admin/get-enterprise', { preHandler: roleMiddleware }, getAllEnterprisesHandler);
     protectedRoutes.post('/admin/link-enterprise', { preHandler: roleMiddleware }, linkEnterpriseToUserHandler);
+    protectedRoutes.post(
+      '/admin/deposit/approve-or-reject',
+      { preHandler: roleMiddleware },
+      adminApproveOrRejectDepositHandler,
+    );
     protectedRoutes.put(
       '/admin/update/:enterpriseId/valuation',
       { preHandler: roleMiddleware },

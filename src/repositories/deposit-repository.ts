@@ -8,4 +8,5 @@ export interface DepositsRepository {
   findById(depositId: number): Promise<Deposit | null>;
   findByUser(userId: number): Promise<Deposit[]>;
   findAll(status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_PROOF'): Promise<Deposit[]>;
+  updateBalanceUpdatedAt(depositId: number): Promise<Deposit>;
 }

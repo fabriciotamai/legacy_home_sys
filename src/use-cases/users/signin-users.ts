@@ -9,7 +9,6 @@ interface LoginInput {
 }
 
 interface LoginOutput {
-  mustChangePassword: boolean;
   token: string;
   user: {
     id: number;
@@ -17,6 +16,7 @@ interface LoginOutput {
     username: string;
     role: string;
     complianceStatus: string;
+    mustChangePassword: boolean;
   };
   adminDashboard?: any;
 }
@@ -55,9 +55,7 @@ export class SigninUsers {
     });
 
     const adminDashboard = await this.getAdminDashboardDataUseCase.execute();
-
     return {
-      mustChangePassword: user.mustChangePassword,
       token,
       user: {
         id: user.id,
@@ -65,6 +63,7 @@ export class SigninUsers {
         username: user.username,
         role: user.role,
         complianceStatus: user.complianceStatus,
+        mustChangePassword: user.mustChangePassword,
       },
       adminDashboard,
     };
@@ -83,7 +82,6 @@ export class SigninUsers {
     });
 
     return {
-      mustChangePassword: updatedUser.mustChangePassword,
       token,
       user: {
         id: updatedUser.id,
@@ -91,6 +89,7 @@ export class SigninUsers {
         username: updatedUser.username,
         role: user.role,
         complianceStatus: user.complianceStatus,
+        mustChangePassword: updatedUser.mustChangePassword,
       },
     };
   }

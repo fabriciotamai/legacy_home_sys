@@ -7,4 +7,5 @@ export interface DepositsRepository {
   findPendingWithoutProof(): Promise<Deposit[]>;
   findById(depositId: number): Promise<Deposit | null>;
   findByUser(userId: number): Promise<Deposit[]>;
+  findAll(status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_PROOF'): Promise<Deposit[]>;
 }

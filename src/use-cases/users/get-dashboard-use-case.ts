@@ -20,7 +20,6 @@ interface GetDashboardDataUseCaseResponse {
 
 export class GetDashboardDataUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
-
   async execute({ userId }: GetDashboardDataUseCaseRequest): Promise<GetDashboardDataUseCaseResponse> {
     const [
       housesCount,

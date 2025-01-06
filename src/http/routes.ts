@@ -24,6 +24,7 @@ import { adminListDepositsHandler } from './controllers/admin/list-deposit-handl
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { updateEnterpriseValuationHandler } from './controllers/admin/update-valution-enterprise-handler';
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
+import { buyEntepriseHandler } from './controllers/users/buy-enterprise-handler';
 import { generateEmailCodeHandler } from './controllers/users/generate-token-email-handler';
 import { getAllDepositsHandler } from './controllers/users/get-all-deposits-handler';
 import { getDashboardDataHandler } from './controllers/users/get-dashboard-handler';
@@ -91,6 +92,8 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
     protectedRoutes.post('/users/validate-email', validateEmailHandler);
+
+    protectedRoutes.post('/users/buy-enterprise', buyEntepriseHandler);
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
     protectedRoutes.get('/users/me/data', getUserWithAddressHandler);
     protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);

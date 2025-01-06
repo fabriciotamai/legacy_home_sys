@@ -27,7 +27,7 @@ export interface EnterpriseRepository {
   findWithInterests(): Promise<Enterprise[]>;
   findByUserId(userId: number): Promise<(Enterprise & { interestStatus?: string })[]>;
   initializeEnterprisePhasesAndTasks(enterpriseId: number): Promise<void>;
-  linkUserToEnterprise(userId: number, enterpriseId: number): Promise<ContractInterest>;
+  linkUserToEnterprise(userId: number, enterpriseId: number, status?: InterestStatus): Promise<ContractInterest>;
   findInterestById(interestId: string): Promise<ContractInterest | null>;
   updateInterestStatus(interestId: string, status: InterestStatus): Promise<ContractInterest>;
   removeOtherInterests(enterpriseId: number, approvedInterestId: string): Promise<void>;

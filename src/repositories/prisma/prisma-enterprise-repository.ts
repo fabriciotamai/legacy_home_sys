@@ -173,12 +173,16 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async linkUserToEnterprise(userId: number, enterpriseId: number): Promise<ContractInterest> {
+  async linkUserToEnterprise(
+    userId: number,
+    enterpriseId: number,
+    status: InterestStatus = InterestStatus.PENDING,
+  ): Promise<ContractInterest> {
     return prisma.contractInterest.create({
       data: {
         userId,
         enterpriseId,
-        status: 'PENDING',
+        status,
       },
     });
   }

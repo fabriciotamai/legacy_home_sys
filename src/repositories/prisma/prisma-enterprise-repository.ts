@@ -14,13 +14,10 @@ import {
 import { EnterpriseRepository } from '../enterprise-repository';
 
 export class PrismaEnterpriseRepository implements EnterpriseRepository {
-  async findById(enterpriseId: number): Promise<Enterprise | null> {
-    return prisma.enterprise.findUnique({
+  async findById(enterpriseId: number): Promise<Enterprise> {
+    return prisma.enterprise.findUniqueOrThrow({
       where: { id: enterpriseId },
-      include: {
-        currentPhase: true,
-        currentTask: true,
-      },
+      include: { currentPhase: true, currentTask: true },
     });
   }
 
@@ -159,27 +156,21 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       include: { tasks: true },
     });
 
-    for (const phase of phases) {
-      await prisma.enterprisePhaseStatus.create({
-        data: {
-          enterpriseId,
-          phaseId: phase.id,
-          progress: 0,
-        },
-      });
+    await prisma.$transaction(async (tx) => {
+      for (const phase of phases) {
+        await tx.enterprisePhaseStatus.create({
+          data: { enterpriseId, phaseId: phase.id, progress: 0 },
+        });
 
-      const taskPromises = phase.tasks.map((task) =>
-        prisma.enterpriseTaskStatus.create({
-          data: {
+        await tx.enterpriseTaskStatus.createMany({
+          data: phase.tasks.map((task) => ({
             enterpriseId,
             taskId: task.id,
             isCompleted: false,
-          },
-        }),
-      );
-
-      await Promise.all(taskPromises);
-    }
+          })),
+        });
+      }
+    });
   }
 
   async linkUserToEnterprise(userId: number, enterpriseId: number): Promise<ContractInterest> {
@@ -201,7 +192,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   async updateInterestStatus(interestId: string, status: InterestStatus): Promise<ContractInterest> {
     return prisma.contractInterest.update({
       where: { interestId },
-      data: { status },
+      data: { status: InterestStatus[status] },
     });
   }
 
@@ -239,7 +230,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   }
 
   async findByUserId(userId: number): Promise<(Enterprise & { interestStatus?: string })[]> {
-    const enterprises = await prisma.enterprise.findMany({
+    return prisma.enterprise.findMany({
       where: {
         OR: [{ contracts: { some: { userId } } }, { contractInterests: { some: { userId } } }],
       },
@@ -252,12 +243,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
         },
       },
       orderBy: { createdAt: 'desc' },
-    });
-
-    return enterprises.map((enterprise) => {
-      const interestStatus = enterprise.contractInterests[0]?.status ?? undefined;
-      const { contractInterests, ...rest } = enterprise;
-      return { ...rest, interestStatus };
     });
   }
   async addChangeLog(data: {

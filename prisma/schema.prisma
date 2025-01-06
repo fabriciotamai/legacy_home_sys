@@ -251,7 +251,7 @@ model Enterprise {
   updatedAt         DateTime                @updatedAt
   InterestLog       InterestLog[]
 
-  @@index([status, investmentType])
+  @@index([status, createdAt])
 }
 
 model Contract {
@@ -290,6 +290,9 @@ model ContractInterest {
   enterpriseId Int
   status       InterestStatus @default(PENDING)
   createdAt    DateTime       @default(now())
+
+  @@index([userId, status])
+  @@index([enterpriseId, status])
 }
 
 model Phase {

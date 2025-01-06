@@ -23,6 +23,9 @@ export class PrismaAdminRepository implements AdminRepository {
     return await prisma.user.findMany({
       where: { isActive: true },
       orderBy: { createdAt: 'desc' },
+      include: {
+        addresses: true,
+      },
     });
   }
 

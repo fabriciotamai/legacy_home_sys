@@ -8,8 +8,8 @@ export async function adminListDepositsHandler(request: FastifyRequest, reply: F
   });
 
   try {
-    const query = request.query as any; // Captura a query string
-    const { status } = listDepositsSchema.parse(query); // Valida o status enviado
+    const query = request.query as any;
+    const { status } = listDepositsSchema.parse(query);
 
     const listDepositsUseCase = makeListDepositsUseCase();
     const { deposits } = await listDepositsUseCase.execute(status);

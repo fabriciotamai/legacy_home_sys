@@ -22,17 +22,9 @@ export class ApproveInvestmentService {
   }
 
   async approveInterest(user: User, enterprise: Enterprise, interestId: string): Promise<void> {
-    const { updatedWalletBalance, updatedTotalInvested, updatedTotalValuation } = this.calculateFinancialUpdate(
-      user,
-      enterprise,
-    );
+    const { updatedWalletBalance, updatedTotalInvested, updatedTotalValuation } = this.calculateFinancialUpdate(user, enterprise);
 
-    await this.usersRepository.updateUserFinancials(
-      user.id,
-      updatedWalletBalance,
-      updatedTotalInvested,
-      updatedTotalValuation,
-    );
+    await this.usersRepository.updateUserFinancials(user.id, updatedWalletBalance, updatedTotalInvested, updatedTotalValuation);
 
     await this.usersRepository.addWalletTransaction({
       userId: user.id,

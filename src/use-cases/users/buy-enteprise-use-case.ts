@@ -24,11 +24,7 @@ export class BuyEnteprisetUseCase {
     const enterprise = await this.enterpriseRepository.findById(enterpriseId);
     if (!enterprise) throw new Error('Empreendimento não encontrado.');
 
-    const contractInterest = await this.enterpriseRepository.linkUserToEnterprise(
-      userId,
-      enterpriseId,
-      InterestStatus.APPROVED,
-    );
+    const contractInterest = await this.enterpriseRepository.linkUserToEnterprise(userId, enterpriseId, InterestStatus.APPROVED);
 
     await this.approveInvestmentService.approveInterest(user, enterprise, contractInterest.interestId);
 

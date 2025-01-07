@@ -132,11 +132,7 @@ export class CreateEnterpriseUseCase {
       throw new Error('Nenhuma tarefa encontrada na fase inicial.');
     }
 
-    const updatedEnterprise = await this.enterpriseRepository.updateEnterprisePhaseAndTask(
-      enterprise.id,
-      initialPhase.id,
-      firstTask.id,
-    );
+    const updatedEnterprise = await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterprise.id, initialPhase.id, firstTask.id);
 
     return {
       message: 'Empreendimento criado com sucesso.',

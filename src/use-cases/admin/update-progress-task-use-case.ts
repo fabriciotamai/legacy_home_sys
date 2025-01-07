@@ -16,15 +16,13 @@ export class UpdateProgressUseCase {
     const taskWithPhase = await this.enterpriseRepository.findTaskWithPhaseAndEnterprise(enterpriseId, taskId);
 
     if (!taskWithPhase || taskWithPhase.phase.id !== phaseId) {
-      throw new Error(
-        `Tarefa não encontrada ou não pertence à fase (${phaseId}) ou ao empreendimento (${enterpriseId}).`,
-      );
+      throw new Error(`Tarefa não encontrada ou não pertence à fase (${phaseId}) ou ao empreendimento (${enterpriseId}).`);
     }
 
     if (isCompleted) {
       await this.enterpriseRepository.updateTaskStatus(enterpriseId, taskId, isCompleted);
-      const phaseProgress = await this.recalculatePhaseProgress(enterpriseId, phaseId);
-      const enterpriseProgress = await this.recalculateEnterpriseProgress(enterpriseId);
+      await this.recalculatePhaseProgress(enterpriseId, phaseId);
+      await this.recalculateEnterpriseProgress(enterpriseId);
       const phaseChanged = await this.moveToNextTaskOrPhase(enterpriseId, phaseId, taskId);
 
       if (!phaseChanged) {
@@ -144,14 +142,10 @@ export class UpdateProgressUseCase {
 
     const targetTask = tasks.find((task) => task.task.id === targetTaskId);
     if (!targetTask) {
-      throw new Error(
-        `A tarefa (${targetTaskId}) não pertence à fase (${phaseId}) no empreendimento (${enterpriseId}).`,
-      );
+      throw new Error(`A tarefa (${targetTaskId}) não pertence à fase (${phaseId}) no empreendimento (${enterpriseId}).`);
     }
 
-    await Promise.all(
-      tasks.map((task) => this.enterpriseRepository.updateTaskStatus(enterpriseId, task.task.id, false)),
-    );
+    await Promise.all(tasks.map((task) => this.enterpriseRepository.updateTaskStatus(enterpriseId, task.task.id, false)));
 
     await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterpriseId, phaseId, targetTaskId);
 

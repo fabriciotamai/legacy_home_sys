@@ -5,6 +5,7 @@ export async function getUserWithAddressHandler(request: FastifyRequest, reply: 
   try {
     if (!request.user || !request.user.id) {
       console.error('Erro: Usuário não autenticado ou ID ausente.');
+
       return reply.status(401).send({ error: 'Usuário não autenticado.' });
     }
 

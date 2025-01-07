@@ -1,9 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function roleMiddleware(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function roleMiddleware(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   if (!request.user) {
     return reply.status(401).send({ error: 'Usuário não autenticado.' });
   }

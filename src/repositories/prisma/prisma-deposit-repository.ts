@@ -31,11 +31,7 @@ export class PrismaDepositsRepository implements DepositsRepository {
     });
   }
 
-  async updateStatus(
-    depositId: number,
-    status: 'PENDING' | 'APPROVED' | 'REJECTED',
-    adminComment?: string,
-  ): Promise<Deposit> {
+  async updateStatus(depositId: number, status: 'PENDING' | 'APPROVED' | 'REJECTED', adminComment?: string): Promise<Deposit> {
     return prisma.deposit.update({
       where: { id: depositId },
       data: { status, adminComment },

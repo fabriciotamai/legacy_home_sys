@@ -19,6 +19,6 @@
     "declarationMap": true,
     "declarationDir": "build/types" 
   },
-  "include": ["src", "src/types", "prisma/seed.ts"],
+  "include": ["src", "src/types", "prisma/seed.ts", "prisma/seed.d.ts"],
   "exclude": ["node_modules", "build"]
 }

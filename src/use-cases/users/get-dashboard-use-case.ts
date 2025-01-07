@@ -21,23 +21,16 @@ interface GetDashboardDataUseCaseResponse {
 export class GetDashboardDataUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
   async execute({ userId }: GetDashboardDataUseCaseRequest): Promise<GetDashboardDataUseCaseResponse> {
-    const [
-      housesCount,
-      landsCount,
-      walletBalance,
-      financials,
-      approvedInterests,
-      recentEnterprises,
-      rawUserRecentEnterprises,
-    ] = await Promise.all([
-      this.usersRepository.countEnterprisesByType(userId, ConstructionType.HOUSE),
-      this.usersRepository.countEnterprisesByType(userId, ConstructionType.LAND),
-      this.usersRepository.getWalletBalance(userId),
-      this.usersRepository.getUserFinancials(userId),
-      this.usersRepository.getApprovedContractsWithEnterprise(userId),
-      this.usersRepository.getRecentEnterprisesWithoutApprovedInterests(),
-      this.usersRepository.getUserRecentEnterprises(userId),
-    ]);
+    const [housesCount, landsCount, walletBalance, financials, approvedInterests, recentEnterprises, rawUserRecentEnterprises] =
+      await Promise.all([
+        this.usersRepository.countEnterprisesByType(userId, ConstructionType.HOUSE),
+        this.usersRepository.countEnterprisesByType(userId, ConstructionType.LAND),
+        this.usersRepository.getWalletBalance(userId),
+        this.usersRepository.getUserFinancials(userId),
+        this.usersRepository.getApprovedContractsWithEnterprise(userId),
+        this.usersRepository.getRecentEnterprisesWithoutApprovedInterests(),
+        this.usersRepository.getUserRecentEnterprises(userId),
+      ]);
 
     const enterpriseIds = new Set(approvedInterests.map((interest) => interest.enterprise.id));
     const enterpriseCount = enterpriseIds.size;

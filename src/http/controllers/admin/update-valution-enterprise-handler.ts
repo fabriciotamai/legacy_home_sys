@@ -29,8 +29,7 @@ export async function updateEnterpriseValuationHandler(request: FastifyRequest, 
     });
 
     reply.status(200).send({
-      message:
-        mode === 'consulting' ? 'Consulta realizada com sucesso.' : 'Valorização/desvalorização aplicada com sucesso.',
+      message: mode === 'consulting' ? 'Consulta realizada com sucesso.' : 'Valorização/desvalorização aplicada com sucesso.',
       data: result,
     });
   } catch (error) {

@@ -15,7 +15,9 @@ export class ApproveOrRejectDepositUseCase {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  async execute(input: ApproveOrRejectDepositInput): Promise<{ deposit: Deposit }> {
+  async execute(
+    input: ApproveOrRejectDepositInput,
+  ): Promise<{ deposit: Deposit }> {
     try {
       const { depositId, status, adminComment } = input;
 
@@ -28,16 +30,25 @@ export class ApproveOrRejectDepositUseCase {
         throw new Error('Depósito já foi processado.');
       }
 
-      let updatedDeposit = await this.depositsRepository.updateStatus(depositId, status, adminComment);
+      let updatedDeposit = await this.depositsRepository.updateStatus(
+        depositId,
+        status,
+        adminComment,
+      );
 
       if (status === 'APPROVED') {
         const user = await this.usersRepository.findById(deposit.userId);
         if (!user) throw new Error('Usuário não encontrado.');
 
         const depositAmount = new Decimal(deposit.amount);
-        const newBalance = new Decimal(user.walletBalance || 0).plus(depositAmount);
+        const newBalance = new Decimal(user.walletBalance || 0).plus(
+          depositAmount,
+        );
 
-        await this.usersRepository.updateWalletBalance(deposit.userId, newBalance.toNumber());
+        await this.usersRepository.updateWalletBalance(
+          deposit.userId,
+          newBalance.toNumber(),
+        );
 
         await this.usersRepository.addWalletTransaction({
           userId: deposit.userId,
@@ -48,13 +59,16 @@ export class ApproveOrRejectDepositUseCase {
           description: `Depósito aprovado - ID: ${deposit.id}`,
         });
 
-        updatedDeposit = await this.depositsRepository.updateBalanceUpdatedAt(depositId);
+        updatedDeposit =
+          await this.depositsRepository.updateBalanceUpdatedAt(depositId);
       }
 
       return { deposit: updatedDeposit };
     } catch (error) {
       console.error('Erro ao processar depósito:', error);
-      throw new Error('Erro ao aprovar/rejeitar depósito. Tente novamente mais tarde.');
+      throw new Error(
+        'Erro ao aprovar/rejeitar depósito. Tente novamente mais tarde.',
+      );
     }
   }
 }

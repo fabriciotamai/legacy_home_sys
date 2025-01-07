@@ -1,7 +1,10 @@
 import { makeGetUserEnterprisesUseCase } from '@/use-cases/factories/users/make-get-user-enterprise-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function getUserEnterprisesHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function getUserEnterprisesHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const userId = request.user?.id;
 

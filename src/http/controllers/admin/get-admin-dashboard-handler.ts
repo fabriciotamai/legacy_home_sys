@@ -1,7 +1,10 @@
 import { makeGetAdminDashboardDataUseCase } from '@/use-cases/factories/admin/make-get-admin-dashboard-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function getAdminDashboardHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function getAdminDashboardHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const getAdminDashboardDataUseCase = makeGetAdminDashboardDataUseCase();
 

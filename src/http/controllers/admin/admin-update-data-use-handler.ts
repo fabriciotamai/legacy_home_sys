@@ -3,7 +3,10 @@ import { ComplianceStatus, DocumentType, Role } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function adminUpdateUserHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function adminUpdateUserHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const paramsSchema = z.object({
     id: z.string().regex(/^\d+$/, 'O ID do usuário deve ser um número válido.'),
   });
@@ -33,7 +36,9 @@ export async function adminUpdateUserHandler(request: FastifyRequest, reply: Fas
     const updateUserUseCase = makeAdminUpdateUserUseCase();
     await updateUserUseCase.execute({ userId: Number(id), ...userData });
 
-    reply.status(200).send({ message: 'Dados do usuário atualizados com sucesso!' });
+    reply
+      .status(200)
+      .send({ message: 'Dados do usuário atualizados com sucesso!' });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return reply.status(400).send({ errors: error.errors });

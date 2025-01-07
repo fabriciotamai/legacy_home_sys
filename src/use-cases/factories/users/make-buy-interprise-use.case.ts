@@ -7,9 +7,16 @@ export function makeBuyDirectUseCase() {
   const enterpriseRepository = new PrismaEnterpriseRepository();
   const usersRepository = new PrismaUsersRepository();
 
-  const approveInvestmentService = new ApproveInvestmentService(usersRepository, enterpriseRepository);
+  const approveInvestmentService = new ApproveInvestmentService(
+    usersRepository,
+    enterpriseRepository,
+  );
 
-  const useCase = new BuyEnteprisetUseCase(enterpriseRepository, usersRepository, approveInvestmentService);
+  const useCase = new BuyEnteprisetUseCase(
+    enterpriseRepository,
+    usersRepository,
+    approveInvestmentService,
+  );
 
   return useCase;
 }

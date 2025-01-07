@@ -115,14 +115,17 @@ export class CreateEnterpriseUseCase {
       throw new Error('Erro ao criar o empreendimento.');
     }
 
-    const phaseTemplates = await this.enterpriseRepository.findAllPhasesWithTasks();
+    const phaseTemplates =
+      await this.enterpriseRepository.findAllPhasesWithTasks();
     if (!phaseTemplates || phaseTemplates.length === 0) {
       throw new Error('Nenhuma fase padrão encontrada.');
     }
 
     await this.initializePhasesAndTasks(enterprise.id, phaseTemplates);
 
-    const initialPhase = phaseTemplates.find((template) => template.order === 1);
+    const initialPhase = phaseTemplates.find(
+      (template) => template.order === 1,
+    );
     if (!initialPhase) {
       throw new Error('Fase inicial (ordem 1) não encontrada.');
     }
@@ -132,7 +135,12 @@ export class CreateEnterpriseUseCase {
       throw new Error('Nenhuma tarefa encontrada na fase inicial.');
     }
 
-    const updatedEnterprise = await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterprise.id, initialPhase.id, firstTask.id);
+    const updatedEnterprise =
+      await this.enterpriseRepository.updateEnterprisePhaseAndTask(
+        enterprise.id,
+        initialPhase.id,
+        firstTask.id,
+      );
 
     return {
       message: 'Empreendimento criado com sucesso.',
@@ -177,18 +185,26 @@ export class CreateEnterpriseUseCase {
   }
 
   private validateInput(input: CreateEnterpriseInput): void {
-    const { name, description, fundingAmount, area, corporateName, address } = input;
+    const { name, description, fundingAmount, area, corporateName, address } =
+      input;
 
     if (!name || !description || !corporateName || !address) {
-      throw new Error('Nome, descrição, razão social e endereço são obrigatórios.');
+      throw new Error(
+        'Nome, descrição, razão social e endereço são obrigatórios.',
+      );
     }
 
     if (fundingAmount <= 0 || area <= 0) {
-      throw new Error('O valor de aporte e a metragem devem ser maiores que zero.');
+      throw new Error(
+        'O valor de aporte e a metragem devem ser maiores que zero.',
+      );
     }
   }
 
-  private async initializePhasesAndTasks(enterpriseId: number, phases: (Phase & { tasks: Task[] })[]): Promise<void> {
+  private async initializePhasesAndTasks(
+    enterpriseId: number,
+    phases: (Phase & { tasks: Task[] })[],
+  ): Promise<void> {
     for (const phase of phases) {
       await this.enterpriseRepository.createPhaseProgress({
         enterpriseId,

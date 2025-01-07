@@ -19,20 +19,28 @@ export class AcceptOrRejectInterestUseCase {
   async execute(input: AcceptOrRejectInterestInput): Promise<ContractInterest> {
     const { interestId, status, reason } = input;
 
-    const interest = await this.enterpriseRepository.findInterestById(interestId);
+    const interest =
+      await this.enterpriseRepository.findInterestById(interestId);
     if (!interest) throw new Error('Interesse não encontrado.');
 
-    const enterprise = await this.enterpriseRepository.findById(interest.enterpriseId);
+    const enterprise = await this.enterpriseRepository.findById(
+      interest.enterpriseId,
+    );
     if (!enterprise) throw new Error('Empreendimento não encontrado.');
 
     const user = await this.usersRepository.findById(interest.userId);
     if (!user) throw new Error('Usuário não encontrado.');
 
     if (status === 'APPROVED') {
-      await this.approveInvestmentService.approveInterest(user, enterprise, interestId);
+      await this.approveInvestmentService.approveInterest(
+        user,
+        enterprise,
+        interestId,
+      );
     }
 
-    const updatedInterest = await this.enterpriseRepository.updateInterestStatus(interestId, status);
+    const updatedInterest =
+      await this.enterpriseRepository.updateInterestStatus(interestId, status);
 
     await this.enterpriseRepository.addInterestLog({
       userId: user.id,

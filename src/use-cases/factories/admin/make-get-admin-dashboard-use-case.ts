@@ -6,5 +6,8 @@ export function makeGetAdminDashboardDataUseCase(): GetAdminDashboardDataUseCase
   const adminRepository = new PrismaAdminRepository();
   const enterpriseRepository = new PrismaEnterpriseRepository();
 
-  return new GetAdminDashboardDataUseCase(adminRepository, enterpriseRepository);
+  return new GetAdminDashboardDataUseCase(
+    adminRepository,
+    enterpriseRepository,
+  );
 }

@@ -14,13 +14,21 @@ const updateEnterpriseValuationParamsSchema = z.object({
   enterpriseId: z.coerce.number(),
 });
 
-export async function updateEnterpriseValuationHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function updateEnterpriseValuationHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
-    const { enterpriseId } = updateEnterpriseValuationParamsSchema.parse(request.params);
+    const { enterpriseId } = updateEnterpriseValuationParamsSchema.parse(
+      request.params,
+    );
 
-    const { newValuation, mode } = updateEnterpriseValuationBodySchema.parse(request.body);
+    const { newValuation, mode } = updateEnterpriseValuationBodySchema.parse(
+      request.body,
+    );
 
-    const updateEnterpriseValuationUseCase = makeUpdateEnterpriseValuationUseCase();
+    const updateEnterpriseValuationUseCase =
+      makeUpdateEnterpriseValuationUseCase();
 
     const result = await updateEnterpriseValuationUseCase.execute({
       enterpriseId,
@@ -29,7 +37,10 @@ export async function updateEnterpriseValuationHandler(request: FastifyRequest, 
     });
 
     reply.status(200).send({
-      message: mode === 'consulting' ? 'Consulta realizada com sucesso.' : 'Valorização/desvalorização aplicada com sucesso.',
+      message:
+        mode === 'consulting'
+          ? 'Consulta realizada com sucesso.'
+          : 'Valorização/desvalorização aplicada com sucesso.',
       data: result,
     });
   } catch (error) {

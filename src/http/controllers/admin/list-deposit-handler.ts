@@ -2,9 +2,14 @@ import { makeListDepositsUseCase } from '@/use-cases/factories/admin/make-list-d
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function adminListDepositsHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function adminListDepositsHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const listDepositsSchema = z.object({
-    status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'WAITING_PROOF']).optional(),
+    status: z
+      .enum(['PENDING', 'APPROVED', 'REJECTED', 'WAITING_PROOF'])
+      .optional(),
   });
 
   try {

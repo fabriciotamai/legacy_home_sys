@@ -2,9 +2,13 @@ import { makeGetEnterprisesWithInterestsUseCase } from '@/use-cases/factories/ad
 
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function getEnterprisesWithInterestsHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function getEnterprisesWithInterestsHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
-    const getEnterprisesWithInterestsUseCase = makeGetEnterprisesWithInterestsUseCase();
+    const getEnterprisesWithInterestsUseCase =
+      makeGetEnterprisesWithInterestsUseCase();
 
     const enterprises = await getEnterprisesWithInterestsUseCase.execute();
 

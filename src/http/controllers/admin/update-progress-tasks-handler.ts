@@ -9,9 +9,13 @@ const updateTaskStatusSchema = z.object({
   isCompleted: z.boolean(),
 });
 
-export async function updateTaskStatusHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function updateTaskStatusHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
-    const { enterpriseId, phaseId, taskId, isCompleted } = updateTaskStatusSchema.parse(request.body);
+    const { enterpriseId, phaseId, taskId, isCompleted } =
+      updateTaskStatusSchema.parse(request.body);
 
     const updateProgressUseCase = makeUpdateProgressUseCase();
 

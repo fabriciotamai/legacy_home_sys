@@ -15,7 +15,7 @@ interface GetUserWithAddressOutput {
   proofOfAddress: string | null;
   incomeTaxProof: string | null;
   complianceStatus: string;
-  addresses: {
+  address?: {
     id: number;
     street: string;
     number: string;
@@ -25,7 +25,7 @@ interface GetUserWithAddressOutput {
     state: string;
     postalCode: string;
     country: string;
-  }[];
+  } | null;
 }
 
 export class GetUserWithAddressUseCase {
@@ -53,17 +53,19 @@ export class GetUserWithAddressUseCase {
       incomeTaxProof: user.incomeTaxProof ?? null,
       proofOfAddress: user.proofOfAddress ?? null,
       complianceStatus: user.complianceStatus,
-      addresses: user.addresses.map((address) => ({
-        id: address.id,
-        street: address.street,
-        number: address.number,
-        complement: address.complement ?? undefined,
-        neighborhood: address.neighborhood,
-        city: address.city,
-        state: address.state,
-        postalCode: address.postalCode,
-        country: address.country,
-      })),
+      address: user.address
+        ? {
+          id: user.address.id,
+          street: user.address.street,
+          number: user.address.number,
+          complement: user.address.complement ?? undefined,
+          neighborhood: user.address.neighborhood,
+          city: user.address.city,
+          state: user.address.state,
+          postalCode: user.address.postalCode,
+          country: user.address.country,
+        }
+        : null,
     };
   }
 }

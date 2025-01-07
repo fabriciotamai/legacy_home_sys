@@ -3,7 +3,9 @@ import { GenerateEmailCodeUseCase } from '@/use-cases/users/generate-email-code-
 
 export function makeGenerateEmailCodeUseCase(): GenerateEmailCodeUseCase {
   const usersRepository = new PrismaUsersRepository();
-  const generateEmailCodeUseCase = new GenerateEmailCodeUseCase(usersRepository);
+  const generateEmailCodeUseCase = new GenerateEmailCodeUseCase(
+    usersRepository,
+  );
 
   return generateEmailCodeUseCase;
 }

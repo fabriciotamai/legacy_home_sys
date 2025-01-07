@@ -4,12 +4,17 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 const getAllEnterprisesQuerySchema = z.object({
-  status: z.enum(['NEW', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD', 'CANCELLED']).optional(),
+  status: z
+    .enum(['NEW', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD', 'CANCELLED'])
+    .optional(),
   investmentType: z.enum(['MONEY', 'PROPERTY']).optional(),
   isAvailable: z.boolean().optional(),
 });
 
-export async function getAllEnterprisesHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function getAllEnterprisesHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const filters = getAllEnterprisesQuerySchema.parse(request.query);
 

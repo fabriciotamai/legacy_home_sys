@@ -3,10 +3,15 @@ import { UserType } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function userRegisterHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function userRegisterHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const userRegisterSchema = z.object({
     email: z.string().email('E-mail inválido.'),
-    username: z.string().min(3, 'O nome de usuário deve ter pelo menos 3 caracteres.'),
+    username: z
+      .string()
+      .min(3, 'O nome de usuário deve ter pelo menos 3 caracteres.'),
     password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres.'),
     firstName: z.string().min(1, 'O primeiro nome é obrigatório.'),
     lastName: z.string().min(1, 'O sobrenome é obrigatório.'),
@@ -35,7 +40,9 @@ export async function userRegisterHandler(request: FastifyRequest, reply: Fastif
 
     await userRegisterUseCase.execute({
       ...validatedData,
-      birthDate: validatedData.birthDate ? new Date(validatedData.birthDate).toISOString() : undefined,
+      birthDate: validatedData.birthDate
+        ? new Date(validatedData.birthDate).toISOString()
+        : undefined,
     });
 
     reply.status(201).send({ message: 'Usuário registrado com sucesso!' });

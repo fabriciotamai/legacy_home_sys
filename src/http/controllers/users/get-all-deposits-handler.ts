@@ -1,7 +1,10 @@
 import { makeGetAllDepositsUseCase } from '@/use-cases/factories/users/make-get-all-deposits-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function getAllDepositsHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function getAllDepositsHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const userId = request.user?.id;
 

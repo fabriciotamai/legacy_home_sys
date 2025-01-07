@@ -4,7 +4,9 @@ import { Deposit } from '@prisma/client';
 export class ListDepositsUseCase {
   constructor(private readonly depositsRepository: DepositsRepository) {}
 
-  async execute(status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_PROOF'): Promise<{ deposits: Deposit[] }> {
+  async execute(
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_PROOF',
+  ): Promise<{ deposits: Deposit[] }> {
     try {
       const deposits = await this.depositsRepository.findAll(status);
 

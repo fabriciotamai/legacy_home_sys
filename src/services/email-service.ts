@@ -24,8 +24,16 @@ export const sendEmailWithTemplate = async (
   data: Record<string, any>,
 ): Promise<void> => {
   try {
-    const templatePath = path.resolve(__dirname, `./email-templates/pages/${templateFolder}`, templateFilename);
-    const cssPath = path.resolve(__dirname, `./email-templates/pages/${templateFolder}`, cssFilename);
+    const templatePath = path.resolve(
+      __dirname,
+      `./email-templates/pages/${templateFolder}`,
+      templateFilename,
+    );
+    const cssPath = path.resolve(
+      __dirname,
+      `./email-templates/pages/${templateFolder}`,
+      cssFilename,
+    );
 
     console.log('HTML Template Path:', templatePath);
     console.log('CSS Path:', cssPath);

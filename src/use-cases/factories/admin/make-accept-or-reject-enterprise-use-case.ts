@@ -7,9 +7,16 @@ export function makeAcceptOrRejectInterestUseCase() {
   const enterpriseRepository = new PrismaEnterpriseRepository();
   const usersRepository = new PrismaUsersRepository();
 
-  const approveInvestmentService = new ApproveInvestmentService(usersRepository, enterpriseRepository);
+  const approveInvestmentService = new ApproveInvestmentService(
+    usersRepository,
+    enterpriseRepository,
+  );
 
-  const useCase = new AcceptOrRejectInterestUseCase(enterpriseRepository, usersRepository, approveInvestmentService);
+  const useCase = new AcceptOrRejectInterestUseCase(
+    enterpriseRepository,
+    usersRepository,
+    approveInvestmentService,
+  );
 
   return useCase;
 }

@@ -7,7 +7,10 @@ const acceptOrRejectZodSchema = z.object({
   status: z.enum(['APPROVED', 'REJECTED']),
 });
 
-export async function acceptOrRejectInterestHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function acceptOrRejectInterestHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const { interestId, status } = acceptOrRejectZodSchema.parse(request.body);
 

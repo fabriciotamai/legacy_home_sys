@@ -23,7 +23,7 @@ module.exports = [
         "warn",
         {
           argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_", // 🔥 Isso já deveria estar funcionando
+          varsIgnorePattern: "^_",
           ignoreRestSiblings: true,
         },
       ],
@@ -39,15 +39,7 @@ module.exports = [
           ignoreComments: true,
         },
       ],
-      "prettier/prettier": [
-        "error",
-        {
-          semi: true,
-          tabWidth: 2,
-          singleQuote: true,
-          printWidth: 140,
-        },
-      ],
+      "prettier/prettier": "off", // 🔥 Desativando o Prettier dentro do ESLint
     },
   },
 ];

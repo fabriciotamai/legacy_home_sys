@@ -18,7 +18,10 @@ export class ChangePasswordUseCase {
       throw new Error('Usuário não encontrado.');
     }
 
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isCurrentPasswordValid) {
       throw new Error('A senha atual está incorreta.');
     }

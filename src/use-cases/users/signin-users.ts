@@ -14,9 +14,17 @@ interface LoginOutput {
     id: number;
     email: string;
     username: string;
+    firstName: string;
+    lastName: string;
+    avatar: string | null;
     role: string;
     complianceStatus: string;
     mustChangePassword: boolean;
+    isApproved: boolean;
+    isActive: boolean;
+    phone?: string | null;
+    birthDate?: string | null;
+    emailVerified: boolean;
   };
   adminDashboard?: any;
 }
@@ -61,9 +69,17 @@ export class SigninUsers {
         id: user.id,
         email: user.email,
         username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar ?? null,
         role: user.role,
         complianceStatus: user.complianceStatus,
         mustChangePassword: user.mustChangePassword,
+        isApproved: user.isApproved,
+        isActive: user.isActive,
+        phone: user.phone ?? null,
+        birthDate: user.birthDate ? user.birthDate.toISOString() : null,
+        emailVerified: user.emailVerified,
       },
       adminDashboard,
     };
@@ -87,9 +103,19 @@ export class SigninUsers {
         id: updatedUser.id,
         email: updatedUser.email,
         username: updatedUser.username,
-        role: user.role,
-        complianceStatus: user.complianceStatus,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        avatar: updatedUser.avatar ?? null,
+        role: updatedUser.role,
+        complianceStatus: updatedUser.complianceStatus,
         mustChangePassword: updatedUser.mustChangePassword,
+        isApproved: updatedUser.isApproved,
+        isActive: updatedUser.isActive,
+        phone: updatedUser.phone ?? null,
+        birthDate: updatedUser.birthDate
+          ? updatedUser.birthDate.toISOString()
+          : null,
+        emailVerified: updatedUser.emailVerified,
       },
     };
   }

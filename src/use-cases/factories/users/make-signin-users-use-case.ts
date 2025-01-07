@@ -8,6 +8,9 @@ export function makeUserSignin(): SigninUsers {
   const userRepository = new PrismaUsersRepository();
   const adminRepository = new PrismaAdminRepository();
   const enterpriseRepository = new PrismaEnterpriseRepository();
-  const getAdminDashboardDataUseCase = new GetAdminDashboardDataUseCase(adminRepository, enterpriseRepository);
+  const getAdminDashboardDataUseCase = new GetAdminDashboardDataUseCase(
+    adminRepository,
+    enterpriseRepository,
+  );
   return new SigninUsers(userRepository, getAdminDashboardDataUseCase);
 }

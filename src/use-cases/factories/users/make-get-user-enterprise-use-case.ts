@@ -3,7 +3,9 @@ import { GetUserEnterprisesUseCase } from '@/use-cases/users/get-user-enterprise
 
 export function makeGetUserEnterprisesUseCase(): GetUserEnterprisesUseCase {
   const enterpriseRepository = new PrismaEnterpriseRepository();
-  const getUserEnterprisesUseCase = new GetUserEnterprisesUseCase(enterpriseRepository);
+  const getUserEnterprisesUseCase = new GetUserEnterprisesUseCase(
+    enterpriseRepository,
+  );
 
   return getUserEnterprisesUseCase;
 }

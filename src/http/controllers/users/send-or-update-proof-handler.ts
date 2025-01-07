@@ -2,7 +2,10 @@ import { makeSendOrUpdateProofUseCase } from '@/use-cases/factories/users/make-s
 import { saveFile } from '@/utils/save-file';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function sendOrUpdateProofHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function sendOrUpdateProofHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     if (!request.user) {
       return reply.status(401).send({ error: 'Usuário não autenticado.' });
@@ -22,11 +25,15 @@ export async function sendOrUpdateProofHandler(request: FastifyRequest, reply: F
     }
 
     if (!depositId) {
-      return reply.status(400).send({ error: 'O ID do depósito é obrigatório.' });
+      return reply
+        .status(400)
+        .send({ error: 'O ID do depósito é obrigatório.' });
     }
 
     if (!proofUrl) {
-      return reply.status(400).send({ error: 'O comprovante de pagamento é obrigatório.' });
+      return reply
+        .status(400)
+        .send({ error: 'O comprovante de pagamento é obrigatório.' });
     }
 
     const sendOrUpdateProofUseCase = makeSendOrUpdateProofUseCase();

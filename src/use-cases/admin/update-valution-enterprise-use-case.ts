@@ -31,7 +31,9 @@ export class UpdateEnterpriseValuationUseCase {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  public async execute(input: UpdateEnterpriseValuationInput): Promise<UpdateEnterpriseValuationOutput> {
+  public async execute(
+    input: UpdateEnterpriseValuationInput,
+  ): Promise<UpdateEnterpriseValuationOutput> {
     const { enterpriseId, newValuation, mode } = input;
 
     const enterprise = await this.enterpriseRepository.findById(enterpriseId);
@@ -41,11 +43,19 @@ export class UpdateEnterpriseValuationUseCase {
 
     const enterpriseValuationBefore = enterprise.transferAmount ?? 0;
     const difference = newValuation - enterpriseValuationBefore;
-    const enterprisePercentageChange = enterpriseValuationBefore !== 0 ? (difference / enterpriseValuationBefore) * 100 : 100;
+    const enterprisePercentageChange =
+      enterpriseValuationBefore !== 0
+        ? (difference / enterpriseValuationBefore) * 100
+        : 100;
 
-    const investment = await this.enterpriseRepository.findSingleInvestmentByEnterpriseId(enterpriseId);
+    const investment =
+      await this.enterpriseRepository.findSingleInvestmentByEnterpriseId(
+        enterpriseId,
+      );
     if (!investment) {
-      throw new Error('Nenhum investimento encontrado para este empreendimento.');
+      throw new Error(
+        'Nenhum investimento encontrado para este empreendimento.',
+      );
     }
 
     const user = await this.usersRepository.findById(investment.userId);
@@ -55,7 +65,10 @@ export class UpdateEnterpriseValuationUseCase {
 
     const userValuationBefore = user.totalValuation ?? 0;
     const userValuationAfter = userValuationBefore + difference;
-    const userValuationPercentageChange = userValuationBefore !== 0 ? (difference / userValuationBefore) * 100 : 100;
+    const userValuationPercentageChange =
+      userValuationBefore !== 0
+        ? (difference / userValuationBefore) * 100
+        : 100;
 
     if (mode === 'consulting') {
       return {
@@ -77,8 +90,12 @@ export class UpdateEnterpriseValuationUseCase {
       };
     }
 
-    await this.enterpriseRepository.update(enterpriseId, { transferAmount: newValuation });
-    await this.usersRepository.updateUser(user.id, { totalValuation: userValuationAfter });
+    await this.enterpriseRepository.update(enterpriseId, {
+      transferAmount: newValuation,
+    });
+    await this.usersRepository.updateUser(user.id, {
+      totalValuation: userValuationAfter,
+    });
 
     return {
       enterprise: {

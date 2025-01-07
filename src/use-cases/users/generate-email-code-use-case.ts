@@ -28,8 +28,6 @@ export class GenerateEmailCodeUseCase {
       code: emailCode,
     };
 
-    console.log(emailData);
-
     await sendEmailWithTemplate(
       'Sua Empresa <no-reply@suaempresa.com>',
       user.email,

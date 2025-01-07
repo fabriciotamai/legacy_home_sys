@@ -22,14 +22,21 @@ export class SendOrUpdateProofUseCase {
         throw new Error('Você não tem permissão para alterar este depósito.');
       }
 
-      const updatedDeposit = await this.depositsRepository.updateProofUrl(depositId, proofUrl);
+      const updatedDeposit = await this.depositsRepository.updateProofUrl(
+        depositId,
+        proofUrl,
+      );
 
       return {
-        message: updatedDeposit.proofUrl ? 'Comprovante atualizado com sucesso!' : 'Comprovante enviado com sucesso!',
+        message: updatedDeposit.proofUrl
+          ? 'Comprovante atualizado com sucesso!'
+          : 'Comprovante enviado com sucesso!',
       };
     } catch (error) {
       console.error('Erro ao enviar/atualizar comprovante:', error);
-      throw new Error('Erro ao processar o envio do comprovante. Tente novamente mais tarde.');
+      throw new Error(
+        'Erro ao processar o envio do comprovante. Tente novamente mais tarde.',
+      );
     }
   }
 }

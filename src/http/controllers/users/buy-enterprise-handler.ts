@@ -17,9 +17,15 @@ export async function buyEntepriseHandler(request: FastifyRequest, reply: Fastif
     const userId = request.user.id;
 
     const buyDirectUseCase = makeBuyDirectUseCase();
-    const contractInterest = await buyDirectUseCase.execute({ userId, enterpriseId });
+    const contractInterest = await buyDirectUseCase.execute({
+      userId,
+      enterpriseId,
+    });
 
-    reply.status(201).send({ message: 'Compra direta realizada com sucesso.', contractInterest });
+    reply.status(201).send({
+      message: 'Compra direta realizada com sucesso.',
+      contractInterest,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('Erro de validação:', error.errors);

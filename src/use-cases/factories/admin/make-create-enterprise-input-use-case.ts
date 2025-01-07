@@ -3,7 +3,9 @@ import { CreateEnterpriseUseCase } from '@/use-cases/admin/create-enterprise-inp
 
 export function makeCreateEnterpriseUseCase(): CreateEnterpriseUseCase {
   const enterpriseRepository = new PrismaEnterpriseRepository();
-  const createEnterpriseUseCase = new CreateEnterpriseUseCase(enterpriseRepository);
+  const createEnterpriseUseCase = new CreateEnterpriseUseCase(
+    enterpriseRepository,
+  );
 
   return createEnterpriseUseCase;
 }

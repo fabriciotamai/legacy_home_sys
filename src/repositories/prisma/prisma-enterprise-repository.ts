@@ -21,7 +21,9 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findPhasesByEnterprise(enterpriseId: number): Promise<{ phaseId: number; progress: number }[]> {
+  async findPhasesByEnterprise(
+    enterpriseId: number,
+  ): Promise<{ phaseId: number; progress: number }[]> {
     return prisma.enterprisePhaseStatus.findMany({
       where: { enterpriseId },
       select: {
@@ -31,7 +33,9 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findPhaseWithTasks(phaseId: number): Promise<(Phase & { tasks: Task[] }) | null> {
+  async findPhaseWithTasks(
+    phaseId: number,
+  ): Promise<(Phase & { tasks: Task[] }) | null> {
     return prisma.phase.findUnique({
       where: { id: phaseId },
       include: {
@@ -40,7 +44,10 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findTasksInPhaseByEnterprise(enterpriseId: number, phaseId: number): Promise<(EnterpriseTaskStatus & { task: Task })[]> {
+  async findTasksInPhaseByEnterprise(
+    enterpriseId: number,
+    phaseId: number,
+  ): Promise<(EnterpriseTaskStatus & { task: Task })[]> {
     return prisma.enterpriseTaskStatus.findMany({
       where: {
         enterpriseId,
@@ -52,7 +59,10 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findTaskWithPhaseAndEnterprise(enterpriseId: number, taskId: number): Promise<(Task & { phase: Phase }) | null> {
+  async findTaskWithPhaseAndEnterprise(
+    enterpriseId: number,
+    taskId: number,
+  ): Promise<(Task & { phase: Phase }) | null> {
     const taskStatus = await prisma.enterpriseTaskStatus.findFirst({
       where: {
         enterpriseId,
@@ -88,7 +98,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async addInvestment(data: { userId: number; enterpriseId: number; investedAmount: number }): Promise<void> {
+  async addInvestment(data: {
+    userId: number;
+    enterpriseId: number;
+    investedAmount: number;
+  }): Promise<void> {
     await prisma.investment.create({
       data: {
         userId: data.userId,
@@ -112,8 +126,10 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     const where: Prisma.EnterpriseWhereInput = {};
 
     if (filters.status !== undefined) where.status = filters.status;
-    if (filters.investmentType !== undefined) where.investmentType = filters.investmentType;
-    if (filters.isAvailable !== undefined) where.isAvailable = filters.isAvailable;
+    if (filters.investmentType !== undefined)
+      where.investmentType = filters.investmentType;
+    if (filters.isAvailable !== undefined)
+      where.isAvailable = filters.isAvailable;
 
     return prisma.enterprise.findMany({
       where,
@@ -131,21 +147,29 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return prisma.enterprise.create({ data });
   }
 
-  async update(enterpriseId: number, data: Prisma.EnterpriseUpdateInput): Promise<Enterprise> {
+  async update(
+    enterpriseId: number,
+    data: Prisma.EnterpriseUpdateInput,
+  ): Promise<Enterprise> {
     return prisma.enterprise.update({
       where: { id: enterpriseId },
       data,
     });
   }
 
-  async updateEnterpriseProgress(enterpriseId: number, progress: number): Promise<void> {
+  async updateEnterpriseProgress(
+    enterpriseId: number,
+    progress: number,
+  ): Promise<void> {
     await prisma.enterprise.update({
       where: { id: enterpriseId },
       data: { progress },
     });
   }
 
-  async initializeEnterprisePhasesAndTasks(enterpriseId: number): Promise<void> {
+  async initializeEnterprisePhasesAndTasks(
+    enterpriseId: number,
+  ): Promise<void> {
     const phases = await prisma.phase.findMany({
       include: { tasks: true },
     });
@@ -187,14 +211,20 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async updateInterestStatus(interestId: string, status: InterestStatus): Promise<ContractInterest> {
+  async updateInterestStatus(
+    interestId: string,
+    status: InterestStatus,
+  ): Promise<ContractInterest> {
     return prisma.contractInterest.update({
       where: { interestId },
       data: { status: InterestStatus[status] },
     });
   }
 
-  async removeOtherInterests(enterpriseId: number, approvedInterestId: string): Promise<void> {
+  async removeOtherInterests(
+    enterpriseId: number,
+    approvedInterestId: string,
+  ): Promise<void> {
     await prisma.contractInterest.updateMany({
       where: {
         enterpriseId,
@@ -227,10 +257,15 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findByUserId(userId: number): Promise<(Enterprise & { interestStatus?: string })[]> {
+  async findByUserId(
+    userId: number,
+  ): Promise<(Enterprise & { interestStatus?: string })[]> {
     return prisma.enterprise.findMany({
       where: {
-        OR: [{ contracts: { some: { userId } } }, { contractInterests: { some: { userId } } }],
+        OR: [
+          { contracts: { some: { userId } } },
+          { contractInterests: { some: { userId } } },
+        ],
       },
       include: {
         currentPhase: true,
@@ -259,7 +294,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async updateEnterprisePhaseAndTask(enterpriseId: number, phaseId: number, taskId?: number): Promise<Enterprise> {
+  async updateEnterprisePhaseAndTask(
+    enterpriseId: number,
+    phaseId: number,
+    taskId?: number,
+  ): Promise<Enterprise> {
     return prisma.enterprise.update({
       where: { id: enterpriseId },
       data: {
@@ -286,7 +325,9 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findAllPhasesByEnterprise(enterpriseId: number): Promise<(Phase & { tasks: Task[] })[]> {
+  async findAllPhasesByEnterprise(
+    enterpriseId: number,
+  ): Promise<(Phase & { tasks: Task[] })[]> {
     return prisma.phase.findMany({
       where: {
         enterprises: { some: { id: enterpriseId } },
@@ -295,7 +336,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async updatePhaseProgress(enterpriseId: number, phaseId: number, progress: number): Promise<void> {
+  async updatePhaseProgress(
+    enterpriseId: number,
+    phaseId: number,
+    progress: number,
+  ): Promise<void> {
     await prisma.enterprisePhaseStatus.update({
       where: {
         enterpriseId_phaseId: {
@@ -317,7 +362,9 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findTaskWithPhase(taskId: number): Promise<(Task & { phase: Phase }) | null> {
+  async findTaskWithPhase(
+    taskId: number,
+  ): Promise<(Task & { phase: Phase }) | null> {
     return prisma.task.findUnique({
       where: { id: taskId },
       include: { phase: true },
@@ -328,7 +375,10 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return prisma.task.create({ data });
   }
 
-  async associateTasksToEnterprise(enterpriseId: number, taskIds: number[]): Promise<void> {
+  async associateTasksToEnterprise(
+    enterpriseId: number,
+    taskIds: number[],
+  ): Promise<void> {
     const updates = taskIds.map((taskId) =>
       prisma.enterpriseTaskStatus.create({
         data: {
@@ -342,7 +392,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     await Promise.all(updates);
   }
 
-  async updateTaskStatus(enterpriseId: number, taskId: number, isCompleted: boolean): Promise<void> {
+  async updateTaskStatus(
+    enterpriseId: number,
+    taskId: number,
+    isCompleted: boolean,
+  ): Promise<void> {
     await prisma.enterpriseTaskStatus.updateMany({
       where: {
         enterpriseId,
@@ -352,7 +406,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async createPhaseProgress(data: { enterpriseId: number; phaseId: number; progress: number }): Promise<void> {
+  async createPhaseProgress(data: {
+    enterpriseId: number;
+    phaseId: number;
+    progress: number;
+  }): Promise<void> {
     await prisma.enterprisePhaseStatus.create({
       data: {
         enterpriseId: data.enterpriseId,
@@ -361,13 +419,19 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       },
     });
   }
-  async findSingleInvestmentByEnterpriseId(enterpriseId: number): Promise<Investment | null> {
+  async findSingleInvestmentByEnterpriseId(
+    enterpriseId: number,
+  ): Promise<Investment | null> {
     return prisma.investment.findFirst({
       where: { enterpriseId },
     });
   }
 
-  async createTaskProgress(data: { enterpriseId: number; taskId: number; isCompleted: boolean }): Promise<void> {
+  async createTaskProgress(data: {
+    enterpriseId: number;
+    taskId: number;
+    isCompleted: boolean;
+  }): Promise<void> {
     await prisma.enterpriseTaskStatus.create({
       data: {
         enterpriseId: data.enterpriseId,

@@ -19,22 +19,32 @@ export class AddAddressUseCase {
     const { userId, street, number, complement, neighborhood, city, state, postalCode, country } = input;
 
     const existingAddresses = await this.addressRepository.findByUserId(userId);
+
     if (existingAddresses.length > 0) {
-      throw new Error('Usuário já possui um endereço cadastrado.');
+      await this.addressRepository.update(existingAddresses[0].id, {
+        street,
+        number,
+        complement,
+        neighborhood,
+        city,
+        state,
+        postalCode,
+        country,
+      });
+    } else {
+      await this.addressRepository.create({
+        user: { connect: { id: userId } },
+        street,
+        number,
+        complement,
+        neighborhood,
+        city,
+        state,
+        postalCode,
+        country,
+      });
+
+      await this.addressRepository.updateUserComplianceStatus(userId, 'PENDING_DOCUMENTS');
     }
-
-    await this.addressRepository.create({
-      user: { connect: { id: userId } },
-      street,
-      number,
-      complement,
-      neighborhood,
-      city,
-      state,
-      postalCode,
-      country,
-    });
-
-    await this.addressRepository.updateUserComplianceStatus(userId, 'PENDING_DOCUMENTS');
   }
 }

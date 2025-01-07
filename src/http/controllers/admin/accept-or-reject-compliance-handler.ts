@@ -8,15 +8,25 @@ const acceptOrRejectComplianceBodySchema = z.object({
 });
 
 const acceptOrRejectComplianceParamsSchema = z.object({
-  userId: z.coerce.number().positive('O ID do usuário deve ser um número positivo.'),
+  userId: z.coerce
+    .number()
+    .positive('O ID do usuário deve ser um número positivo.'),
 });
 
-export async function acceptOrRejectComplianceHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function acceptOrRejectComplianceHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
-    const { userId } = acceptOrRejectComplianceParamsSchema.parse(request.params);
-    const { status, reason } = acceptOrRejectComplianceBodySchema.parse(request.body);
+    const { userId } = acceptOrRejectComplianceParamsSchema.parse(
+      request.params,
+    );
+    const { status, reason } = acceptOrRejectComplianceBodySchema.parse(
+      request.body,
+    );
 
-    const acceptOrRejectComplianceUseCase = makeAcceptOrRejectComplianceUseCase();
+    const acceptOrRejectComplianceUseCase =
+      makeAcceptOrRejectComplianceUseCase();
     const result = await acceptOrRejectComplianceUseCase.execute({
       userId,
       status,

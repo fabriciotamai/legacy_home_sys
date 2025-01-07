@@ -2,7 +2,10 @@ import { makeManageComplianceUseCase } from '@/use-cases/factories/admin/make-ma
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function manageComplianceHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function manageComplianceHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const manageComplianceSchema = z.object({
     action: z.enum(['approve', 'reject']),
     reason: z.string().optional(),
@@ -22,7 +25,10 @@ export async function manageComplianceHandler(request: FastifyRequest, reply: Fa
     });
 
     reply.status(200).send({
-      message: body.action === 'approve' ? 'Compliance aprovado com sucesso.' : 'Compliance rejeitado com sucesso.',
+      message:
+        body.action === 'approve'
+          ? 'Compliance aprovado com sucesso.'
+          : 'Compliance rejeitado com sucesso.',
     });
   } catch (error) {
     console.error('Erro ao gerenciar compliance:', error);

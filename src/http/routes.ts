@@ -32,6 +32,7 @@ import { getUserEnterprisesHandler } from './controllers/users/get-user-enterpri
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
 import { sendOrUpdateProofHandler } from './controllers/users/send-or-update-proof-handler';
+import { updateUserAvatarHandler } from './controllers/users/update-avatar-handler';
 import { updateUserHandler } from './controllers/users/update-user-profile.handler';
 import { createDepositHandler } from './controllers/users/user-create-deposit-handler';
 import { userRegisterHandler } from './controllers/users/user-register-use-handler';
@@ -80,5 +81,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/users/getalldeposit', getAllDepositsHandler);
     protectedRoutes.post('/users/proof-payment', sendOrUpdateProofHandler);
     protectedRoutes.post('/users/update/profile', updateUserHandler);
+    protectedRoutes.post('/users/update/avatar', updateUserAvatarHandler);
   });
 }

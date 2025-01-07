@@ -5,44 +5,54 @@ import { z } from 'zod';
 
 export async function updateUserHandler(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
-  const updateUserSchema = z.object({
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    email: z.string().email('Email inválido.').optional(),
-    numberDocument: z.string().optional(),
-    userType: z.nativeEnum(UserType).optional(),
-    birthDate: z.string().optional(),
-    avatar: z.string().optional(),
-  });
-
   try {
+    
     if (!request.user) {
       return reply.status(401).send({ error: 'Usuário não autenticado.' });
     }
 
+    const userId = Number(request.user.id);
+
+    
+    const updateUserSchema = z.object({
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      email: z.string().email('Email inválido.').optional(),
+      numberDocument: z.string().optional(),
+      userType: z.nativeEnum(UserType).optional(),
+      birthDate: z.string().optional(),
+    });
+
     const parsedData = updateUserSchema.parse(request.body);
-    const userId = request.user.id;
 
+    
     const updateData = {
-      ...parsedData,
       userId,
-      userType: parsedData.userType as UserType | undefined,
-      birthDate: parsedData.birthDate
-        ? new Date(parsedData.birthDate)
-        : undefined,
-    };
+      firstName: parsedData.firstName,
+      lastName: parsedData.lastName,
+      email: parsedData.email,
+      numberDocument: parsedData.numberDocument,
+      userType: parsedData.userType,
+      birthDate: parsedData.birthDate ? new Date(parsedData.birthDate) : undefined,
+    } as const;
 
+    
     const updateUserProfileUseCase = makeUpdateUserProfileUseCase();
-    await updateUserProfileUseCase.execute(updateData);
+    const updatedUser = await updateUserProfileUseCase.execute(updateData);
 
-    reply.status(200).send({ message: 'Perfil atualizado com sucesso.' });
+    
+    return reply.status(200).send({
+      message: 'Perfil atualizado com sucesso.',
+      user: updatedUser,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return reply.status(400).send({ errors: error.errors });
     }
 
+    console.error('Erro inesperado no updateUserHandler:', error);
     return reply.status(500).send({ error: 'Erro ao atualizar o perfil.' });
   }
 }

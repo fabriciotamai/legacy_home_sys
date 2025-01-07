@@ -1,8 +1,7 @@
 import { UsersRepository } from '@/repositories/user-repository';
 import { UserType } from '@prisma/client';
-import { z } from 'zod';
 
-interface UpdateUserProfileRequest {
+export interface UpdateUserProfileRequest {
   userId: number;
   firstName?: string;
   lastName?: string;
@@ -13,36 +12,50 @@ interface UpdateUserProfileRequest {
   avatar?: string;
 }
 
+export interface UpdateUserProfileResponse {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  numberDocument?: string | null;
+  userType: UserType;
+  birthDate?: Date | null;
+  avatar?: string | null;
+}
+
 export class UpdateUserProfileUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async execute(request: UpdateUserProfileRequest): Promise<void> {
-    const updateSchema = z.object({
-      firstName: z.string().min(1, 'Nome é obrigatório.').optional(),
-      lastName: z.string().min(1, 'Sobrenome é obrigatório.').optional(),
-      email: z.string().email('Email inválido.').optional(),
-      numberDocument: z.string().optional(),
-      userType: z.nativeEnum(UserType).optional(),
-      birthDate: z.coerce.date().optional(),
-      avatar: z.string().url('Avatar deve ser uma URL válida.').optional(),
-    });
+  async execute(request: UpdateUserProfileRequest): Promise<UpdateUserProfileResponse> {
+    
+    const { userId, ...updateData } = request;
 
-    const validatedData = updateSchema.parse(request);
-
-    const existingUser = await this.usersRepository.findById(request.userId);
+    const existingUser = await this.usersRepository.findById(userId);
     if (!existingUser) {
       throw new Error('Usuário não encontrado.');
     }
 
-    if (validatedData.email && validatedData.email !== existingUser.email) {
-      const emailExists = await this.usersRepository.findByEmail(
-        validatedData.email,
-      );
+   
+    if (updateData.email && updateData.email !== existingUser.email) {
+      const emailExists = await this.usersRepository.findByEmail(updateData.email);
       if (emailExists) {
         throw new Error('Esse email já está em uso.');
       }
     }
 
-    await this.usersRepository.updateUser(request.userId, validatedData);
+ 
+    const updatedUser = await this.usersRepository.updateUser(userId, updateData);
+
+
+    return {
+      id: updatedUser.id,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      email: updatedUser.email,
+      numberDocument: updatedUser.numberDocument ?? null,
+      userType: updatedUser.userType,
+      birthDate: updatedUser.birthDate ?? null,
+      avatar: updatedUser.avatar ?? null,
+    };
   }
 }

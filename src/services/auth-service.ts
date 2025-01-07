@@ -26,7 +26,7 @@ export class AuthService {
         throw new Error('Payload inválido ou ausente no token.');
       }
       return payload;
-    } catch (error) {
+    } catch {
       throw new Error('Token inválido ou expirado.');
     }
   }

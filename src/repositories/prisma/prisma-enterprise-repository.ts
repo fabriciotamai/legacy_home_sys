@@ -40,10 +40,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findTasksInPhaseByEnterprise(
-    enterpriseId: number,
-    phaseId: number,
-  ): Promise<(EnterpriseTaskStatus & { task: Task })[]> {
+  async findTasksInPhaseByEnterprise(enterpriseId: number, phaseId: number): Promise<(EnterpriseTaskStatus & { task: Task })[]> {
     return prisma.enterpriseTaskStatus.findMany({
       where: {
         enterpriseId,
@@ -55,10 +52,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findTaskWithPhaseAndEnterprise(
-    enterpriseId: number,
-    taskId: number,
-  ): Promise<(Task & { phase: Phase }) | null> {
+  async findTaskWithPhaseAndEnterprise(enterpriseId: number, taskId: number): Promise<(Task & { phase: Phase }) | null> {
     const taskStatus = await prisma.enterpriseTaskStatus.findFirst({
       where: {
         enterpriseId,

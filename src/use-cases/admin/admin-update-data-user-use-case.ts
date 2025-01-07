@@ -19,19 +19,7 @@ export class AdminUpdateUserUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute(input: UpdateUserInput): Promise<void> {
-    const {
-      userId,
-      firstName,
-      lastName,
-      email,
-      phone,
-      userType,
-      isActive,
-      complianceStatus,
-      role,
-      documentType,
-      numberDocument,
-    } = input;
+    const { userId, firstName, lastName, email, phone, userType, isActive, complianceStatus, role, documentType, numberDocument } = input;
 
     const user = await this.usersRepository.findById(userId);
     if (!user) {

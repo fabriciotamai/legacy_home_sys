@@ -41,8 +41,7 @@ export class UpdateEnterpriseValuationUseCase {
 
     const enterpriseValuationBefore = enterprise.transferAmount ?? 0;
     const difference = newValuation - enterpriseValuationBefore;
-    const enterprisePercentageChange =
-      enterpriseValuationBefore !== 0 ? (difference / enterpriseValuationBefore) * 100 : 100;
+    const enterprisePercentageChange = enterpriseValuationBefore !== 0 ? (difference / enterpriseValuationBefore) * 100 : 100;
 
     const investment = await this.enterpriseRepository.findSingleInvestmentByEnterpriseId(enterpriseId);
     if (!investment) {

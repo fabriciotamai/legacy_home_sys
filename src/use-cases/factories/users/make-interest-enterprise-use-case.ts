@@ -5,11 +5,8 @@ import { InterestEnterpriseUseCase } from '@/use-cases/users/interest-enterprise
 export function makeInterestEnterpriseUseCase(): InterestEnterpriseUseCase {
   const usersRepository = new PrismaUsersRepository();
   const enterpriseRepository = new PrismaEnterpriseRepository();
-  
-  const interestEnterpriseUseCase = new InterestEnterpriseUseCase(
-    usersRepository,
-    enterpriseRepository
-  );
+
+  const interestEnterpriseUseCase = new InterestEnterpriseUseCase(usersRepository, enterpriseRepository);
 
   return interestEnterpriseUseCase;
 }

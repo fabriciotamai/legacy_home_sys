@@ -14,9 +14,7 @@ const createEnterpriseSchema = z.object({
     }),
   }),
   isAvailable: z.boolean(),
-  constructionType: z
-    .nativeEnum(ConstructionType)
-    .refine((val) => !!val, 'O tipo de construção é obrigatório e deve ser um valor válido.'),
+  constructionType: z.nativeEnum(ConstructionType).refine((val) => !!val, 'O tipo de construção é obrigatório e deve ser um valor válido.'),
   fundingAmount: z.number().positive('O valor de aporte deve ser maior que zero.'),
   transferAmount: z.number().positive('O valor repassado deve ser maior que zero.'),
   postalCode: z.string().min(1, 'O código postal é obrigatório.'),

@@ -135,12 +135,7 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-  async updateUserFinancials(
-    userId: number,
-    walletBalance: number,
-    investedIncrement: number,
-    valuationIncrement: number,
-  ): Promise<void> {
+  async updateUserFinancials(userId: number, walletBalance: number, investedIncrement: number, valuationIncrement: number): Promise<void> {
     await prisma.user.update({
       where: { id: userId },
       data: {

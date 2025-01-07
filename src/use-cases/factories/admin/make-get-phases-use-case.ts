@@ -2,6 +2,6 @@ import { PrismaEnterpriseRepository } from '@/repositories/prisma/prisma-enterpr
 import { GetPhasesUseCase } from '@/use-cases/admin/get-phases-use-case';
 
 export const makeGetPhasesUseCase = (): GetPhasesUseCase => {
-  const enterpriseRepository = new PrismaEnterpriseRepository(); 
-  return new GetPhasesUseCase(enterpriseRepository); 
+  const enterpriseRepository = new PrismaEnterpriseRepository();
+  return new GetPhasesUseCase(enterpriseRepository);
 };

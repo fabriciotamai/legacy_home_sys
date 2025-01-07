@@ -1,5 +1,3 @@
-
-
 import { PrismaAdminRepository } from '@/repositories/prisma/prisma-admin-repository';
 import { GetAllUsersUseCase } from '@/use-cases/admin/get-all-users-use-case';
 

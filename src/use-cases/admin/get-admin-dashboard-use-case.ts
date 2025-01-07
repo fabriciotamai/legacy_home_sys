@@ -16,10 +16,7 @@ export class GetAdminDashboardDataUseCase {
   ) {}
 
   async execute(): Promise<GetAdminDashboardDataResponse> {
-    const [users, enterprises] = await Promise.all([
-      this.adminRepository.findAllUsers(),
-      this.enterpriseRepository.findAll({}),
-    ]);
+    const [users, enterprises] = await Promise.all([this.adminRepository.findAllUsers(), this.enterpriseRepository.findAll({})]);
 
     const totalUsers = users.length;
 
@@ -31,9 +28,7 @@ export class GetAdminDashboardDataUseCase {
       totalValuation += user.totalValuation ?? 0;
     }
 
-    const linkedEnterprisesCount = enterprises.filter(
-      (enterprise) => enterprise.investments && enterprise.investments.length > 0,
-    ).length;
+    const linkedEnterprisesCount = enterprises.filter((enterprise) => enterprise.investments && enterprise.investments.length > 0).length;
 
     const unlinkedEnterprisesCount = enterprises.length - linkedEnterprisesCount;
 

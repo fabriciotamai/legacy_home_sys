@@ -42,10 +42,7 @@ export interface EnterpriseRepository {
   createTask(data: Prisma.TaskCreateInput): Promise<Task>;
   associateTasksToEnterprise(enterpriseId: number, taskIds: number[]): Promise<void>;
   updateTaskStatus(enterpriseId: number, taskId: number, isCompleted: boolean): Promise<void>;
-  findTasksInPhaseByEnterprise(
-    enterpriseId: number,
-    phaseId: number,
-  ): Promise<(EnterpriseTaskStatus & { task: Task })[]>;
+  findTasksInPhaseByEnterprise(enterpriseId: number, phaseId: number): Promise<(EnterpriseTaskStatus & { task: Task })[]>;
   createPhaseProgress(data: { enterpriseId: number; phaseId: number; progress: number }): Promise<void>;
   createTaskProgress(data: { enterpriseId: number; taskId: number; isCompleted: boolean }): Promise<void>;
   findPhaseWithTasks(phaseId: number): Promise<(Phase & { tasks: Task[] }) | null>;

@@ -19,9 +19,28 @@ export class AdminRegisterUsersUseCase {
   constructor(private readonly userRepository: AdminRepository) {}
 
   async execute(input: RegisterUserInput): Promise<void> {
-    const { email, username, password, firstName, lastName, birthDate, userType, numberDocument, phone, role } = input;
+    const {
+      email,
+      username,
+      password,
+      firstName,
+      lastName,
+      birthDate,
+      userType,
+      numberDocument,
+      phone,
+      role,
+    } = input;
 
-    if (!email || !username || !password || !firstName || !lastName || !userType || !role) {
+    if (
+      !email ||
+      !username ||
+      !password ||
+      !firstName ||
+      !lastName ||
+      !userType ||
+      !role
+    ) {
       throw new Error('Campos obrigatórios estão faltando.');
     }
 
@@ -30,13 +49,15 @@ export class AdminRegisterUsersUseCase {
       throw new Error('E-mail já está em uso.');
     }
 
-    const existingUserByUsername = await this.userRepository.findByUsername(username);
+    const existingUserByUsername =
+      await this.userRepository.findByUsername(username);
     if (existingUserByUsername) {
       throw new Error('Nome de usuário já está em uso.');
     }
 
     if (numberDocument) {
-      const existingUserByDocument = await this.userRepository.findByDocument(numberDocument);
+      const existingUserByDocument =
+        await this.userRepository.findByDocument(numberDocument);
       if (existingUserByDocument) {
         throw new Error('Número de documento já está em uso.');
       }

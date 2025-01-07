@@ -3,7 +3,10 @@ import { saveFile } from '@/utils/save-file';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function sendDocumentsHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function sendDocumentsHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const sendDocumentsSchema = z.object({
     documentType: z.enum(['RG', 'CNH', 'PASSPORT']),
   });
@@ -41,15 +44,21 @@ export async function sendDocumentsHandler(request: FastifyRequest, reply: Fasti
     const parsedFields = sendDocumentsSchema.parse(fields);
 
     if (!documentFront) {
-      return reply.status(400).send({ error: 'A imagem da frente do documento é obrigatória.' });
+      return reply
+        .status(400)
+        .send({ error: 'A imagem da frente do documento é obrigatória.' });
     }
 
     if (!proofOfAddress) {
-      return reply.status(400).send({ error: 'O comprovante de endereço é obrigatório.' });
+      return reply
+        .status(400)
+        .send({ error: 'O comprovante de endereço é obrigatório.' });
     }
 
     if (!incomeTaxProof) {
-      return reply.status(400).send({ error: 'O comprovante de imposto de renda é obrigatório.' });
+      return reply
+        .status(400)
+        .send({ error: 'O comprovante de imposto de renda é obrigatório.' });
     }
 
     const userId = request.user.id;

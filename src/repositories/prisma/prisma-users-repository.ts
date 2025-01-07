@@ -1,6 +1,12 @@
 import type { UsersRepository } from '@/repositories/user-repository';
 import { PrismaUserWithAddress } from '@/types';
-import type { ConstructionType, Enterprise, Prisma, User as PrismaUser, WalletTransactionType } from '@prisma/client';
+import type {
+  ConstructionType,
+  Enterprise,
+  Prisma,
+  User as PrismaUser,
+  WalletTransactionType,
+} from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaUsersRepository implements UsersRepository {
@@ -14,7 +20,10 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-  async updatePassword(userId: number, hashedPassword: string): Promise<PrismaUser> {
+  async updatePassword(
+    userId: number,
+    hashedPassword: string,
+  ): Promise<PrismaUser> {
     return prisma.user.update({
       where: { id: userId },
       data: { password: hashedPassword },
@@ -33,7 +42,10 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-  async updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<PrismaUser> {
+  async updateUser(
+    userId: number,
+    data: Prisma.UserUpdateInput,
+  ): Promise<PrismaUser> {
     return prisma.user.update({
       where: { id: userId },
       data,
@@ -44,7 +56,7 @@ export class PrismaUsersRepository implements UsersRepository {
     return prisma.user.findUnique({
       where: { id },
       include: {
-        addresses: true,
+        address: true,
       },
     });
   }
@@ -57,7 +69,10 @@ export class PrismaUsersRepository implements UsersRepository {
     return user?.walletBalance ?? 0;
   }
 
-  async countEnterprisesByType(userId: number, type: ConstructionType): Promise<number> {
+  async countEnterprisesByType(
+    userId: number,
+    type: ConstructionType,
+  ): Promise<number> {
     return prisma.enterprise.count({
       where: {
         constructionType: type,
@@ -87,10 +102,15 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-  async getUserRecentEnterprises(userId: number): Promise<(Enterprise & { interestStatus?: string })[]> {
+  async getUserRecentEnterprises(
+    userId: number,
+  ): Promise<(Enterprise & { interestStatus?: string })[]> {
     const enterprises = await prisma.enterprise.findMany({
       where: {
-        OR: [{ contracts: { some: { userId } } }, { contractInterests: { some: { userId } } }],
+        OR: [
+          { contracts: { some: { userId } } },
+          { contractInterests: { some: { userId } } },
+        ],
       },
       include: {
         currentPhase: true,
@@ -104,7 +124,8 @@ export class PrismaUsersRepository implements UsersRepository {
     });
 
     return enterprises.map((enterprise) => {
-      const interestStatus = enterprise.contractInterests[0]?.status ?? undefined;
+      const interestStatus =
+        enterprise.contractInterests[0]?.status ?? undefined;
       const { contractInterests, ...rest } = enterprise;
       return { ...rest, interestStatus };
     });
@@ -135,7 +156,12 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-  async updateUserFinancials(userId: number, walletBalance: number, investedIncrement: number, valuationIncrement: number): Promise<void> {
+  async updateUserFinancials(
+    userId: number,
+    walletBalance: number,
+    investedIncrement: number,
+    valuationIncrement: number,
+  ): Promise<void> {
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -174,7 +200,9 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     });
   }
-  async getUserFinancials(userId: number): Promise<{ totalValuation: number; totalInvested: number }> {
+  async getUserFinancials(
+    userId: number,
+  ): Promise<{ totalValuation: number; totalInvested: number }> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {

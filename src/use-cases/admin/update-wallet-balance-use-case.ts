@@ -14,7 +14,9 @@ interface UpdateWalletBalanceOutput {
 export class UpdateWalletBalanceUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async execute(input: UpdateWalletBalanceInput): Promise<UpdateWalletBalanceOutput> {
+  async execute(
+    input: UpdateWalletBalanceInput,
+  ): Promise<UpdateWalletBalanceOutput> {
     const { userId, amount, description } = input;
 
     if (!amount) {
@@ -33,15 +35,19 @@ export class UpdateWalletBalanceUseCase {
       throw new Error('Saldo insuficiente para realizar esta operação.');
     }
 
-    await this.usersRepository.updateUser(userId, { walletBalance: newBalance });
+    await this.usersRepository.updateUser(userId, {
+      walletBalance: newBalance,
+    });
 
     await this.usersRepository.addWalletTransaction({
       userId,
-      type: amount > 0 ? WalletTransactionType.CREDIT : WalletTransactionType.DEBIT,
+      type:
+        amount > 0 ? WalletTransactionType.CREDIT : WalletTransactionType.DEBIT,
       amount,
       balanceBefore: currentBalance,
       balanceAfter: newBalance,
-      description: description || (amount > 0 ? 'Crédito manual' : 'Débito manual'),
+      description:
+        description || (amount > 0 ? 'Crédito manual' : 'Débito manual'),
     });
 
     return { newBalance };

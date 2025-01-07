@@ -14,21 +14,38 @@ const createEnterpriseSchema = z.object({
     }),
   }),
   isAvailable: z.boolean(),
-  constructionType: z.nativeEnum(ConstructionType).refine((val) => !!val, 'O tipo de construção é obrigatório e deve ser um valor válido.'),
-  fundingAmount: z.number().positive('O valor de aporte deve ser maior que zero.'),
-  transferAmount: z.number().positive('O valor repassado deve ser maior que zero.'),
+  constructionType: z
+    .nativeEnum(ConstructionType)
+    .refine(
+      (val) => !!val,
+      'O tipo de construção é obrigatório e deve ser um valor válido.',
+    ),
+  fundingAmount: z
+    .number()
+    .positive('O valor de aporte deve ser maior que zero.'),
+  transferAmount: z
+    .number()
+    .positive('O valor repassado deve ser maior que zero.'),
   postalCode: z.string().min(1, 'O código postal é obrigatório.'),
   city: z.string().min(1, 'A cidade é obrigatória.'),
-  squareMeterValue: z.number().positive('O valor por metro quadrado deve ser maior que zero.'),
+  squareMeterValue: z
+    .number()
+    .positive('O valor por metro quadrado deve ser maior que zero.'),
   area: z.number().positive('A metragem total deve ser maior que zero.'),
   floors: z.number().int().positive().optional(),
   completionDate: z.coerce
     .date()
     .optional()
-    .refine((date) => !date || date > new Date(), 'A data de conclusão deve ser no futuro.'),
+    .refine(
+      (date) => !date || date > new Date(),
+      'A data de conclusão deve ser no futuro.',
+    ),
 });
 
-export async function createEnterpriseHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function createEnterpriseHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const validatedBody = createEnterpriseSchema.parse(request.body);
 

@@ -37,6 +37,9 @@ export function verifyToken(token: string): CustomJwtPayload {
   }
 }
 
-export function isTokenVersionValid(tokenVersion: number, currentVersion: number): boolean {
+export function isTokenVersionValid(
+  tokenVersion: number,
+  currentVersion: number,
+): boolean {
   return tokenVersion === currentVersion;
 }

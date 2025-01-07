@@ -11,7 +11,6 @@ import { acceptOrRejectComplianceHandler } from './controllers/admin/accept-or-r
 import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-enterprise-handler';
 import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
 import { adminApproveOrRejectDepositHandler } from './controllers/admin/admin-approve-or-reject-deposit-handler';
-import { adminUpdateAddressHandler } from './controllers/admin/admin-update-address-handler';
 import { adminUpdateUserHandler } from './controllers/admin/admin-update-data-use-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
 import { getAdminDashboardHandler } from './controllers/admin/get-admin-dashboard-handler';
@@ -33,6 +32,7 @@ import { getUserEnterprisesHandler } from './controllers/users/get-user-enterpri
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
 import { sendOrUpdateProofHandler } from './controllers/users/send-or-update-proof-handler';
+import { updateUserHandler } from './controllers/users/update-user-profile.handler';
 import { createDepositHandler } from './controllers/users/user-create-deposit-handler';
 import { userRegisterHandler } from './controllers/users/user-register-use-handler';
 import { validateEmailHandler } from './controllers/users/validate-email-handler';
@@ -55,22 +55,19 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.put('/admin/update/:enterpriseId/valuation', { preHandler: roleMiddleware }, updateEnterpriseValuationHandler);
     protectedRoutes.get('/admin/get-all-users', { preHandler: roleMiddleware }, getAllUsersHandler);
     protectedRoutes.put('/admin/updatecompliance/:userId', { preHandler: roleMiddleware }, acceptOrRejectComplianceHandler);
-
     protectedRoutes.put('/admin/update/balance/:userId', { preHandler: roleMiddleware }, updateWalletBalanceHandler);
-    protectedRoutes.put('/admin/update/address', { preHandler: roleMiddleware }, adminUpdateAddressHandler);
     protectedRoutes.put('/admin/update/user', { preHandler: roleMiddleware }, adminUpdateUserHandler);
-
     protectedRoutes.get('/admin/get-interest-enterprise', { preHandler: roleMiddleware }, getEnterprisesWithInterestsHandler);
     protectedRoutes.post('/admin/accept-or-reject-enterprise', { preHandler: roleMiddleware }, acceptOrRejectInterestHandler);
     protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
     protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
     protectedRoutes.get('/admin/dashboard', { preHandler: roleMiddleware }, getAdminDashboardHandler);
     protectedRoutes.get('/admin/deposits', adminListDepositsHandler);
-
     // ------------------------------- USERS-------------------------------------------------------
     protectedRoutes.post('/users/change-password', changePasswordHandler);
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
+    protectedRoutes.post('/users/address', addAddressHandler);
     protectedRoutes.post('/users/validate-email', validateEmailHandler);
     protectedRoutes.post('/users/buy-enterprise', buyEntepriseHandler);
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);
@@ -82,5 +79,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/deposit', createDepositHandler);
     protectedRoutes.get('/users/getalldeposit', getAllDepositsHandler);
     protectedRoutes.post('/users/proof-payment', sendOrUpdateProofHandler);
+    protectedRoutes.post('/users/update/profile', updateUserHandler);
   });
 }

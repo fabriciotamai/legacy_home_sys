@@ -25,7 +25,10 @@ export class ValidateEmailUseCase {
       throw new Error('Código de e-mail inválido.');
     }
 
-    if (!user.emailConfirmationExpires || user.emailConfirmationExpires < new Date()) {
+    if (
+      !user.emailConfirmationExpires ||
+      user.emailConfirmationExpires < new Date()
+    ) {
       throw new Error('O código de e-mail expirou.');
     }
 

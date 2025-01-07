@@ -1,5 +1,12 @@
 import { PrismaUserWithAddress } from '@/types';
-import type { ConstructionType, ContractInterest, Enterprise, Prisma, User as PrismaUser, WalletTransactionType } from '@prisma/client';
+import type {
+  ConstructionType,
+  ContractInterest,
+  Enterprise,
+  Prisma,
+  User as PrismaUser,
+  WalletTransactionType,
+} from '@prisma/client';
 
 export interface UsersRepository {
   create(data: Prisma.UserCreateInput): Promise<PrismaUser>;
@@ -11,14 +18,28 @@ export interface UsersRepository {
   updatePassword(userId: number, hashedPassword: string): Promise<PrismaUser>;
   findUserWithAddress(id: number): Promise<PrismaUserWithAddress | null>;
   getWalletBalance(userId: number): Promise<number>;
-  countEnterprisesByType(userId: number, type: ConstructionType): Promise<number>;
+  countEnterprisesByType(
+    userId: number,
+    type: ConstructionType,
+  ): Promise<number>;
   getApprovedContractsWithEnterprise(
     userId: number,
-  ): Promise<(ContractInterest & { enterprise: { id: number; fundingAmount: number; transferAmount: number } })[]>;
+  ): Promise<
+    (ContractInterest & {
+      enterprise: { id: number; fundingAmount: number; transferAmount: number };
+    })[]
+  >;
   getRecentEnterprisesWithoutApprovedInterests(): Promise<Enterprise[]>;
-  getUserRecentEnterprises(userId: number): Promise<(Enterprise & { interestStatus?: string })[]>;
+  getUserRecentEnterprises(
+    userId: number,
+  ): Promise<(Enterprise & { interestStatus?: string })[]>;
   updateWalletBalance(userId: number, newBalance: number): Promise<void>;
-  updateUserFinancials(userId: number, walletBalance: number, investedIncrement: number, valuationIncrement: number): Promise<void>;
+  updateUserFinancials(
+    userId: number,
+    walletBalance: number,
+    investedIncrement: number,
+    valuationIncrement: number,
+  ): Promise<void>;
   addWalletTransaction(data: {
     userId: number;
     type: WalletTransactionType;
@@ -27,5 +48,7 @@ export interface UsersRepository {
     balanceAfter: number;
     description: string;
   }): Promise<void>;
-  getUserFinancials(userId: number): Promise<{ totalValuation: number; totalInvested: number }>;
+  getUserFinancials(
+    userId: number,
+  ): Promise<{ totalValuation: number; totalInvested: number }>;
 }

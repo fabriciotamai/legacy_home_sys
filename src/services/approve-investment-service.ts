@@ -16,15 +16,30 @@ export class ApproveInvestmentService {
 
     return {
       updatedWalletBalance: userWalletBalance - enterprise.fundingAmount,
-      updatedTotalInvested: (user.totalInvested ?? 0) + enterprise.fundingAmount,
-      updatedTotalValuation: (user.totalValuation ?? 0) + enterprise.transferAmount,
+      updatedTotalInvested:
+        (user.totalInvested ?? 0) + enterprise.fundingAmount,
+      updatedTotalValuation:
+        (user.totalValuation ?? 0) + enterprise.transferAmount,
     };
   }
 
-  async approveInterest(user: User, enterprise: Enterprise, interestId: string): Promise<void> {
-    const { updatedWalletBalance, updatedTotalInvested, updatedTotalValuation } = this.calculateFinancialUpdate(user, enterprise);
+  async approveInterest(
+    user: User,
+    enterprise: Enterprise,
+    interestId: string,
+  ): Promise<void> {
+    const {
+      updatedWalletBalance,
+      updatedTotalInvested,
+      updatedTotalValuation,
+    } = this.calculateFinancialUpdate(user, enterprise);
 
-    await this.usersRepository.updateUserFinancials(user.id, updatedWalletBalance, updatedTotalInvested, updatedTotalValuation);
+    await this.usersRepository.updateUserFinancials(
+      user.id,
+      updatedWalletBalance,
+      updatedTotalInvested,
+      updatedTotalValuation,
+    );
 
     await this.usersRepository.addWalletTransaction({
       userId: user.id,
@@ -41,6 +56,9 @@ export class ApproveInvestmentService {
       investedAmount: enterprise.fundingAmount,
     });
 
-    await this.enterpriseRepository.removeOtherInterests(enterprise.id, interestId);
+    await this.enterpriseRepository.removeOtherInterests(
+      enterprise.id,
+      interestId,
+    );
   }
 }

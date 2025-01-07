@@ -2,7 +2,10 @@ import { makeAddAddressUseCase } from '@/use-cases/factories/users/make-address-
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function adminAddAddressHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function adminAddAddressHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const paramsSchema = z.object({
     id: z.string().regex(/^\d+$/, 'O ID do usuário deve ser um número válido.'),
   });
@@ -23,13 +26,10 @@ export async function adminAddAddressHandler(request: FastifyRequest, reply: Fas
       return reply.status(403).send({ error: 'Acesso negado.' });
     }
 
-    // Validar o parâmetro da rota
     const { id } = paramsSchema.parse(request.params);
 
-    // Validar o corpo da requisição
     const addressData = addAddressSchema.parse(request.body);
 
-    // Use o caso de uso para adicionar o endereço
     const addAddressUseCase = makeAddAddressUseCase();
     await addAddressUseCase.execute({ userId: Number(id), ...addressData });
 

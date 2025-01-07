@@ -3,7 +3,9 @@ import { GetEnterprisesAvailableUseCase } from '@/use-cases/users/get-enterprise
 
 export function makeGetEnterprisesAvailableUseCase(): GetEnterprisesAvailableUseCase {
   const enterpriseRepository = new PrismaEnterpriseRepository();
-  const getEnterprisesUseCase = new GetEnterprisesAvailableUseCase(enterpriseRepository);
+  const getEnterprisesUseCase = new GetEnterprisesAvailableUseCase(
+    enterpriseRepository,
+  );
 
   return getEnterprisesUseCase;
 }

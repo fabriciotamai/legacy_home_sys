@@ -4,9 +4,18 @@ import path from 'path';
 
 const renderAndSaveHtml = async () => {
   try {
-    const templatePath = path.join(__dirname, '../email-templates/pages/email-confirmation/email-confirmation.html');
-    const cssPath = path.join(__dirname, '../email-templates/pages/email-confirmation/styles.css');
-    const outputPath = path.join(__dirname, '../email-templates/output/rendered-inline.html');
+    const templatePath = path.join(
+      __dirname,
+      '../email-templates/pages/email-confirmation/email-confirmation.html',
+    );
+    const cssPath = path.join(
+      __dirname,
+      '../email-templates/pages/email-confirmation/styles.css',
+    );
+    const outputPath = path.join(
+      __dirname,
+      '../email-templates/output/rendered-inline.html',
+    );
 
     const htmlContent = fs.readFileSync(templatePath, 'utf8');
     const cssContent = fs.readFileSync(cssPath, 'utf8');

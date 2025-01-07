@@ -11,11 +11,17 @@ export class AuthService {
     return bcrypt.hash(password, 10);
   }
 
-  async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
+  async comparePasswords(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  generateToken(payload: { id: number; email: string; role: string }, tokenVersion: number): string {
+  generateToken(
+    payload: { id: number; email: string; role: string },
+    tokenVersion: number,
+  ): string {
     return generateToken({ ...payload, tokenVersion });
   }
 

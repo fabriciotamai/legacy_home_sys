@@ -12,7 +12,7 @@ interface UpdateAddressInput {
   country: string;
 }
 
-export class AdminUpdateAddressUseCase {
+export class UserUpdateAddressUseCase {
   constructor(private readonly addressRepository: AddressRepository) {}
 
   async execute(input: UpdateAddressInput): Promise<void> {

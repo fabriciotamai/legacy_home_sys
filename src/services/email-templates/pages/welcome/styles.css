@@ -11,12 +11,12 @@ body {
   align-items: center;
   background-color: #333333;
   overflow: hidden;
-  display:flex;
+  display: flex;
   flex-direction: column;
 }
 
 .header {
-  background-color: #232323; 
+  background-color: #232323;
   padding: 20px;
   text-align: center;
 }
@@ -35,37 +35,36 @@ body {
   text-align: center;
   color: #333333;
   max-width: 340px;
- 
 }
 
 .content h1 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
-  color:#E0E0E0;
+  color: #e0e0e0;
 }
 
 .content p {
-  font-size: 0.70rem;
+  font-size: 0.7rem;
   line-height: 1.5;
   margin-bottom: 20px;
-  color:#BDBDBD;
-  text-align:center;
+  color: #bdbdbd;
+  text-align: center;
 }
 
 .cta-button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #cddc39; 
-  color: #232323; 
+  background-color: #cddc39;
+  color: #232323;
   text-decoration: none;
   border-radius: 5px;
   font-weight: bold;
 }
 
 .footer {
-  background-color: #232323; 
-  color: #aaaaaa; 
+  background-color: #232323;
+  color: #aaaaaa;
   padding: 20px;
   text-align: center;
   font-size: 14px;

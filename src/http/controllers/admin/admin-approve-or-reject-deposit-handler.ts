@@ -2,7 +2,10 @@ import { makeApproveOrRejectDepositUseCase } from '@/use-cases/factories/admin/m
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-export async function adminApproveOrRejectDepositHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function adminApproveOrRejectDepositHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const schema = z.object({
     depositId: z.number().min(1, 'ID do depósito inválido.'),
     status: z.enum(['APPROVED', 'REJECTED']),
@@ -13,9 +16,18 @@ export async function adminApproveOrRejectDepositHandler(request: FastifyRequest
     const { depositId, status, adminComment } = schema.parse(request.body);
 
     const useCase = makeApproveOrRejectDepositUseCase();
-    const { deposit } = await useCase.execute({ depositId, status, adminComment });
+    const { deposit } = await useCase.execute({
+      depositId,
+      status,
+      adminComment,
+    });
 
-    reply.status(200).send({ message: `Depósito ${status.toLowerCase()} com sucesso!`, deposit });
+    reply
+      .status(200)
+      .send({
+        message: `Depósito ${status.toLowerCase()} com sucesso!`,
+        deposit,
+      });
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('Erro de validação:', error.errors);

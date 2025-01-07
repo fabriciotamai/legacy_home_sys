@@ -26,7 +26,11 @@ export class InterestEnterpriseUseCase {
       throw new Error('Empreendimento não encontrado.');
     }
 
-    const contractInterest = await this.enterpriseRepository.linkUserToEnterprise(userId, enterpriseId);
+    const contractInterest =
+      await this.enterpriseRepository.linkUserToEnterprise(
+        userId,
+        enterpriseId,
+      );
 
     await this.enterpriseRepository.addInterestLog({
       userId,

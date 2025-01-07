@@ -48,7 +48,9 @@ export class CreateDepositUseCase {
       };
     } catch (error) {
       console.error('Erro ao criar depósito:', error);
-      throw new Error('Erro ao processar o depósito. Tente novamente mais tarde.');
+      throw new Error(
+        'Erro ao processar o depósito. Tente novamente mais tarde.',
+      );
     }
   }
 }

@@ -5,7 +5,10 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 const userRepository = new PrismaUsersRepository();
 const authService = new AuthService(userRepository);
 
-export async function authMiddleware(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function authMiddleware(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const authHeader = request.headers.authorization;
 
@@ -29,8 +32,12 @@ export async function authMiddleware(request: FastifyRequest, reply: FastifyRepl
       return reply.status(401).send({ error: 'Usuário não encontrado.' });
     }
 
-    if (!authService.isTokenVersionValid(payload.tokenVersion, user.tokenVersion)) {
-      console.error(`Erro: Versão do token inválida. Payload: ${payload.tokenVersion}, Banco: ${user.tokenVersion}`);
+    if (
+      !authService.isTokenVersionValid(payload.tokenVersion, user.tokenVersion)
+    ) {
+      console.error(
+        `Erro: Versão do token inválida. Payload: ${payload.tokenVersion}, Banco: ${user.tokenVersion}`,
+      );
       return reply.status(401).send({ error: 'Token inválido ou expirado.' });
     }
 

@@ -13,7 +13,14 @@ export class SendDocumentsUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute(input: SendDocumentsInput): Promise<void> {
-    const { userId, documentType, documentFront, documentBack, proofOfAddress, incomeTaxProof } = input;
+    const {
+      userId,
+      documentType,
+      documentFront,
+      documentBack,
+      proofOfAddress,
+      incomeTaxProof,
+    } = input;
 
     const user = await this.usersRepository.findById(userId);
     if (!user) {

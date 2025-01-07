@@ -19,7 +19,11 @@ export async function changePasswordHandler(request: FastifyRequest, reply: Fast
 
     const changePasswordUseCase = makeChangePassword();
 
-    await changePasswordUseCase.execute({ userId, currentPassword, newPassword });
+    await changePasswordUseCase.execute({
+      userId,
+      currentPassword,
+      newPassword,
+    });
 
     reply.status(200).send({ message: 'Senha alterada com sucesso.' });
   } catch (error) {

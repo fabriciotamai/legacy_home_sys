@@ -1,4 +1,9 @@
-import { ComplianceStatus, Phase, Prisma, Address as PrismaAddress } from '@prisma/client';
+import {
+  ComplianceStatus,
+  Phase,
+  Prisma,
+  Address as PrismaAddress,
+} from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { AddressRepository } from '../address-repository';
 
@@ -26,7 +31,10 @@ export class PrismaAddressRepository implements AddressRepository {
     });
   }
 
-  async updateUserComplianceStatus(userId: number, status: ComplianceStatus): Promise<void> {
+  async updateUserComplianceStatus(
+    userId: number,
+    status: ComplianceStatus,
+  ): Promise<void> {
     await prisma.user.update({
       where: { id: userId },
       data: { complianceStatus: status },
@@ -39,7 +47,10 @@ export class PrismaAddressRepository implements AddressRepository {
     });
   }
 
-  async update(addressId: number, data: Prisma.AddressUpdateInput): Promise<PrismaAddress> {
+  async update(
+    addressId: number,
+    data: Prisma.AddressUpdateInput,
+  ): Promise<PrismaAddress> {
     return await prisma.address.update({
       where: { id: addressId },
       data,

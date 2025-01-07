@@ -7,7 +7,10 @@ const linkEnterpriseToUserSchema = z.object({
   enterpriseId: z.number().int().positive(),
 });
 
-export async function linkEnterpriseToUserHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function linkEnterpriseToUserHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   try {
     const input = linkEnterpriseToUserSchema.parse(request.body);
 

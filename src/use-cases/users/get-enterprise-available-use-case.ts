@@ -14,11 +14,15 @@ type EnterpriseWithContractInterests = Prisma.EnterpriseGetPayload<{
 export class GetEnterprisesAvailableUseCase {
   constructor(private readonly enterpriseRepository: EnterpriseRepository) {}
 
-  async execute(filters: GetAllEnterprisesInput): Promise<EnterpriseWithContractInterests[]> {
+  async execute(
+    filters: GetAllEnterprisesInput,
+  ): Promise<EnterpriseWithContractInterests[]> {
     const enterprises = await this.enterpriseRepository.findAll(filters);
 
     const filteredEnterprises = enterprises.filter((enterprise) => {
-      return !enterprise.contractInterests?.some((interest) => interest.status === InterestStatus.APPROVED);
+      return !enterprise.contractInterests?.some(
+        (interest) => interest.status === InterestStatus.APPROVED,
+      );
     });
 
     return filteredEnterprises;

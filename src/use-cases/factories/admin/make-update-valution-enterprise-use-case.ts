@@ -6,5 +6,8 @@ export function makeUpdateEnterpriseValuationUseCase(): UpdateEnterpriseValuatio
   const enterpriseRepository = new PrismaEnterpriseRepository();
   const usersRepository = new PrismaUsersRepository();
 
-  return new UpdateEnterpriseValuationUseCase(enterpriseRepository, usersRepository);
+  return new UpdateEnterpriseValuationUseCase(
+    enterpriseRepository,
+    usersRepository,
+  );
 }

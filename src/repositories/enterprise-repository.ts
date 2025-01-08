@@ -1,4 +1,4 @@
-import { EnterpriseWithRelations } from '@/types';
+import { EnterpriseWithContractInterests, EnterpriseWithRelations } from '@/types';
 import {
   ContractInterest,
   Enterprise,
@@ -35,9 +35,7 @@ export interface EnterpriseRepository {
     progress: number,
   ): Promise<void>;
   findWithInterests(): Promise<Enterprise[]>;
-  findByUserId(
-    userId: number,
-  ): Promise<(Enterprise & { interestStatus?: string })[]>;
+  findByUserId(userId: number): Promise<EnterpriseWithContractInterests[]>;
   initializeEnterprisePhasesAndTasks(enterpriseId: number): Promise<void>;
   linkUserToEnterprise(userId: number, enterpriseId: number, status: InterestStatus, tx?: Prisma.TransactionClient): Promise<ContractInterest>;
   findInterestById(interestId: string): Promise<ContractInterest | null>;

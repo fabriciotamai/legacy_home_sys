@@ -102,7 +102,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  // Adicionado o parâmetro opcional 'tx'
+
   async addInvestment(data: {
     userId: number;
     enterpriseId: number;
@@ -196,12 +196,12 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  // Adicionado o parâmetro opcional 'tx'
+
   async linkUserToEnterprise(
     userId: number,
     enterpriseId: number,
     status: InterestStatus = InterestStatus.PENDING,
-    tx?: Prisma.TransactionClient, // ADICIONADO
+    tx?: Prisma.TransactionClient, 
   ): Promise<ContractInterest> {
     return (tx ?? prisma).contractInterest.create({
       data: {
@@ -218,7 +218,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  // Adicionado o parâmetro opcional 'tx' e corrigido o uso do status
+
   async updateInterestStatus(
     interestId: string,
     status: InterestStatus,
@@ -268,9 +268,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findByUserId(
-    userId: number,
-  ): Promise<(Enterprise & { interestStatus?: string })[]> {
+  async findByUserId(userId: number): Promise<(Enterprise & { contractInterests: { status: string }[] })[]> {
     return prisma.enterprise.findMany({
       where: {
         OR: [
@@ -284,6 +282,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
         contractInterests: {
           where: { userId },
           select: { status: true },
+          take: 1, 
         },
       },
       orderBy: { createdAt: 'desc' },

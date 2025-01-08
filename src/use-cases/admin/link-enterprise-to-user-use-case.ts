@@ -1,10 +1,11 @@
 import { AdminRepository } from '@/repositories/admin-repository';
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
-import { ContractInterest } from '@prisma/client';
+import { ContractInterest, InterestStatus } from '@prisma/client';
 
 interface LinkUserToEnterpriseInput {
   userId: number;
   enterpriseId: number;
+  status?: InterestStatus;  
 }
 
 export class LinkUserToEnterpriseUseCase {
@@ -14,8 +15,7 @@ export class LinkUserToEnterpriseUseCase {
   ) {}
 
   async execute(input: LinkUserToEnterpriseInput): Promise<ContractInterest> {
-    const { userId, enterpriseId } = input;
-
+    const { userId, enterpriseId, status = InterestStatus.PENDING } = input; 
     const user = await this.adminRepository.findById(userId);
     if (!user) {
       throw new Error('Usuário não encontrado.');
@@ -30,6 +30,7 @@ export class LinkUserToEnterpriseUseCase {
       await this.enterpriseRepository.linkUserToEnterprise(
         userId,
         enterpriseId,
+        status,  
       );
 
     return contractInterest;

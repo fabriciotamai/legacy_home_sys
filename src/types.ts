@@ -43,3 +43,24 @@ export type SimplifiedEnterpriseWithRelations = Enterprise & {
   };
   contractInterests: { status: ContractInterest['status'] }[];
 };
+
+
+export type EnterpriseWithContractInterests = Enterprise & {
+  currentPhase?: {
+    id: number;
+    phaseName: string;
+    description: string;
+    order: number;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  currentTask?: {
+    id: number;
+    taskName: string;
+    description: string;
+    phaseId: number;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  contractInterests: { status: string }[];
+};

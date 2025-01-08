@@ -1,5 +1,7 @@
+// src/use-cases/get-user-enterprises-use-case.ts
+
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
-import { Enterprise } from '@prisma/client';
+import { EnterpriseWithContractInterests } from '@/types';
 
 interface GetUserEnterprisesInput {
   userId: number;
@@ -8,13 +10,19 @@ interface GetUserEnterprisesInput {
 export class GetUserEnterprisesUseCase {
   constructor(private readonly enterpriseRepository: EnterpriseRepository) {}
 
-  async execute({ userId }: GetUserEnterprisesInput): Promise<Enterprise[]> {
+  async execute({ userId }: GetUserEnterprisesInput): Promise<EnterpriseWithContractInterests[]> {
     if (!userId) {
       throw new Error('O ID do usuário é obrigatório.');
     }
 
     const enterprises = await this.enterpriseRepository.findByUserId(userId);
 
-    return enterprises;
+
+    const transformedEnterprises: EnterpriseWithContractInterests[] = enterprises.map((enterprise) => ({
+      ...enterprise,
+      interestStatus: enterprise.contractInterests[0]?.status, 
+    }));
+
+    return transformedEnterprises;
   }
 }

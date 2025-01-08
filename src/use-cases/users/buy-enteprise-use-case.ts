@@ -1,3 +1,4 @@
+import { prisma } from '@/lib/prisma';
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { UsersRepository } from '@/repositories/user-repository';
 import { ApproveInvestmentService } from '@/services/approve-investment-service';
@@ -8,7 +9,7 @@ interface BuyDirectInput {
   enterpriseId: number;
 }
 
-export class BuyEnteprisetUseCase {
+export class BuyEnterpriseUseCase { 
   constructor(
     private readonly enterpriseRepository: EnterpriseRepository,
     private readonly usersRepository: UsersRepository,
@@ -18,32 +19,41 @@ export class BuyEnteprisetUseCase {
   async execute(input: BuyDirectInput): Promise<ContractInterest> {
     const { userId, enterpriseId } = input;
 
-    const user = await this.usersRepository.findById(userId);
-    if (!user) throw new Error('Usuário não encontrado.');
+    return await prisma.$transaction(async (tx) => {
+   
+      const user = await this.usersRepository.findById(userId, tx);
+      if (!user) throw new Error('Usuário não encontrado.');
 
-    const enterprise = await this.enterpriseRepository.findById(enterpriseId);
-    if (!enterprise) throw new Error('Empreendimento não encontrado.');
+      
+      const enterprise = await this.enterpriseRepository.findById(enterpriseId, tx);
+      if (!enterprise) throw new Error('Empreendimento não encontrado.');
 
-    const contractInterest =
-      await this.enterpriseRepository.linkUserToEnterprise(
-        userId,
-        enterpriseId,
-        InterestStatus.APPROVED,
+      
+      const contractInterest =
+        await this.enterpriseRepository.linkUserToEnterprise(
+          userId,
+          enterpriseId,
+          InterestStatus.APPROVED,
+          tx, 
+        );
+
+      
+      await this.approveInvestmentService.approveInterest(
+        user,
+        enterprise,
+        contractInterest.interestId,
+        tx, 
       );
 
-    await this.approveInvestmentService.approveInterest(
-      user,
-      enterprise,
-      contractInterest.interestId,
-    );
+      
+      await this.enterpriseRepository.addInterestLog({
+        userId: user.id,
+        enterpriseId: enterprise.id,
+        interestId: contractInterest.interestId,
+        status: InterestStatus.APPROVED,
+      }, tx); 
 
-    await this.enterpriseRepository.addInterestLog({
-      userId: user.id,
-      enterpriseId: enterprise.id,
-      interestId: contractInterest.interestId,
-      status: InterestStatus.APPROVED,
+      return contractInterest;
     });
-
-    return contractInterest;
   }
 }

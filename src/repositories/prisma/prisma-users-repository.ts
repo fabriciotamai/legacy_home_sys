@@ -36,8 +36,8 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-  async findById(userId: number): Promise<PrismaUser | null> {
-    return prisma.user.findUnique({
+  async findById(userId: number, tx?: Prisma.TransactionClient): Promise<PrismaUser | null> {
+    return (tx ?? prisma).user.findUnique({
       where: { id: userId },
     });
   }
@@ -161,8 +161,9 @@ export class PrismaUsersRepository implements UsersRepository {
     walletBalance: number,
     investedIncrement: number,
     valuationIncrement: number,
+    tx?: Prisma.TransactionClient,
   ): Promise<void> {
-    await prisma.user.update({
+    await (tx ?? prisma).user.update({
       where: { id: userId },
       data: {
         walletBalance,
@@ -181,15 +182,18 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
-  async addWalletTransaction(data: {
-    userId: number;
-    type: WalletTransactionType;
-    amount: number;
-    balanceBefore: number;
-    balanceAfter: number;
-    description: string;
-  }): Promise<void> {
-    await prisma.walletTransaction.create({
+  async addWalletTransaction(
+    data: {
+      userId: number;
+      type: WalletTransactionType;
+      amount: number;
+      balanceBefore: number;
+      balanceAfter: number;
+      description: string;
+    },
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    await (tx ?? prisma).walletTransaction.create({
       data: {
         userId: data.userId,
         type: data.type,

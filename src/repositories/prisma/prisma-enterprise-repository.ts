@@ -14,8 +14,10 @@ import {
 import { EnterpriseRepository } from '../enterprise-repository';
 
 export class PrismaEnterpriseRepository implements EnterpriseRepository {
-  async findById(enterpriseId: number): Promise<Enterprise> {
-    return prisma.enterprise.findUniqueOrThrow({
+  
+  
+  async findById(enterpriseId: number, tx?: Prisma.TransactionClient): Promise<Enterprise> {
+    return (tx ?? prisma).enterprise.findUniqueOrThrow({
       where: { id: enterpriseId },
       include: { currentPhase: true, currentTask: true },
     });
@@ -32,6 +34,9 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       },
     });
   }
+
+
+
 
   async findPhaseWithTasks(
     phaseId: number,
@@ -79,15 +84,14 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
 
     return taskStatus ? taskStatus.task : null;
   }
-
   async addInterestLog(data: {
     userId: number;
     enterpriseId: number;
     interestId: string;
     status: InterestStatus;
     reason?: string;
-  }): Promise<void> {
-    await prisma.interestLog.create({
+  }, tx?: Prisma.TransactionClient): Promise<void> {
+    await (tx ?? prisma).interestLog.create({
       data: {
         userId: data.userId,
         enterpriseId: data.enterpriseId,
@@ -98,12 +102,13 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  // Adicionado o parâmetro opcional 'tx'
   async addInvestment(data: {
     userId: number;
     enterpriseId: number;
     investedAmount: number;
-  }): Promise<void> {
-    await prisma.investment.create({
+  }, tx?: Prisma.TransactionClient): Promise<void> {
+    await (tx ?? prisma).investment.create({
       data: {
         userId: data.userId,
         enterpriseId: data.enterpriseId,
@@ -191,12 +196,14 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  // Adicionado o parâmetro opcional 'tx'
   async linkUserToEnterprise(
     userId: number,
     enterpriseId: number,
     status: InterestStatus = InterestStatus.PENDING,
+    tx?: Prisma.TransactionClient, // ADICIONADO
   ): Promise<ContractInterest> {
-    return prisma.contractInterest.create({
+    return (tx ?? prisma).contractInterest.create({
       data: {
         userId,
         enterpriseId,
@@ -211,24 +218,28 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  // Adicionado o parâmetro opcional 'tx' e corrigido o uso do status
   async updateInterestStatus(
     interestId: string,
     status: InterestStatus,
+    tx?: Prisma.TransactionClient, // ADICIONADO
   ): Promise<ContractInterest> {
-    return prisma.contractInterest.update({
+    return (tx ?? prisma).contractInterest.update({
       where: { interestId },
-      data: { status: InterestStatus[status] },
+      data: { status }, // CORRIGIDO para usar status diretamente
     });
   }
 
+  // Já estava ajustado para aceitar 'tx'
   async removeOtherInterests(
     enterpriseId: number,
-    approvedInterestId: string,
+    interestId: string,
+    tx?: Prisma.TransactionClient,
   ): Promise<void> {
-    await prisma.contractInterest.updateMany({
+    await (tx ?? prisma).contractInterest.updateMany({
       where: {
-        enterpriseId,
-        interestId: { not: approvedInterestId },
+        enterpriseId: enterpriseId,
+        interestId: { not: interestId },
       },
       data: {
         status: 'REJECTED',
@@ -278,6 +289,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       orderBy: { createdAt: 'desc' },
     });
   }
+
   async addChangeLog(data: {
     enterpriseId: number;
     changeType: 'STATUS_CHANGED' | 'PHASE_CHANGED' | 'TASK_CHANGED';
@@ -336,12 +348,14 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  // Adicionado o parâmetro opcional 'tx'
   async updatePhaseProgress(
     enterpriseId: number,
     phaseId: number,
     progress: number,
+    tx?: Prisma.TransactionClient, // ADICIONADO
   ): Promise<void> {
-    await prisma.enterprisePhaseStatus.update({
+    await (tx ?? prisma).enterprisePhaseStatus.update({
       where: {
         enterpriseId_phaseId: {
           enterpriseId,
@@ -375,12 +389,14 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return prisma.task.create({ data });
   }
 
+  // Adicionado o parâmetro opcional 'tx'
   async associateTasksToEnterprise(
     enterpriseId: number,
     taskIds: number[],
+    tx?: Prisma.TransactionClient, // ADICIONADO
   ): Promise<void> {
     const updates = taskIds.map((taskId) =>
-      prisma.enterpriseTaskStatus.create({
+      (tx ?? prisma).enterpriseTaskStatus.create({
         data: {
           enterpriseId,
           taskId,
@@ -392,12 +408,14 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     await Promise.all(updates);
   }
 
+  // Adicionado o parâmetro opcional 'tx'
   async updateTaskStatus(
     enterpriseId: number,
     taskId: number,
     isCompleted: boolean,
+    tx?: Prisma.TransactionClient, // ADICIONADO
   ): Promise<void> {
-    await prisma.enterpriseTaskStatus.updateMany({
+    await (tx ?? prisma).enterpriseTaskStatus.updateMany({
       where: {
         enterpriseId,
         taskId,
@@ -406,12 +424,13 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  // Adicionado o parâmetro opcional 'tx'
   async createPhaseProgress(data: {
     enterpriseId: number;
     phaseId: number;
     progress: number;
-  }): Promise<void> {
-    await prisma.enterprisePhaseStatus.create({
+  }, tx?: Prisma.TransactionClient): Promise<void> { // ADICIONADO
+    await (tx ?? prisma).enterprisePhaseStatus.create({
       data: {
         enterpriseId: data.enterpriseId,
         phaseId: data.phaseId,
@@ -419,6 +438,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       },
     });
   }
+
   async findSingleInvestmentByEnterpriseId(
     enterpriseId: number,
   ): Promise<Investment | null> {
@@ -427,12 +447,13 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  // Adicionado o parâmetro opcional 'tx'
   async createTaskProgress(data: {
     enterpriseId: number;
     taskId: number;
     isCompleted: boolean;
-  }): Promise<void> {
-    await prisma.enterpriseTaskStatus.create({
+  }, tx?: Prisma.TransactionClient): Promise<void> { // ADICIONADO
+    await (tx ?? prisma).enterpriseTaskStatus.create({
       data: {
         enterpriseId: data.enterpriseId,
         taskId: data.taskId,

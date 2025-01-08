@@ -1,3 +1,4 @@
+import { prisma } from '@/lib/prisma';
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { UsersRepository } from '@/repositories/user-repository';
 import { ApproveInvestmentService } from '@/services/approve-investment-service';
@@ -19,37 +20,53 @@ export class AcceptOrRejectInterestUseCase {
   async execute(input: AcceptOrRejectInterestInput): Promise<ContractInterest> {
     const { interestId, status, reason } = input;
 
-    const interest =
-      await this.enterpriseRepository.findInterestById(interestId);
-    if (!interest) throw new Error('Interesse não encontrado.');
+    return await prisma.$transaction(async (tx) => {
+      
+      const interest = await tx.contractInterest.findUnique({
+        where: { interestId },
+      });
+      if (!interest) throw new Error('Interesse não encontrado.');
 
-    const enterprise = await this.enterpriseRepository.findById(
-      interest.enterpriseId,
-    );
-    if (!enterprise) throw new Error('Empreendimento não encontrado.');
+      
+      const enterprise = await tx.enterprise.findUnique({
+        where: { id: interest.enterpriseId },
+      });
+      if (!enterprise) throw new Error('Empreendimento não encontrado.');
 
-    const user = await this.usersRepository.findById(interest.userId);
-    if (!user) throw new Error('Usuário não encontrado.');
+      
+      const user = await tx.user.findUnique({
+        where: { id: interest.userId },
+      });
+      if (!user) throw new Error('Usuário não encontrado.');
 
-    if (status === 'APPROVED') {
-      await this.approveInvestmentService.approveInterest(
-        user,
-        enterprise,
-        interestId,
-      );
-    }
+      if (status === 'APPROVED') {
+        
+        await this.approveInvestmentService.approveInterest(
+          user,
+          enterprise,
+          interestId,
+          tx, 
+        );
+      }
 
-    const updatedInterest =
-      await this.enterpriseRepository.updateInterestStatus(interestId, status);
+      
+      const updatedInterest = await tx.contractInterest.update({
+        where: { interestId },
+        data: { status },
+      });
 
-    await this.enterpriseRepository.addInterestLog({
-      userId: user.id,
-      enterpriseId: enterprise.id,
-      interestId,
-      status: status as InterestStatus,
-      reason: status === 'REJECTED' ? reason : undefined,
+      
+      await tx.interestLog.create({
+        data: {
+          userId: user.id,
+          enterpriseId: enterprise.id,
+          interestId,
+          status: status as InterestStatus,
+          reason: status === 'REJECTED' ? reason : undefined,
+        },
+      });
+
+      return updatedInterest;
     });
-
-    return updatedInterest;
   }
 }

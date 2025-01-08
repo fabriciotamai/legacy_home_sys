@@ -17,7 +17,7 @@ interface FindAllFilters {
   isAvailable?: boolean;
 }
 export interface EnterpriseRepository {
-  findById(enterpriseId: number): Promise<Enterprise | null>;
+  findById(enterpriseId: number, tx?: Prisma.TransactionClient): Promise<Enterprise>;
   findByName(name: string): Promise<Enterprise | null>;
   findAll(filters: FindAllFilters): Promise<EnterpriseWithRelations[]>;
   create(data: Prisma.EnterpriseCreateInput): Promise<Enterprise>;
@@ -39,20 +39,13 @@ export interface EnterpriseRepository {
     userId: number,
   ): Promise<(Enterprise & { interestStatus?: string })[]>;
   initializeEnterprisePhasesAndTasks(enterpriseId: number): Promise<void>;
-  linkUserToEnterprise(
-    userId: number,
-    enterpriseId: number,
-    status?: InterestStatus,
-  ): Promise<ContractInterest>;
+  linkUserToEnterprise(userId: number, enterpriseId: number, status: InterestStatus, tx?: Prisma.TransactionClient): Promise<ContractInterest>;
   findInterestById(interestId: string): Promise<ContractInterest | null>;
   updateInterestStatus(
     interestId: string,
     status: InterestStatus,
   ): Promise<ContractInterest>;
-  removeOtherInterests(
-    enterpriseId: number,
-    approvedInterestId: string,
-  ): Promise<void>;
+  removeOtherInterests(enterpriseId: number, interestId: string, tx?: Prisma.TransactionClient): Promise<void>;
   findPhaseById(phaseId: number): Promise<Phase | null>;
   findAllPhasesWithTasks(): Promise<(Phase & { tasks: Task[] })[]>;
   findAllPhasesByEnterprise(
@@ -100,18 +93,8 @@ export interface EnterpriseRepository {
     enterpriseId: number,
     taskId: number,
   ): Promise<(Task & { phase: Phase }) | null>;
-  addInvestment(data: {
-    userId: number;
-    enterpriseId: number;
-    investedAmount: number;
-  }): Promise<void>;
-  addInterestLog(data: {
-    userId: number;
-    enterpriseId: number;
-    interestId: string;
-    status: InterestStatus;
-    reason?: string;
-  }): Promise<void>;
+  addInvestment(data: { userId: number; enterpriseId: number; investedAmount: number }, tx?: Prisma.TransactionClient): Promise<void>;
+  addInterestLog(data: { userId: number; enterpriseId: number; interestId: string; status: InterestStatus; reason?: string }, tx?: Prisma.TransactionClient): Promise<void>;
   addChangeLog(data: {
     enterpriseId: number;
     changeType: 'STATUS_CHANGED' | 'PHASE_CHANGED' | 'TASK_CHANGED';

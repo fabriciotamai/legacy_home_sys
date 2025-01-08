@@ -1,6 +1,6 @@
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { UsersRepository } from '@/repositories/user-repository';
-import { Enterprise, User, WalletTransactionType } from '@prisma/client';
+import { Enterprise, Prisma, User, WalletTransactionType } from '@prisma/client';
 
 export class ApproveInvestmentService {
   constructor(
@@ -27,6 +27,7 @@ export class ApproveInvestmentService {
     user: User,
     enterprise: Enterprise,
     interestId: string,
+    tx: Prisma.TransactionClient, 
   ): Promise<void> {
     const {
       updatedWalletBalance,
@@ -34,13 +35,16 @@ export class ApproveInvestmentService {
       updatedTotalValuation,
     } = this.calculateFinancialUpdate(user, enterprise);
 
+
     await this.usersRepository.updateUserFinancials(
       user.id,
       updatedWalletBalance,
       updatedTotalInvested,
       updatedTotalValuation,
+      tx, 
     );
 
+    
     await this.usersRepository.addWalletTransaction({
       userId: user.id,
       type: WalletTransactionType.DEBIT,
@@ -48,17 +52,20 @@ export class ApproveInvestmentService {
       balanceBefore: user.walletBalance ?? 0,
       balanceAfter: updatedWalletBalance,
       description: `Investimento aprovado para o empreendimento "${enterprise.name}".`,
-    });
+    }, tx); 
+
 
     await this.enterpriseRepository.addInvestment({
       userId: user.id,
       enterpriseId: enterprise.id,
       investedAmount: enterprise.fundingAmount,
-    });
+    }, tx); 
+
 
     await this.enterpriseRepository.removeOtherInterests(
       enterprise.id,
       interestId,
+      tx, 
     );
   }
 }

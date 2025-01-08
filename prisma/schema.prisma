@@ -98,53 +98,51 @@ enum EnterpriseChangeType {
 }
 
 model User {
-  id                       Int              @id @default(autoincrement())
-  email                    String           @unique
-  username                 String           @unique
+  id                       Int                 @id @default(autoincrement())
+  email                    String              @unique
+  username                 String              @unique
   password                 String
   firstName                String
   lastName                 String
   birthDate                DateTime?
   avatar                   String?
   userType                 UserType
-  numberDocument           String?          @unique
+  numberDocument           String?             @unique
   phone                    String?
   documentType             DocumentType?
   documentFront            String?
   documentBack             String?
   proofOfAddress           String?
   incomeTaxProof           String?
-  mustChangePassword       Boolean          @default(true)
-  tokenVersion             Int              @default(0)
-  role                     Role             @default(USER)
-  isApproved               Boolean          @default(false)
-  complianceStatus         ComplianceStatus @default(PENDING_ADDRESS)
+  mustChangePassword       Boolean             @default(true)
+  tokenVersion             Int                 @default(0)
+  role                     Role                @default(USER)
+  isApproved               Boolean             @default(false)
+  complianceStatus         ComplianceStatus    @default(PENDING_ADDRESS)
   twoFA                    String?
-  isActive                 Boolean          @default(true)
-  walletBalance            Float?           @default(0.0)
-  totalInvested            Float?           @default(0.0)
-  totalValuation           Float?           @default(0.0)
-  emailVerified            Boolean          @default(false)
+  isActive                 Boolean             @default(true)
+  walletBalance            Float?              @default(0.0)
+  totalInvested            Float?              @default(0.0)
+  totalValuation           Float?              @default(0.0)
+  emailVerified            Boolean             @default(false)
   emailConfirmationCode    String?
   emailConfirmationExpires DateTime?
   address                  Address?
-
-  contracts          Contract[]
-  contractInterests  ContractInterest[]
-  contractSignatures ContractSignature[]
-  walletTransactions WalletTransaction[]
-  investments        Investment[]
-  interestLogs       InterestLog[]
-  Deposit            Deposit[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  contracts                Contract[]
+  contractInterests        ContractInterest[]
+  contractSignatures       ContractSignature[]
+  walletTransactions       WalletTransaction[]
+  investments              Investment[]
+  interestLogs             InterestLog[]
+  Deposit                  Deposit[]
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
 
   @@index([isApproved])
 }
 
 model Address {
-  id           Int     @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   street       String
   number       String
   complement   String?
@@ -153,13 +151,10 @@ model Address {
   state        String
   postalCode   String
   country      String
-
-  // Relacionamento 1:1 (um endereço só pode pertencer a um usuário)
-  user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int      @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model WalletTransaction {
@@ -221,6 +216,33 @@ model InterestLog {
   status       InterestStatus
   reason       String?
   createdAt    DateTime       @default(now())
+}
+
+model FaqCategory {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  faqs FAQ[]  @relation("FaqToCategory")
+}
+
+model FAQ {
+  id          Int           @id @default(autoincrement())
+  question    String
+  answer      String
+  categoryId  Int
+  category    FaqCategory   @relation(fields: [categoryId], references: [id], name: "FaqToCategory")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  FAQRevision FAQRevision[]
+}
+
+model FAQRevision {
+  id        Int      @id @default(autoincrement())
+  faqId     Int
+  faq       FAQ      @relation(fields: [faqId], references: [id])
+  answer    String
+  updatedAt DateTime @default(now())
+
+  @@index([faqId])
 }
 
 model Enterprise {

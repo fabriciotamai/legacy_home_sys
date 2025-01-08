@@ -1,7 +1,7 @@
 import { PrismaEnterpriseRepository } from '@/repositories/prisma/prisma-enterprise-repository';
 import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
 import { ApproveInvestmentService } from '@/services/approve-investment-service';
-import { BuyEnteprisetUseCase } from '@/use-cases/users/buy-enteprise-use-case';
+import { BuyEnterpriseUseCase } from '@/use-cases/users/buy-enteprise-use-case';
 
 export function makeBuyDirectUseCase() {
   const enterpriseRepository = new PrismaEnterpriseRepository();
@@ -12,7 +12,7 @@ export function makeBuyDirectUseCase() {
     enterpriseRepository,
   );
 
-  const useCase = new BuyEnteprisetUseCase(
+  const useCase = new BuyEnterpriseUseCase(
     enterpriseRepository,
     usersRepository,
     approveInvestmentService,

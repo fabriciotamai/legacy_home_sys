@@ -1,3 +1,5 @@
+// src/repositories/prisma/prisma-faq-repository.ts
+
 import { FaqRepository } from '@/repositories/faq-repository';
 import { FAQ, FaqCategory } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
@@ -12,6 +14,7 @@ export class PrismaFaqRepository implements FaqRepository {
       },
     });
   }
+
   async createCategory(name: string): Promise<FaqCategory> {
     return prisma.faqCategory.create({
       data: {
@@ -40,6 +43,12 @@ export class PrismaFaqRepository implements FaqRepository {
     });
   }
 
+  async deleteCategory(categoryId: number): Promise<void> {
+    await prisma.faqCategory.delete({
+      where: { id: categoryId }
+    });
+  }
+
   async listCategories(): Promise<FaqCategory[]> {
     return prisma.faqCategory.findMany();
   }
@@ -53,8 +62,8 @@ export class PrismaFaqRepository implements FaqRepository {
     });
   }
 
-  async delete(id: number): Promise<FAQ> {
-    return prisma.fAQ.delete({
+  async delete(id: number): Promise<void> {
+    await prisma.fAQ.delete({
       where: { id },
     });
   }

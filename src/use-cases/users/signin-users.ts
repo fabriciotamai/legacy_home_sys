@@ -19,6 +19,7 @@ interface LoginOutput {
     avatar: string | null;
     role: string;
     complianceStatus: string;
+    numberDocument:string | null;
     mustChangePassword: boolean;
     isApproved: boolean;
     isActive: boolean;
@@ -74,6 +75,7 @@ export class SigninUsers {
         avatar: user.avatar ?? null,
         role: user.role,
         complianceStatus: user.complianceStatus,
+        numberDocument:user.numberDocument,
         mustChangePassword: user.mustChangePassword,
         isApproved: user.isApproved,
         isActive: user.isActive,
@@ -108,6 +110,7 @@ export class SigninUsers {
         avatar: updatedUser.avatar ?? null,
         role: updatedUser.role,
         complianceStatus: updatedUser.complianceStatus,
+        numberDocument:updatedUser.numberDocument,
         mustChangePassword: updatedUser.mustChangePassword,
         isApproved: updatedUser.isApproved,
         isActive: updatedUser.isActive,

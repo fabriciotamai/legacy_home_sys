@@ -11,6 +11,8 @@ import { acceptOrRejectComplianceHandler } from './controllers/admin/accept-or-r
 import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-enterprise-handler';
 import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
 import { adminApproveOrRejectDepositHandler } from './controllers/admin/admin-approve-or-reject-deposit-handler';
+import { adminDeleteFaqCategoryHandler } from './controllers/admin/admin-delete-faq-category-handler';
+import { adminDeleteFaqHandler } from './controllers/admin/admin-delete-faq-handler';
 import { adminListFaqCategoriesHandler } from './controllers/admin/admin-list-faq-categories-handler';
 import { adminUpdateUserHandler } from './controllers/admin/admin-update-data-user-handler';
 import { adminCreateFaqCategoryHandler } from './controllers/admin/create-category-faq-handler';
@@ -23,6 +25,7 @@ import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-inte
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 import { adminListDepositsHandler } from './controllers/admin/list-deposit-handler';
+import { adminListFaqsHandler } from './controllers/admin/list-faq-handler';
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { updateEnterpriseValuationHandler } from './controllers/admin/update-valution-enterprise-handler';
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
@@ -67,7 +70,11 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
     protectedRoutes.post('/admin/faq/create-category', { preHandler: roleMiddleware }, adminCreateFaqCategoryHandler);
     protectedRoutes.post('/admin/faq/create', { preHandler: roleMiddleware }, adminCreateFaqHandler);
+    protectedRoutes.get('/admin/faq/list', { preHandler: roleMiddleware }, adminListFaqsHandler);
     protectedRoutes.get('/admin/faq/categories', { preHandler: roleMiddleware }, adminListFaqCategoriesHandler);
+    protectedRoutes.delete('/admin/faq/category/:categoryId', { preHandler: roleMiddleware }, adminDeleteFaqCategoryHandler);
+    protectedRoutes.delete('/admin/faq/:faqId', { preHandler: roleMiddleware }, adminDeleteFaqHandler);
+
     protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
     protectedRoutes.get('/admin/dashboard', { preHandler: roleMiddleware }, getAdminDashboardHandler);
     protectedRoutes.get('/admin/deposits', adminListDepositsHandler);

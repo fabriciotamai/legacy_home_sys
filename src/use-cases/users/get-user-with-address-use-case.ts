@@ -6,6 +6,7 @@ interface GetUserWithAddressOutput {
   username: string;
   firstName: string;
   lastName: string;
+  avatar:string | null;
   numberDocument: string | null;
   birthDate: string | null;
   userType: string;
@@ -44,6 +45,7 @@ export class GetUserWithAddressUseCase {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
+      avatar:user.avatar,
       numberDocument: user.numberDocument ?? null,
       birthDate: user.birthDate?.toISOString() ?? null,
       userType: user.userType,

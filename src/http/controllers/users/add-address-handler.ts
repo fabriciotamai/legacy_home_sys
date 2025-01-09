@@ -18,6 +18,7 @@ export async function addAddressHandler(
   });
 
   try {
+    
     if (!request.user) {
       console.error('Erro: Usuário não autenticado.');
       return reply.status(401).send({ error: 'Usuário não autenticado.' });
@@ -28,9 +29,10 @@ export async function addAddressHandler(
 
     const addAddressUseCase = makeAddAddressUseCase();
 
-    await addAddressUseCase.execute({ userId, ...addressData });
+    const updatedAddress = await addAddressUseCase.execute({ userId, ...addressData });
 
-    reply.status(201).send({ message: 'Endereço cadastrado com sucesso.' });
+
+    return reply.status(201).send({ message: 'Endereço cadastrado com sucesso.', address: updatedAddress });
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('Erro de validação:', error.errors);

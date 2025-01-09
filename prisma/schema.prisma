@@ -256,6 +256,7 @@ model Enterprise {
   constructionType  ConstructionType
   fundingAmount     Float                   @default(0.0)
   transferAmount    Float                   @default(0.0)
+  coverImageUrl     String?
   postalCode        String
   address           String
   city              String
@@ -278,8 +279,19 @@ model Enterprise {
   createdAt         DateTime                @default(now())
   updatedAt         DateTime                @updatedAt
   InterestLog       InterestLog[]
+  images            EnterpriseImage[]
 
   @@index([status, createdAt])
+}
+
+model EnterpriseImage {
+  id           Int        @id @default(autoincrement())
+  enterpriseId Int
+  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
+  imageUrl     String
+  createdAt    DateTime   @default(now())
+
+  @@index([enterpriseId])
 }
 
 model Contract {

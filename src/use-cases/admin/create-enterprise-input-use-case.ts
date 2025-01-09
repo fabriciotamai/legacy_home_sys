@@ -1,4 +1,5 @@
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
+
 import { ConstructionType, InvestmentType, Phase, Task } from '@prisma/client';
 
 interface CreateEnterpriseInput {
@@ -17,6 +18,8 @@ interface CreateEnterpriseInput {
   area: number;
   floors?: number;
   completionDate?: Date;
+  coverImageUrl?: string; 
+  imageUrls?: string[]; 
 }
 
 interface CreateEnterpriseOutput {
@@ -40,6 +43,8 @@ interface CreateEnterpriseOutput {
     progress: number;
     floors?: number | null;
     completionDate?: Date | null;
+    coverImageUrl?: string | null;
+    imageUrls: string[];
     currentPhaseId: number | null;
     currentTaskId: number | null;
     createdAt: Date;
@@ -64,7 +69,10 @@ interface CreateEnterpriseOutput {
 }
 
 export class CreateEnterpriseUseCase {
-  constructor(private readonly enterpriseRepository: EnterpriseRepository) {}
+  constructor(
+    private readonly enterpriseRepository: EnterpriseRepository,
+   
+  ) {}
 
   async execute(input: CreateEnterpriseInput): Promise<CreateEnterpriseOutput> {
     const {
@@ -83,15 +91,22 @@ export class CreateEnterpriseUseCase {
       area,
       floors,
       completionDate,
+      coverImageUrl,
+      imageUrls = [], 
     } = input;
 
     this.validateInput(input);
+
+    if (imageUrls.length > 5) {
+      throw new Error('No máximo 5 imagens podem ser anexadas na criação.');
+    }
 
     const existingEnterprise = await this.enterpriseRepository.findByName(name);
     if (existingEnterprise) {
       throw new Error('Já existe um empreendimento com esse nome.');
     }
 
+ 
     const enterprise = await this.enterpriseRepository.create({
       name,
       corporateName,
@@ -109,23 +124,26 @@ export class CreateEnterpriseUseCase {
       area,
       floors: floors ?? null,
       completionDate: completionDate ?? null,
+      coverImageUrl: coverImageUrl ?? null,
     });
 
     if (!enterprise) {
       throw new Error('Erro ao criar o empreendimento.');
     }
 
-    const phaseTemplates =
-      await this.enterpriseRepository.findAllPhasesWithTasks();
+    
+    if (imageUrls.length > 0) {
+      await this.enterpriseRepository.createMany(enterprise.id, imageUrls);
+    }
+
+    const phaseTemplates = await this.enterpriseRepository.findAllPhasesWithTasks();
     if (!phaseTemplates || phaseTemplates.length === 0) {
       throw new Error('Nenhuma fase padrão encontrada.');
     }
 
     await this.initializePhasesAndTasks(enterprise.id, phaseTemplates);
 
-    const initialPhase = phaseTemplates.find(
-      (template) => template.order === 1,
-    );
+    const initialPhase = phaseTemplates.find((template) => template.order === 1);
     if (!initialPhase) {
       throw new Error('Fase inicial (ordem 1) não encontrada.');
     }
@@ -163,6 +181,8 @@ export class CreateEnterpriseUseCase {
         progress: updatedEnterprise.progress,
         floors: updatedEnterprise.floors,
         completionDate: updatedEnterprise.completionDate,
+        coverImageUrl: updatedEnterprise.coverImageUrl,
+        imageUrls, 
         currentPhaseId: updatedEnterprise.currentPhaseId,
         currentTaskId: updatedEnterprise.currentTaskId,
         createdAt: updatedEnterprise.createdAt,
@@ -185,19 +205,14 @@ export class CreateEnterpriseUseCase {
   }
 
   private validateInput(input: CreateEnterpriseInput): void {
-    const { name, description, fundingAmount, area, corporateName, address } =
-      input;
+    const { name, description, fundingAmount, area, corporateName, address } = input;
 
     if (!name || !description || !corporateName || !address) {
-      throw new Error(
-        'Nome, descrição, razão social e endereço são obrigatórios.',
-      );
+      throw new Error('Nome, descrição, razão social e endereço são obrigatórios.');
     }
 
     if (fundingAmount <= 0 || area <= 0) {
-      throw new Error(
-        'O valor de aporte e a metragem devem ser maiores que zero.',
-      );
+      throw new Error('O valor de aporte e a metragem devem ser maiores que zero.');
     }
   }
 

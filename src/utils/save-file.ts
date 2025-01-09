@@ -9,16 +9,15 @@ async function saveFile(file: MultipartFile): Promise<string> {
 
   const filePath = join(uploadsDir, file.filename);
 
-  // Certifica-se de que os dados estão sendo escritos corretamente
   return new Promise((resolve, reject) => {
     const writeStream = createWriteStream(filePath);
-    const fileStream = file.file; // Corrige o fluxo de leitura do arquivo
+    const fileStream = file.file;
 
     fileStream.pipe(writeStream);
 
     fileStream.on('end', () => {
       writeStream.close();
-      resolve(filePath);
+      resolve(`/uploads/${file.filename}`);
     });
 
     fileStream.on('error', (error) => {

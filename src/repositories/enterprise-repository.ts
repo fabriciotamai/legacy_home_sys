@@ -2,6 +2,7 @@ import { EnterpriseWithContractInterests, EnterpriseWithRelations } from '@/type
 import {
   ContractInterest,
   Enterprise,
+  EnterpriseImage,
   EnterpriseStatus,
   EnterpriseTaskStatus,
   InterestStatus,
@@ -102,4 +103,7 @@ export interface EnterpriseRepository {
   findSingleInvestmentByEnterpriseId(
     enterpriseId: number,
   ): Promise<Investment | null>;
+  createMany(enterpriseId: number, imageUrls: string[]): Promise<void>;
+  findByEnterpriseId(enterpriseId: number): Promise<EnterpriseImage[]>;
+  deleteAllByEnterpriseId(enterpriseId: number): Promise<void>;
 }

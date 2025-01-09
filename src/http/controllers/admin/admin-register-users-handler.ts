@@ -43,14 +43,17 @@ export async function adminRegisterUsersHandler(
 
     const adminRegisterUsersUseCase = makeAdminRegisterUsers();
 
-    await adminRegisterUsersUseCase.execute({
+    const newUser = await adminRegisterUsersUseCase.execute({
       ...validatedData,
       birthDate: validatedData.birthDate
         ? new Date(validatedData.birthDate).toISOString()
         : undefined,
     });
 
-    reply.status(201).send({ message: 'Usuário registrado com sucesso!' });
+    reply.status(201).send({ 
+      message: 'Usuário registrado com sucesso!',
+      user: newUser, 
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       reply.status(400).send({ errors: error.errors });

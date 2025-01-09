@@ -3,14 +3,13 @@ import { EnterpriseWithRelations } from '@/types';
 import {
   ContractInterest,
   Enterprise,
-  EnterpriseImage,
   EnterpriseStatus,
   EnterpriseTaskStatus,
   InterestStatus,
   Investment,
   Phase,
   Prisma,
-  Task,
+  Task
 } from '@prisma/client';
 import { EnterpriseRepository } from '../enterprise-repository';
 
@@ -154,18 +153,25 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   }
 
   async createMany(enterpriseId: number, imageUrls: string[]): Promise<void> {
-    await prisma.enterpriseImage.createMany({
-      data: imageUrls.map(url => ({
-        enterpriseId,
-        imageUrl: url,
-      })),
+    if (imageUrls.length === 0) return;
+  
+    await prisma.$transaction(async (tx) => {
+      await tx.enterpriseImage.createMany({
+        data: imageUrls.map(url => ({
+          enterpriseId,
+          imageUrl: url,
+        })),
+      });
     });
   }
 
-  async findByEnterpriseId(enterpriseId: number): Promise<EnterpriseImage[]> {
-    return prisma.enterpriseImage.findMany({
+  async findByEnterpriseId(enterpriseId: number): Promise<string[]> {
+    const images = await prisma.enterpriseImage.findMany({
       where: { enterpriseId },
+      select: { imageUrl: true }, 
     });
+  
+    return images.map(img => img.imageUrl);
   }
 
   async deleteAllByEnterpriseId(enterpriseId: number): Promise<void> {

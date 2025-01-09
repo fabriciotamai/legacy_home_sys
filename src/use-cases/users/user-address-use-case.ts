@@ -1,4 +1,7 @@
+// AddAddressUseCase.ts
+
 import { AddressRepository } from '@/repositories/address-repository';
+import { Address } from '@prisma/client';
 
 interface AddAddressInput {
   userId: number;
@@ -15,13 +18,15 @@ interface AddAddressInput {
 export class AddAddressUseCase {
   constructor(private readonly addressRepository: AddressRepository) {}
 
-  async execute(input: AddAddressInput): Promise<void> {
+  async execute(input: AddAddressInput): Promise<Address> { // Alterado para retornar Address
     const { userId, street, number, complement, neighborhood, city, state, postalCode, country } = input;
 
     const existingAddresses = await this.addressRepository.findByUserId(userId);
 
+    let address: Address;
+
     if (existingAddresses.length > 0) {
-      await this.addressRepository.update(existingAddresses[0].id, {
+      address = await this.addressRepository.update(existingAddresses[0].id, {
         street,
         number,
         complement,
@@ -32,7 +37,7 @@ export class AddAddressUseCase {
         country,
       });
     } else {
-      await this.addressRepository.create({
+      address = await this.addressRepository.create({
         user: { connect: { id: userId } },
         street,
         number,
@@ -46,5 +51,7 @@ export class AddAddressUseCase {
 
       await this.addressRepository.updateUserComplianceStatus(userId, 'PENDING_DOCUMENTS');
     }
+
+    return address; // Retorna o endereço atualizado
   }
 }

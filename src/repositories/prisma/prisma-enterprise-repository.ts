@@ -3,6 +3,7 @@ import { EnterpriseWithRelations } from '@/types';
 import {
   ContractInterest,
   Enterprise,
+  EnterpriseImage,
   EnterpriseStatus,
   EnterpriseTaskStatus,
   InterestStatus,
@@ -150,6 +151,27 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
 
   async create(data: Prisma.EnterpriseCreateInput): Promise<Enterprise> {
     return prisma.enterprise.create({ data });
+  }
+
+  async createMany(enterpriseId: number, imageUrls: string[]): Promise<void> {
+    await prisma.enterpriseImage.createMany({
+      data: imageUrls.map(url => ({
+        enterpriseId,
+        imageUrl: url,
+      })),
+    });
+  }
+
+  async findByEnterpriseId(enterpriseId: number): Promise<EnterpriseImage[]> {
+    return prisma.enterpriseImage.findMany({
+      where: { enterpriseId },
+    });
+  }
+
+  async deleteAllByEnterpriseId(enterpriseId: number): Promise<void> {
+    await prisma.enterpriseImage.deleteMany({
+      where: { enterpriseId },
+    });
   }
 
   async update(

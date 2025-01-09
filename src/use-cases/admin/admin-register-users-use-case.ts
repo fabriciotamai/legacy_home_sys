@@ -18,7 +18,7 @@ interface RegisterUserInput {
 export class AdminRegisterUsersUseCase {
   constructor(private readonly userRepository: AdminRepository) {}
 
-  async execute(input: RegisterUserInput): Promise<void> {
+  async execute(input: RegisterUserInput) {
     const {
       email,
       username,
@@ -64,10 +64,9 @@ export class AdminRegisterUsersUseCase {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const parsedBirthDate = birthDate ? new Date(birthDate) : undefined;
 
-    await this.userRepository.create({
+    const newUser = await this.userRepository.create({
       email,
       username,
       password: hashedPassword,
@@ -81,5 +80,7 @@ export class AdminRegisterUsersUseCase {
       isApproved: false,
       complianceStatus: 'PENDING_EMAIL',
     });
+
+    return newUser;
   }
 }

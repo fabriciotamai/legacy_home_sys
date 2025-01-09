@@ -16,13 +16,19 @@ const multipartOptions = {
   limits: { fileSize: 100 * 1024 * 1024 },
 };
 
-const staticOptions = {
-  root: path.join(__dirname, '../public'),
+
+app.register(fastifyStatic, {
+  root: path.join(__dirname, '../public'), 
   prefix: '/static/',
-};
+  serve: true,
+});
+
+app.register(fastifyStatic, {
+  root: path.join(__dirname, '../uploads'),
+  prefix: '/uploads/',
+  decorateReply: false, 
+});
 
 app.register(fastifyCors, corsOptions);
 app.register(fastifyMultipart, multipartOptions);
-app.register(fastifyStatic, staticOptions);
-
 app.register(appRoutes);

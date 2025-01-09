@@ -49,8 +49,18 @@ export class PrismaFaqRepository implements FaqRepository {
     });
   }
 
-  async listCategories(): Promise<FaqCategory[]> {
-    return prisma.faqCategory.findMany();
+  async  listCategories(): Promise<(FaqCategory & { faqs: { id: number; question: string; answer: string }[] })[]> {
+    return prisma.faqCategory.findMany({
+      include: {
+        faqs: {
+          select: {
+            id: true,
+            question: true,
+            answer: true,
+          },
+        },
+      },
+    });
   }
 
   async findById(id: number): Promise<FAQ | null> {

@@ -7,7 +7,8 @@ const uploadsDir = join(__dirname, '../../uploads');
 async function saveFile(file: MultipartFile): Promise<string> {
   await fs.mkdir(uploadsDir, { recursive: true });
 
-  const filePath = join(uploadsDir, file.filename);
+  const sanitizedFileName = file.filename.replace(/\s+/g, '-'); 
+  const filePath = join(uploadsDir, sanitizedFileName);
 
   return new Promise((resolve, reject) => {
     const writeStream = createWriteStream(filePath);
@@ -17,7 +18,7 @@ async function saveFile(file: MultipartFile): Promise<string> {
 
     fileStream.on('end', () => {
       writeStream.close();
-      resolve(`/uploads/${file.filename}`);
+      resolve(`/uploads/${sanitizedFileName}`); 
     });
 
     fileStream.on('error', (error) => {

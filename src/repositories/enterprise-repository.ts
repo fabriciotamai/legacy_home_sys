@@ -2,14 +2,13 @@ import { EnterpriseWithContractInterests, EnterpriseWithRelations } from '@/type
 import {
   ContractInterest,
   Enterprise,
-  EnterpriseImage,
   EnterpriseStatus,
   EnterpriseTaskStatus,
   InterestStatus,
   Investment,
   Phase,
   Prisma,
-  Task,
+  Task
 } from '@prisma/client';
 
 interface FindAllFilters {
@@ -104,6 +103,6 @@ export interface EnterpriseRepository {
     enterpriseId: number,
   ): Promise<Investment | null>;
   createMany(enterpriseId: number, imageUrls: string[]): Promise<void>;
-  findByEnterpriseId(enterpriseId: number): Promise<EnterpriseImage[]>;
+  findByEnterpriseId(enterpriseId: number): Promise<string[]>;
   deleteAllByEnterpriseId(enterpriseId: number): Promise<void>;
 }

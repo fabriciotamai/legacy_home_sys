@@ -1,8 +1,6 @@
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { ConstructionType, InvestmentType, Phase, Task } from '@prisma/client';
 
-
-
 interface CreateEnterpriseInput {
   name: string;
   corporateName: string;
@@ -104,10 +102,10 @@ export class CreateEnterpriseUseCase {
       throw new Error('Já existe um empreendimento com esse nome.');
     }
 
-    // Se não houver coverImageUrl, a primeira imagem do imageUrls é usada como capa
+  
     const finalCoverImageUrl = coverImageUrl ?? imageUrls[0] ?? null;
 
-    // 🔹 Criando o empreendimento no banco
+    
     const enterprise = await this.enterpriseRepository.create({
       name,
       corporateName,
@@ -125,22 +123,21 @@ export class CreateEnterpriseUseCase {
       area,
       floors: floors ?? null,
       completionDate: completionDate ?? null,
-      coverImageUrl: finalCoverImageUrl, // Define corretamente a imagem de capa
+      coverImageUrl: finalCoverImageUrl, 
     });
 
     if (!enterprise) {
       throw new Error('Erro ao criar o empreendimento.');
     }
 
-    // 🔹 Se houver imagens extras, associamos ao empreendimento
+ 
     if (imageUrls.length > 0) {
       await this.enterpriseRepository.createMany(enterprise.id, imageUrls);
     }
 
-    // 🔹 Recuperando as imagens do banco para enviar na resposta
     const storedImages = await this.enterpriseRepository.findByEnterpriseId(enterprise.id);
 
-    // 🔹 Inicializando fases e tarefas do empreendimento
+  
     const phaseTemplates = await this.enterpriseRepository.findAllPhasesWithTasks();
     if (!phaseTemplates || phaseTemplates.length === 0) {
       throw new Error('Nenhuma fase padrão encontrada.');
@@ -158,7 +155,7 @@ export class CreateEnterpriseUseCase {
       throw new Error('Nenhuma tarefa encontrada na fase inicial.');
     }
 
-    // 🔹 Atualizando o empreendimento com a fase e tarefa iniciais
+ 
     const updatedEnterprise =
       await this.enterpriseRepository.updateEnterprisePhaseAndTask(
         enterprise.id,
@@ -188,7 +185,7 @@ export class CreateEnterpriseUseCase {
         floors: updatedEnterprise.floors,
         completionDate: updatedEnterprise.completionDate,
         coverImageUrl: updatedEnterprise.coverImageUrl,
-        imageUrls: storedImages, // 🔹 Agora retorna corretamente os URLs das imagens
+        imageUrls: storedImages, 
         currentPhaseId: updatedEnterprise.currentPhaseId,
         currentTaskId: updatedEnterprise.currentTaskId,
         createdAt: updatedEnterprise.createdAt,

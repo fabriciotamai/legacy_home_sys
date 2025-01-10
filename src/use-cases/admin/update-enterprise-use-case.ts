@@ -21,8 +21,6 @@ export class UpdateEnterpriseUseCase {
   ) {}
 
   async execute({ enterpriseId, data, forceUpdate = false }: UpdateEnterpriseInput): Promise<UpdateEnterpriseResponse> {
-    console.log(`🚀 Atualizando empreendimento ID: ${enterpriseId}...`);
-
     
     const validData = { ...data };
     delete (validData as any).forceUpdate; 

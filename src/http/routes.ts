@@ -14,6 +14,7 @@ import { adminApproveOrRejectDepositHandler } from './controllers/admin/admin-ap
 import { adminDeleteEnterpriseHandler } from './controllers/admin/admin-delete-enterprise-handler';
 import { adminDeleteFaqCategoryHandler } from './controllers/admin/admin-delete-faq-category-handler';
 import { adminDeleteFaqHandler } from './controllers/admin/admin-delete-faq-handler';
+import { adminDeleteEnterpriseImagesHandler } from './controllers/admin/admin-delete-images-enterprise-handler';
 import { adminDeleteUserHandler } from './controllers/admin/admin-delete-user-handler';
 import { adminListFaqCategoriesHandler } from './controllers/admin/admin-list-faq-categories-handler';
 import { adminUpdateUserHandler } from './controllers/admin/admin-update-data-user-handler';
@@ -61,6 +62,8 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/phases', getPhasesHandler);
     protectedRoutes.post('/admin/create-enterprise', { preHandler: roleMiddleware }, createEnterpriseHandler);
     protectedRoutes.get('/admin/get-enterprise', { preHandler: roleMiddleware }, getAllEnterprisesHandler);
+
+    protectedRoutes.delete('/admin/delete/images-enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminDeleteEnterpriseImagesHandler);
     protectedRoutes.post('/admin/link-enterprise', { preHandler: roleMiddleware }, linkEnterpriseToUserHandler);
     protectedRoutes.post('/admin/deposit/approve-or-reject', { preHandler: roleMiddleware }, adminApproveOrRejectDepositHandler);
     protectedRoutes.put('/admin/update/:enterpriseId/valuation', { preHandler: roleMiddleware }, updateEnterpriseValuationHandler);

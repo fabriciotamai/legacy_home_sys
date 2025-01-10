@@ -10,7 +10,6 @@ export async function adminUpdateEnterpriseHandler(
   const paramsSchema = z.object({
     enterpriseId: z.string().regex(/^\d+$/, 'O ID do empreendimento deve ser um número válido.'),
   });
-
   const updateEnterpriseSchema = z.object({
     name: z.string().min(1, 'O nome do empreendimento é obrigatório.').optional(),
     corporateName: z.string().optional(),
@@ -34,7 +33,6 @@ export async function adminUpdateEnterpriseHandler(
     if (!request.user || request.user.role !== 'ADMIN') {
       return reply.status(403).send({ error: 'Acesso negado.' });
     }
-
     const { enterpriseId } = paramsSchema.parse(request.params);
     const updateData = updateEnterpriseSchema.parse(request.body);
 

@@ -40,6 +40,15 @@ export class PrismaAdminRepository implements AdminRepository {
     });
   }
 
+  async deleteUser(userId: number): Promise<void> {
+    await prisma.user.delete({
+      where: { id: userId }
+    });
+  }
+
+
+  
+
   async updateUser(
     userId: number,
     data: Prisma.UserUpdateInput,

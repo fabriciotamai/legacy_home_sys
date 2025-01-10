@@ -60,10 +60,41 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return images.map((img) => img.imageUrl);
   }
 
+  
+
   async countImagesByEnterpriseId(enterpriseId: number): Promise<number> {
     return prisma.enterpriseImage.count({
       where: { enterpriseId },
     });
+  }
+
+
+
+  async getPaginatedImageUrlsByEnterpriseId(
+    enterpriseId: number,
+    page: number,
+    limit: number
+  ): Promise<{ images: string[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    
+    const [images, total] = await Promise.all([
+      prisma.enterpriseImage.findMany({
+        where: { enterpriseId },
+        select: { imageUrl: true },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'asc' }, 
+      }),
+      prisma.enterpriseImage.count({
+        where: { enterpriseId },
+      }),
+    ]);
+
+    return {
+      images: images.map((img) => img.imageUrl),
+      total,
+    };
   }
 
   async findTasksInPhaseByEnterprise(
@@ -194,6 +225,12 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   async deleteAllByEnterpriseId(enterpriseId: number): Promise<void> {
     await prisma.enterpriseImage.deleteMany({
       where: { enterpriseId },
+    });
+  }
+
+  async deleteEnterprise(enterpriseId: number): Promise<void> {
+    await prisma.enterprise.delete({
+      where: { id: enterpriseId },
     });
   }
 

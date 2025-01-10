@@ -16,13 +16,18 @@ export class UpdateUserAvatarUseCase {
       throw new Error('Usuário não encontrado.');
     }
 
-    const updatedUser = await this.usersRepository.updateUser(userId, {
+    
+    await this.usersRepository.updateUser(userId, {
       avatar: avatarFile || null, 
     });
 
-    return {
-      id: updatedUser.id,
-      avatar: updatedUser.avatar,
-    };
+
+    const updatedUser = await this.usersRepository.findById(userId);
+
+    if (!updatedUser) {
+      throw new Error('Erro ao atualizar o usuário.');
+    }
+
+    return updatedUser;
   }
 }

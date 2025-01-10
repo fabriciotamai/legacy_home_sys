@@ -86,6 +86,14 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
+  async findUsersByIds(userIds: number[]): Promise<PrismaUser[]> {
+    return prisma.user.findMany({
+      where: {
+        id: { in: userIds }, 
+      },
+    });
+  }
+
   async getRecentEnterprisesWithoutApprovedInterests() {
     return prisma.enterprise.findMany({
       where: {

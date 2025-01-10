@@ -29,6 +29,7 @@ import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
 import { adminListDepositsHandler } from './controllers/admin/list-deposit-handler';
 import { adminListFaqsHandler } from './controllers/admin/list-faq-handler';
+import { adminUpdateEnterpriseHandler } from './controllers/admin/update-enterprise-handler';
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { updateEnterpriseValuationHandler } from './controllers/admin/update-valution-enterprise-handler';
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
@@ -76,10 +77,10 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/faq/list', { preHandler: roleMiddleware }, adminListFaqsHandler);
     protectedRoutes.get('/admin/faq/categories', { preHandler: roleMiddleware }, adminListFaqCategoriesHandler);
     protectedRoutes.delete('/admin/faq/category/:categoryId', { preHandler: roleMiddleware }, adminDeleteFaqCategoryHandler);
+    protectedRoutes.put('/admin/update/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminUpdateEnterpriseHandler);
     protectedRoutes.delete('/admin/faq/:faqId', { preHandler: roleMiddleware }, adminDeleteFaqHandler);
     protectedRoutes.delete('/admin/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminDeleteEnterpriseHandler);
     protectedRoutes.delete('/admin/user/:userId/delete', { preHandler: roleMiddleware }, adminDeleteUserHandler);
-
     protectedRoutes.get(
       '/admin/enterprise/images/:enterpriseId',
       { preHandler: roleMiddleware },

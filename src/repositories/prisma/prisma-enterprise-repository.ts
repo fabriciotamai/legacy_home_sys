@@ -33,6 +33,13 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  async findInvestmentsByEnterpriseId(enterpriseId: number): Promise<Investment[]> {
+    return prisma.investment.findMany({
+      where: { enterpriseId },
+      include: { user: true },
+    });
+  }
+
   async findPhaseWithTasks(
     phaseId: number,
   ): Promise<(Phase & { tasks: Task[] }) | null> {

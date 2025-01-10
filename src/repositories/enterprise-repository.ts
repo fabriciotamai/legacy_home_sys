@@ -117,4 +117,5 @@ export interface EnterpriseRepository {
     limit: number
   ): Promise<{ images: string[]; total: number }>;
   deleteEnterprise(enterpriseId: number): Promise<void>;
+  findInvestmentsByEnterpriseId(enterpriseId: number): Promise<Investment[]>;
 }

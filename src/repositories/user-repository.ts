@@ -37,6 +37,7 @@ export interface UsersRepository {
   updateWalletBalance(userId: number, newBalance: number): Promise<void>;
   updateUserFinancials(userId: number, walletBalance: number, investedIncrement: number, valuationIncrement: number, tx?: Prisma.TransactionClient): Promise<void>;
   addWalletTransaction(data: { userId: number; type: WalletTransactionType; amount: number; balanceBefore: number; balanceAfter: number; description: string }, tx?: Prisma.TransactionClient): Promise<void>;
+  findUsersByIds(userIds: number[]): Promise<User[]>;
 
   getUserFinancials(
     userId: number,

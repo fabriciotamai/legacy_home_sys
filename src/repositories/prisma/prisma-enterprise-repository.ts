@@ -33,6 +33,15 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
+  async deleteImagesByEnterprise(enterpriseId: number, imageUrls: string[]): Promise<void> {
+    await prisma.enterpriseImage.deleteMany({
+      where: {
+        enterpriseId,
+        imageUrl: { in: imageUrls }, 
+      },
+    });
+  }
+
   async findInvestmentsByEnterpriseId(enterpriseId: number): Promise<Investment[]> {
     return prisma.investment.findMany({
       where: { enterpriseId },

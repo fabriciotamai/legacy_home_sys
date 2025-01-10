@@ -9,4 +9,5 @@ export interface AdminRepository {
   addAddress(userId: number, data: Prisma.AddressCreateInput): Promise<Address>;
   findByDocument(numberDocument: string): Promise<User | null>;
   findAllUsers(): Promise<User[]>;
+  deleteUser(userId: number): Promise<void>;
 }

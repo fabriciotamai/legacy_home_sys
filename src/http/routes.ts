@@ -11,8 +11,10 @@ import { acceptOrRejectComplianceHandler } from './controllers/admin/accept-or-r
 import { acceptOrRejectInterestHandler } from './controllers/admin/accept-or-reject-enterprise-handler';
 import { adminAddAddressHandler } from './controllers/admin/admin-add-address-handler';
 import { adminApproveOrRejectDepositHandler } from './controllers/admin/admin-approve-or-reject-deposit-handler';
+import { adminDeleteEnterpriseHandler } from './controllers/admin/admin-delete-enterprise-handler';
 import { adminDeleteFaqCategoryHandler } from './controllers/admin/admin-delete-faq-category-handler';
 import { adminDeleteFaqHandler } from './controllers/admin/admin-delete-faq-handler';
+import { adminDeleteUserHandler } from './controllers/admin/admin-delete-user-handler';
 import { adminListFaqCategoriesHandler } from './controllers/admin/admin-list-faq-categories-handler';
 import { adminUpdateUserHandler } from './controllers/admin/admin-update-data-user-handler';
 import { adminCreateFaqCategoryHandler } from './controllers/admin/create-category-faq-handler';
@@ -75,6 +77,8 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/faq/categories', { preHandler: roleMiddleware }, adminListFaqCategoriesHandler);
     protectedRoutes.delete('/admin/faq/category/:categoryId', { preHandler: roleMiddleware }, adminDeleteFaqCategoryHandler);
     protectedRoutes.delete('/admin/faq/:faqId', { preHandler: roleMiddleware }, adminDeleteFaqHandler);
+    protectedRoutes.delete('/admin/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminDeleteEnterpriseHandler);
+    protectedRoutes.delete('/admin/user/:userId/delete', { preHandler: roleMiddleware }, adminDeleteUserHandler);
 
     protectedRoutes.get(
       '/admin/enterprise/images/:enterpriseId',

@@ -105,4 +105,15 @@ export interface EnterpriseRepository {
   createMany(enterpriseId: number, imageUrls: string[]): Promise<void>;
   findByEnterpriseId(enterpriseId: number): Promise<string[]>;
   deleteAllByEnterpriseId(enterpriseId: number): Promise<void>;
+  findImageUrlsByEnterpriseId(
+    enterpriseId: number,
+    skip?: number,
+    take?: number
+  ): Promise<string[]>;
+  countImagesByEnterpriseId(enterpriseId: number): Promise<number>;
+  getPaginatedImageUrlsByEnterpriseId(
+    enterpriseId: number,
+    page: number,
+    limit: number
+  ): Promise<{ images: string[]; total: number }>;
 }

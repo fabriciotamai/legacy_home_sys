@@ -14,8 +14,6 @@ import {
 import { EnterpriseRepository } from '../enterprise-repository';
 
 export class PrismaEnterpriseRepository implements EnterpriseRepository {
-  
-  
   async findById(enterpriseId: number, tx?: Prisma.TransactionClient): Promise<Enterprise> {
     return (tx ?? prisma).enterprise.findUniqueOrThrow({
       where: { id: enterpriseId },
@@ -35,9 +33,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-
-
-
   async findPhaseWithTasks(
     phaseId: number,
   ): Promise<(Phase & { tasks: Task[] }) | null> {
@@ -46,6 +41,28 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       include: {
         tasks: true,
       },
+    });
+  }
+
+  async findImageUrlsByEnterpriseId(
+    enterpriseId: number,
+    skip: number = 0,
+    take: number = 10
+  ): Promise<string[]> {
+    const images = await prisma.enterpriseImage.findMany({
+      where: { enterpriseId },
+      select: { imageUrl: true },
+      skip,
+      take,
+      orderBy: { createdAt: 'asc' }, 
+    });
+
+    return images.map((img) => img.imageUrl);
+  }
+
+  async countImagesByEnterpriseId(enterpriseId: number): Promise<number> {
+    return prisma.enterpriseImage.count({
+      where: { enterpriseId },
     });
   }
 
@@ -250,15 +267,15 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   async updateInterestStatus(
     interestId: string,
     status: InterestStatus,
-    tx?: Prisma.TransactionClient, // ADICIONADO
+    tx?: Prisma.TransactionClient, 
   ): Promise<ContractInterest> {
     return (tx ?? prisma).contractInterest.update({
       where: { interestId },
-      data: { status }, // CORRIGIDO para usar status diretamente
+      data: { status }, 
     });
   }
 
-  // Já estava ajustado para aceitar 'tx'
+ 
   async removeOtherInterests(
     enterpriseId: number,
     interestId: string,
@@ -435,12 +452,12 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     await Promise.all(updates);
   }
 
-  // Adicionado o parâmetro opcional 'tx'
+  
   async updateTaskStatus(
     enterpriseId: number,
     taskId: number,
     isCompleted: boolean,
-    tx?: Prisma.TransactionClient, // ADICIONADO
+    tx?: Prisma.TransactionClient, 
   ): Promise<void> {
     await (tx ?? prisma).enterpriseTaskStatus.updateMany({
       where: {
@@ -451,12 +468,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  // Adicionado o parâmetro opcional 'tx'
   async createPhaseProgress(data: {
     enterpriseId: number;
     phaseId: number;
     progress: number;
-  }, tx?: Prisma.TransactionClient): Promise<void> { // ADICIONADO
+  }, tx?: Prisma.TransactionClient): Promise<void> { 
     await (tx ?? prisma).enterprisePhaseStatus.create({
       data: {
         enterpriseId: data.enterpriseId,

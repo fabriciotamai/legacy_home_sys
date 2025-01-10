@@ -21,6 +21,7 @@ import { adminCreateFaqHandler } from './controllers/admin/create-faq-handler';
 import { getAdminDashboardHandler } from './controllers/admin/get-admin-dashboard-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
 import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
+import { getEnterpriseImageUrlsHandler } from './controllers/admin/get-enteprise-images-url-handler';
 import { getEnterprisesWithInterestsHandler } from './controllers/admin/get-interest-with-enterprise-handler';
 import { getPhasesHandler } from './controllers/admin/get-phases-handler';
 import { linkEnterpriseToUserHandler } from './controllers/admin/link-enteprise-to-user-handler';
@@ -74,6 +75,12 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/faq/categories', { preHandler: roleMiddleware }, adminListFaqCategoriesHandler);
     protectedRoutes.delete('/admin/faq/category/:categoryId', { preHandler: roleMiddleware }, adminDeleteFaqCategoryHandler);
     protectedRoutes.delete('/admin/faq/:faqId', { preHandler: roleMiddleware }, adminDeleteFaqHandler);
+
+    protectedRoutes.get(
+      '/admin/enterprise/images/:enterpriseId',
+      { preHandler: roleMiddleware },
+      getEnterpriseImageUrlsHandler
+    );
 
     protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
     protectedRoutes.get('/admin/dashboard', { preHandler: roleMiddleware }, getAdminDashboardHandler);

@@ -27,12 +27,12 @@ export async function updateUserAvatarHandler(
 
     const updateUserAvatarUseCase = makeUpdateUserAvatarUseCase();
 
-    const response = await updateUserAvatarUseCase.execute({
+    const updatedUser = await updateUserAvatarUseCase.execute({
       userId,
       avatarFile,
     });
 
-    reply.status(200).send(response);
+    reply.status(200).send({ user: updatedUser }); 
   } catch (error) {
     console.error('Erro inesperado no handler:', error);
     reply.status(500).send({ error: 'Erro inesperado.' });

@@ -54,6 +54,11 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     publicRoutes.post('/admin/register', adminRegisterUsersHandler);
     publicRoutes.post('/users/signin', userSiginHandler);
     publicRoutes.post('/users/register', userRegisterHandler);
+    publicRoutes.get(
+      '/admin/enterprise/images/:enterpriseId',
+
+      getEnterpriseImageUrlsHandler
+    );
   });
 
   app.register(async (protectedRoutes) => {
@@ -62,7 +67,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/phases', getPhasesHandler);
     protectedRoutes.post('/admin/create-enterprise', { preHandler: roleMiddleware }, createEnterpriseHandler);
     protectedRoutes.get('/admin/get-enterprise', { preHandler: roleMiddleware }, getAllEnterprisesHandler);
-
     protectedRoutes.delete('/admin/delete/images-enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminDeleteEnterpriseImagesHandler);
     protectedRoutes.post('/admin/link-enterprise', { preHandler: roleMiddleware }, linkEnterpriseToUserHandler);
     protectedRoutes.post('/admin/deposit/approve-or-reject', { preHandler: roleMiddleware }, adminApproveOrRejectDepositHandler);
@@ -84,11 +88,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.delete('/admin/faq/:faqId', { preHandler: roleMiddleware }, adminDeleteFaqHandler);
     protectedRoutes.delete('/admin/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminDeleteEnterpriseHandler);
     protectedRoutes.delete('/admin/user/:userId/delete', { preHandler: roleMiddleware }, adminDeleteUserHandler);
-    protectedRoutes.get(
-      '/admin/enterprise/images/:enterpriseId',
-      { preHandler: roleMiddleware },
-      getEnterpriseImageUrlsHandler
-    );
+   
 
     protectedRoutes.post('/admin/users/:id/address', { preHandler: roleMiddleware }, adminAddAddressHandler);
     protectedRoutes.get('/admin/dashboard', { preHandler: roleMiddleware }, getAdminDashboardHandler);

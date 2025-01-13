@@ -29,6 +29,7 @@
     "@prisma/client": "^5.20.0",
     "bcryptjs": "^2.4.3",
     "decimal.js": "^10.4.3",
+    "docusign-esign": "^8.0.1",
     "dotenv": "^16.4.5",
     "fastify": "^5.2.0",
     "form-data": "^4.0.1",
@@ -43,6 +44,7 @@
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/docusign-esign": "^5.19.7",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.5",
     "@typescript-eslint/eslint-plugin": "^8.19.1",

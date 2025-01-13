@@ -59,6 +59,10 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
 
       getEnterpriseImageUrlsHandler
     );
+    publicRoutes.get('/docusign/callback', async (request, reply) => {
+      
+      return reply.send('Consentimento DocuSign concedido. Você já pode fechar esta janela.');
+    });
   });
 
   app.register(async (protectedRoutes) => {

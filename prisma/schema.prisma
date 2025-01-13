@@ -91,6 +91,14 @@ enum WalletTransactionType {
   TRANSFER
 }
 
+enum NotificationType {
+  DEPOSIT_APPROVED
+  CONTRACT_SIGNED
+  INVESTMENT_CONFIRMED
+  SYSTEM_ALERT
+  VALUTION_CHANGE
+}
+
 enum EnterpriseChangeType {
   STATUS_CHANGED
   PHASE_CHANGED
@@ -137,6 +145,7 @@ model User {
   Deposit                  Deposit[]
   createdAt                DateTime            @default(now())
   updatedAt                DateTime            @updatedAt
+  Notification             Notification[]
 
   @@index([isApproved])
 }
@@ -381,4 +390,19 @@ model EnterpriseTaskStatus {
   task         Task       @relation(fields: [taskId], references: [id])
 
   @@id([enterpriseId, taskId])
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId, isRead])
 }

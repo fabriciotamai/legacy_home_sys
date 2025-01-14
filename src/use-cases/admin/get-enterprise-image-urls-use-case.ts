@@ -7,12 +7,13 @@ interface GetEnterpriseImageUrlsInput {
 }
 
 interface ImageObject {
-  id: number; 
+  id: number;
   url: string;
 }
 
 interface GetEnterpriseImageUrlsOutput {
   images: ImageObject[];
+  coverImageUrl: string | null; 
   total: number;
   page: number;
   limit: number;
@@ -28,27 +29,35 @@ export class GetEnterpriseImageUrlsUseCase {
     this.validateInput(enterpriseId, page, limit);
 
     
+    const enterprise = await this.enterpriseRepository.findById(enterpriseId);
+    const coverImageUrl = enterprise.coverImageUrl; 
+
+  
     const imageUrls = await this.enterpriseRepository.findImageUrlsByEnterpriseId(
       enterpriseId,
       this.calculateSkip(page, limit),
       limit
     );
 
-    
     const total = await this.enterpriseRepository.countImagesByEnterpriseId(enterpriseId);
 
-    
     const totalPages = Math.ceil(total / limit);
 
     
-    const images: ImageObject[] = imageUrls.map((url, index) => ({
-      id: this.calculateSkip(page, limit) + index + 1, 
+    let images: ImageObject[] = imageUrls.map((url, index) => ({
+      id: this.calculateSkip(page, limit) + index + 2,
       url,
     }));
 
+   
+    if (coverImageUrl) {
+      images = [{ id: 1, url: coverImageUrl }, ...images];
+    }
+
     return {
       images,
-      total,
+      coverImageUrl, 
+      total: total + (coverImageUrl ? 1 : 0), 
       page,
       limit,
       totalPages,

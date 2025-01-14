@@ -146,6 +146,7 @@ model User {
   createdAt                DateTime            @default(now())
   updatedAt                DateTime            @updatedAt
   Notification             Notification[]
+  ContractTemplate         ContractTemplate[]
 
   @@index([isApproved])
 }
@@ -264,6 +265,8 @@ model Enterprise {
   investmentType    InvestmentType
   constructionType  ConstructionType
   fundingAmount     Float                   @default(0.0)
+  state             String?
+  country           String?
   transferAmount    Float                   @default(0.0)
   coverImageUrl     String?
   postalCode        String
@@ -308,10 +311,13 @@ model Contract {
   type         ContractType
   templateType ContractTemplateType
   documentUrl  String?
+  isTemplate   Boolean              @default(false)
   status       ContractStatus       @default(PENDING)
   signedAt     DateTime?
-  user         User                 @relation(fields: [userId], references: [id])
-  userId       Int
+  filePath     String?
+  content      String?
+  user         User?                @relation(fields: [userId], references: [id])
+  userId       Int?
   enterprise   Enterprise           @relation(fields: [enterpriseId], references: [id])
   enterpriseId Int
   signatures   ContractSignature[]
@@ -329,6 +335,20 @@ model ContractSignature {
   signedAt   DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+}
+
+model ContractTemplate {
+  id           String               @id @default(uuid())
+  name         String
+  type         ContractTemplateType
+  fileMimeType String?
+  filePath     String?
+  fileData     Bytes?
+  content      String?
+  createdBy    Int
+  admin        User                 @relation(fields: [createdBy], references: [id])
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 }
 
 model ContractInterest {

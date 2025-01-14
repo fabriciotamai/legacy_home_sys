@@ -21,6 +21,7 @@ import { adminUpdateUserHandler } from './controllers/admin/admin-update-data-us
 import { adminCreateFaqCategoryHandler } from './controllers/admin/create-category-faq-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
 import { adminCreateFaqHandler } from './controllers/admin/create-faq-handler';
+import { adminGenerateContractHandler } from './controllers/admin/generate-contract-handler';
 import { getAdminDashboardHandler } from './controllers/admin/get-admin-dashboard-handler';
 import { getAllEnterprisesHandler } from './controllers/admin/get-all-enterprise-handler';
 import { getAllUsersHandler } from './controllers/admin/get-all-users-handler';
@@ -34,6 +35,7 @@ import { adminUpdateEnterpriseHandler } from './controllers/admin/update-enterpr
 import { updateTaskStatusHandler } from './controllers/admin/update-progress-tasks-handler';
 import { updateEnterpriseValuationHandler } from './controllers/admin/update-valution-enterprise-handler';
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
+import { uploadContractTemplateHandler } from './controllers/admin/upload-contract-template-handler';
 import { buyEntepriseHandler } from './controllers/users/buy-enterprise-handler';
 import { generateEmailCodeHandler } from './controllers/users/generate-token-email-handler';
 import { getAllDepositsHandler } from './controllers/users/get-all-deposits-handler';
@@ -89,6 +91,18 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/admin/faq/categories', { preHandler: roleMiddleware }, adminListFaqCategoriesHandler);
     protectedRoutes.delete('/admin/faq/category/:categoryId', { preHandler: roleMiddleware }, adminDeleteFaqCategoryHandler);
     protectedRoutes.put('/admin/update/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminUpdateEnterpriseHandler);
+
+    protectedRoutes.post(
+      '/admin/upload/contract/template',
+      { preHandler: roleMiddleware },
+      uploadContractTemplateHandler
+    );
+    protectedRoutes.post(
+      '/admin/contract/generate',
+      { preHandler: roleMiddleware },
+      adminGenerateContractHandler
+    );
+   
     protectedRoutes.delete('/admin/faq/:faqId', { preHandler: roleMiddleware }, adminDeleteFaqHandler);
     protectedRoutes.delete('/admin/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminDeleteEnterpriseHandler);
     protectedRoutes.delete('/admin/user/:userId/delete', { preHandler: roleMiddleware }, adminDeleteUserHandler);

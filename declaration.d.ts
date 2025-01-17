@@ -3,7 +3,6 @@ declare module 'pdf-parse' {
   export default pdfParse;
 }
 
-
 declare module 'mammoth' {
   const mammoth: any;
   export default mammoth;

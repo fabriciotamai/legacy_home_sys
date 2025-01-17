@@ -31,74 +31,94 @@ export class GenerateContractUseCase {
 
   async execute({ userId, enterpriseId, templateType }: GenerateContractInput): Promise<GenerateContractOutput> {
     try {
-      console.log('🔍 Buscando informações do usuário e empresa...');
+      console.log('Iniciando a geração do contrato...');
 
+      
       const enterprise = await this.enterpriseRepository.findById(enterpriseId);
       if (!enterprise) throw new Error(`A empresa com ID ${enterpriseId} não existe.`);
+      console.log(`Empresa encontrada: ${enterprise.name}`);
 
+      
       const user = await this.userRepository.findById(userId);
       if (!user) throw new Error(`O usuário com ID ${userId} não foi encontrado.`);
+      console.log(`Usuário encontrado: ${user.firstName} ${user.lastName}`);
 
+      
       const template = await this.contractRepository.findTemplateByType(templateType);
       if (!template || !template.filePath) throw new Error(`Template do tipo ${templateType} não encontrado.`);
+      console.log(`Template encontrado: ${template.filePath}`);
 
-      const filePath = path.join(__dirname, '../../../', template.filePath);
+      const filePath = path.join(process.cwd(), template.filePath);
+      console.log(`Caminho completo do template: ${filePath}`);
+
       if (!fs.existsSync(filePath)) {
-        throw new Error(`O arquivo do template não foi encontrado: ${filePath}`);
+        throw new Error(`❌ O arquivo do template não foi encontrado: ${filePath}`);
       }
+      console.log(`Caminho do template verificado: ${filePath}`);
 
-      console.log('📂 Carregando template DOCX:', filePath);
-
-      // Ler o arquivo DOCX
+      
       const fileBuffer = fs.readFileSync(filePath);
       const zip = new PizZip(fileBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+      console.log('Template carregado com sucesso.');
 
-      doc.compile(); // 🔹 Compila antes de renderizar
-
-      // 🔍 **Definição dos placeholders a serem substituídos**
-      const placeholders = {
-        INVESTOR: `${user.firstName} ${user.lastName}`,
-        // type: enterprise.type || 'Tipo não informado',
-        State: enterprise.state || 'Estado não informado',
-        Country: enterprise.country || 'País não informado',
+      
+      const placeholders: Record<string, string> = {
+        investor: `${user.firstName} ${user.lastName}`, 
+        state: enterprise.state || 'Estado não informado',
+        country: enterprise.country || 'País não informado',
         address: enterprise.address || 'Endereço não informado',
+        description: 'Descrição do investimento',
       };
+      console.log('Placeholders definidos:', placeholders);
 
-      console.log('🔄 Substituindo placeholders no contrato:', placeholders);
+      
+      doc.setData(placeholders);
+      try {
+        doc.render();
+        console.log('Renderização do documento concluída com sucesso.');
+      } catch (error: any) {
+        console.error('Erro durante a renderização do documento:', error);
+        throw new Error(`Erro durante a renderização do documento: ${error.message}`);
+      }
 
-      doc.render(placeholders);
-
+      
       const filledContractBuffer = doc.getZip().generate({ type: 'nodebuffer' });
 
       if (!filledContractBuffer || filledContractBuffer.length === 0) {
         throw new Error('Erro: O arquivo gerado está vazio.');
       }
+      console.log('Buffer do contrato preenchido gerado.');
 
-      console.log('✅ Contrato preenchido, tamanho:', filledContractBuffer.length, 'bytes');
 
-      const base64Docx = filledContractBuffer.toString('base64');
-
-      if (!base64Docx || base64Docx.length === 0) {
-        throw new Error('Erro: O contrato convertido para Base64 está vazio.');
+      const generatedContractsDir = path.join(process.cwd(), 'generated-contracts');
+      if (!fs.existsSync(generatedContractsDir)) {
+        fs.mkdirSync(generatedContractsDir, { recursive: true });
+        console.log(`Diretório criado: ${generatedContractsDir}`);
       }
 
-      console.log('✅ Documento convertido para Base64, tamanho:', base64Docx.length, 'bytes');
+      
+      const filledFilePath = path.join(generatedContractsDir, `${Date.now()}-${userId}.docx`);
+      fs.writeFileSync(filledFilePath, filledContractBuffer);
+      console.log(`Contrato preenchido salvo em: ${filledFilePath}`);
 
+      
       const contract = await this.contractRepository.create({
         type: ContractType.MONEY,
         templateType,
         user: { connect: { id: userId } },
         enterprise: { connect: { id: enterpriseId } },
-        filePath: template.filePath,
+        filePath: filledFilePath, 
         status: ContractStatus.PENDING,
       });
+      console.log(`Contrato criado no banco de dados com ID: ${contract.id}`);
 
+      
       const accessToken = await getDocusignAccessToken();
       if (!accessToken) throw new Error('Falha ao obter o token de acesso do DocuSign.');
+      console.log('Token de acesso do DocuSign obtido.');
 
-      console.log('📄 Criando envelope no DocuSign...');
-
+      
       const envelopeId = await createEnvelopeOnDocusign({
         userId,
         userEmail: user.email,
@@ -106,26 +126,23 @@ export class GenerateContractUseCase {
         enterprise,
         contract: {
           ...contract,
-          content: base64Docx, // 🔥 Passa corretamente o Base64 aqui!
+          content: filledContractBuffer.toString('base64'), 
         },
       });
+      console.log(`Envelope criado no DocuSign com ID: ${envelopeId}`);
 
-      if (!envelopeId) throw new Error('Falha ao gerar o envelope no DocuSign.');
-
-      console.log('✅ Envelope gerado com sucesso:', envelopeId);
-
+      
       await this.contractRepository.setEnvelopeId(contract.id, envelopeId);
+      console.log(`Envelope ID atualizado no contrato com ID: ${contract.id}`);
 
+      
       const signingUrl = await getEmbeddedSigningUrl({
         envelopeId,
         userId,
         userName: `${user.firstName} ${user.lastName}`,
         userEmail: user.email,
       });
-
-      if (!signingUrl) throw new Error('Erro ao gerar a URL de assinatura.');
-
-      console.log('✅ URL de assinatura gerada com sucesso:', signingUrl);
+      console.log(`URL de assinatura obtida: ${signingUrl}`);
 
       return { contractId: contract.id, envelopeId, signingUrl };
 

@@ -36,6 +36,46 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
+  async updatePasswordResetCode(
+    email: string,
+    resetCode: string,
+    expiresAt: Date
+  ): Promise<void> {
+    await prisma.user.update({
+      where: { email },
+      data: {
+        passwordResetCode: resetCode,
+        passwordResetExpires: expiresAt,
+      },
+    });
+  }
+  async verifyPasswordResetCode(email: string, code: string): Promise<boolean> {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { passwordResetCode: true, passwordResetExpires: true },
+    });
+
+    if (!user || !user.passwordResetCode || !user.passwordResetExpires) {
+      return false;
+    }
+
+    if (user.passwordResetCode !== code || user.passwordResetExpires < new Date()) {
+      return false;
+    }
+    return true;
+  }
+  async resetPassword(email: string, hashedPassword: string): Promise<void> {
+    await prisma.user.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+        passwordResetCode: null,
+        passwordResetExpires: null,
+      },
+    });
+  }
+
+
   async findById(userId: number, tx?: Prisma.TransactionClient): Promise<PrismaUser | null> {
     return (tx ?? prisma).user.findUnique({
       where: { id: userId },

@@ -117,6 +117,8 @@ model User {
   userType                 UserType
   numberDocument           String?             @unique
   phone                    String?
+  passwordResetCode        String?
+  passwordResetExpires     DateTime?
   documentType             DocumentType?
   documentFront            String?
   documentBack             String?

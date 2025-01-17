@@ -1,5 +1,5 @@
 import { makeUploadContractTemplateUseCase } from '@/use-cases/factories/admin/make-upload-contract-template-use-case';
-import { saveFile } from '@/utils/save-file';
+import { saveFileDocument } from '@/utils/save-file-document';
 import { ContractTemplateType } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -23,8 +23,8 @@ export async function uploadContractTemplateHandler(
 
     for await (const part of parts) {
       if (part.type === 'file' && part.fieldname === 'file') {
-        const savedFile = await saveFile(part);
-        filePath = savedFile.relativePath; // 🔹 Agora salva apenas o caminho relativo
+        const savedFile = await saveFileDocument(part);
+        filePath = savedFile.relativePath; 
         filename = part.filename;
         mimeType = savedFile.mimeType;
         console.log('📂 Arquivo salvo em:', filePath);
@@ -57,7 +57,7 @@ export async function uploadContractTemplateHandler(
 
     const result = await uploadContractTemplateUseCase.execute({
       templateType: templateType as ContractTemplateType,
-      filePath, // 🔹 Passamos apenas o caminho do arquivo
+      filePath, 
       fileMimeType: mimeType,
       adminId,
     });

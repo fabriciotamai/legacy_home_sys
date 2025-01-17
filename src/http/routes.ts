@@ -37,6 +37,7 @@ import { updateEnterpriseValuationHandler } from './controllers/admin/update-val
 import { updateWalletBalanceHandler } from './controllers/admin/update-wallet-balance-handler';
 import { uploadContractTemplateHandler } from './controllers/admin/upload-contract-template-handler';
 import { buyEntepriseHandler } from './controllers/users/buy-enterprise-handler';
+import { generatePasswordResetCodeHandler } from './controllers/users/generate-reset-code-password-handler';
 import { generateEmailCodeHandler } from './controllers/users/generate-token-email-handler';
 import { getAllDepositsHandler } from './controllers/users/get-all-deposits-handler';
 import { getDashboardDataHandler } from './controllers/users/get-dashboard-handler';
@@ -44,6 +45,7 @@ import { getEnterprisesAvailableHandler } from './controllers/users/get-enterpri
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
 import { interestEnterpriseHandler } from './controllers/users/interest-enterprise-handler';
+import { resetPasswordHandler } from './controllers/users/reset-code-password-handler';
 import { sendOrUpdateProofHandler } from './controllers/users/send-or-update-proof-handler';
 import { updateUserAvatarHandler } from './controllers/users/update-avatar-handler';
 import { updateUserHandler } from './controllers/users/update-user-profile.handler';
@@ -55,16 +57,18 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
   app.register(async (publicRoutes) => {
     publicRoutes.post('/admin/register', adminRegisterUsersHandler);
     publicRoutes.post('/users/signin', userSiginHandler);
+    publicRoutes.post('/users/generate-code/password', generatePasswordResetCodeHandler);
     publicRoutes.post('/users/register', userRegisterHandler);
+    publicRoutes.post('/users/code/forgot', resetPasswordHandler);
     publicRoutes.get(
       '/admin/enterprise/images/:enterpriseId',
 
       getEnterpriseImageUrlsHandler
     );
     publicRoutes.get('/docusign/callback', async (request, reply) => {
-      
       return reply.send('Consentimento DocuSign concedido. Você já pode fechar esta janela.');
     });
+    publicRoutes.get('/admin/faq/list', adminListFaqsHandler);
   });
 
   app.register(async (protectedRoutes) => {
@@ -87,7 +91,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/admin/update-progress-task', { preHandler: roleMiddleware }, updateTaskStatusHandler);
     protectedRoutes.post('/admin/faq/create-category', { preHandler: roleMiddleware }, adminCreateFaqCategoryHandler);
     protectedRoutes.post('/admin/faq/create', { preHandler: roleMiddleware }, adminCreateFaqHandler);
-    protectedRoutes.get('/admin/faq/list', { preHandler: roleMiddleware }, adminListFaqsHandler);
+    
     protectedRoutes.get('/admin/faq/categories', { preHandler: roleMiddleware }, adminListFaqCategoriesHandler);
     protectedRoutes.delete('/admin/faq/category/:categoryId', { preHandler: roleMiddleware }, adminDeleteFaqCategoryHandler);
     protectedRoutes.put('/admin/update/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminUpdateEnterpriseHandler);
@@ -124,6 +128,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.get('/users/enterprise/available', getEnterprisesAvailableHandler);
     protectedRoutes.get('/users/geratetoken', generateEmailCodeHandler);
     protectedRoutes.get('/users/dashboard', getDashboardDataHandler);
+    
     protectedRoutes.post('/users/deposit', createDepositHandler);
     protectedRoutes.get('/users/getalldeposit', getAllDepositsHandler);
     protectedRoutes.post('/users/proof-payment', sendOrUpdateProofHandler);

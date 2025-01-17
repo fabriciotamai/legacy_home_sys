@@ -102,7 +102,7 @@ export class CreateEnterpriseUseCase {
       throw new Error('Já existe um empreendimento com esse nome.');
     }
 
-  
+
     const finalCoverImageUrl = coverImageUrl ?? imageUrls[0] ?? null;
 
     

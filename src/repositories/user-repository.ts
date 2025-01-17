@@ -38,6 +38,15 @@ export interface UsersRepository {
   updateUserFinancials(userId: number, walletBalance: number, investedIncrement: number, valuationIncrement: number, tx?: Prisma.TransactionClient): Promise<void>;
   addWalletTransaction(data: { userId: number; type: WalletTransactionType; amount: number; balanceBefore: number; balanceAfter: number; description: string }, tx?: Prisma.TransactionClient): Promise<void>;
   findUsersByIds(userIds: number[]): Promise<User[]>;
+  updatePasswordResetCode(
+    email: string,
+    resetCode: string,
+    expiresAt: Date
+  ): Promise<void>;
+
+  verifyPasswordResetCode(email: string, code: string): Promise<boolean>;
+
+  resetPassword(email: string, hashedPassword: string): Promise<void>;
 
   getUserFinancials(
     userId: number,

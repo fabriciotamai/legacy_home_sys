@@ -16,7 +16,7 @@ export class AcceptOrRejectComplianceUseCase {
 
   async execute(input: AcceptOrRejectComplianceInput): Promise<AcceptOrRejectComplianceOutput> {
     const { userId, status, reason } = input;
-
+    
     const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new Error('Usuário não encontrado.');

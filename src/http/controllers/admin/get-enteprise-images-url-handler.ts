@@ -56,16 +56,16 @@ export async function getEnterpriseImageUrlsHandler(
     const getEnterpriseImageUrlsUseCase = makeGetEnterpriseImageUrlsUseCase();
 
     
-    const { images, total, page: currentPage, limit: currentLimit, totalPages } =
-      await getEnterpriseImageUrlsUseCase.execute({
-        enterpriseId,
-        page,
-        limit,
-      });
-
-    
+    const { images, coverImageUrl, total, page: currentPage, limit: currentLimit, totalPages } =
+    await getEnterpriseImageUrlsUseCase.execute({
+      enterpriseId,
+      page,
+      limit,
+    });
+  
     reply.status(200).send({
       images,
+      coverImageUrl, 
       pagination: {
         total,
         page: currentPage,

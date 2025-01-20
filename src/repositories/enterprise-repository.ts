@@ -119,4 +119,8 @@ export interface EnterpriseRepository {
   deleteEnterprise(enterpriseId: number): Promise<void>;
   findInvestmentsByEnterpriseId(enterpriseId: number): Promise<Investment[]>;
   deleteImagesByEnterprise(enterpriseId: number, imageUrls: string[]): Promise<void>;
+  findApprovedInterestByUserAndEnterprise(
+    userId: number,
+    enterpriseId: number
+  ): Promise<ContractInterest | null>;
 }

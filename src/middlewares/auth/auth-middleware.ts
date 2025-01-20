@@ -45,6 +45,10 @@ export async function authMiddleware(
       id: user.id,
       email: user.email,
       role: user.role,
+      username:user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      token: token,
       tokenVersion: user.tokenVersion,
     };
   } catch (error) {

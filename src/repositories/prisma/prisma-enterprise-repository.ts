@@ -9,6 +9,7 @@ import {
   Investment,
   Phase,
   Prisma,
+  Role,
   Task
 } from '@prisma/client';
 import { EnterpriseRepository } from '../enterprise-repository';
@@ -377,7 +378,18 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async findByUserId(userId: number): Promise<(Enterprise & { contractInterests: { status: string }[] })[]> {
+  async findByUserId(userId: number): Promise<(Enterprise & {
+    contractInterests: { status: string }[];
+    contracts: {
+      clientSigningUrl: string | null;
+      adminSigningUrl: string | null;
+      signatures: {
+        userId: number | null;
+        role: Role;
+        signedAt: Date | null;
+      }[];
+    }[];
+  })[]> {
     return prisma.enterprise.findMany({
       where: {
         OR: [
@@ -386,13 +398,29 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
         ],
       },
       include: {
-        currentPhase: true,
-        currentTask: true,
         contractInterests: {
           where: { userId },
           select: { status: true },
+          take: 1,
+        },
+        contracts: {
+          where: { userId },
+          select: {
+            clientSigningUrl: true,
+            adminSigningUrl: true,
+            signatures: {
+              select: {
+                userId: true,
+                role: true,
+                signedAt: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
           take: 1, 
         },
+        currentPhase: true,
+        currentTask: true,
       },
       orderBy: { createdAt: 'desc' },
     });

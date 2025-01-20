@@ -6,10 +6,22 @@ import {
   Task,
 } from '@prisma/client';
 
+type ContractWithSignatures = {
+  clientSigningUrl?: string | null;
+  adminSigningUrl?: string | null;
+  signatures: {
+    userId?: number | null;
+    signedAt?: Date | null;
+    // role?: Role; // Se quiser, inclua aqui
+  }[];
+};
+
 export type PhaseWithEnterpriseAndTasks = Phase & {
   tasks: Task[];
   enterprise: Enterprise;
 };
+
+
 
 export type PrismaUserWithAddress = Prisma.UserGetPayload<{
   include: { address: true };
@@ -62,5 +74,9 @@ export type EnterpriseWithContractInterests = Enterprise & {
     createdAt: Date;
     updatedAt: Date;
   };
+  
   contractInterests: { status: string }[];
+  contracts: ContractWithSignatures[];
+  clientSigningUrl?: string | null;
+  adminSigningUrl?: string | null;
 };

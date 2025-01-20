@@ -30,18 +30,21 @@ export class GenerateContractUseCase {
   ) {}
 
   async execute({ userId, enterpriseId, templateType }: GenerateContractInput): Promise<GenerateContractOutput> {
-    try {
-      console.log('Iniciando a geração do contrato...');
-
+    try {  
       
       const enterprise = await this.enterpriseRepository.findById(enterpriseId);
       if (!enterprise) throw new Error(`A empresa com ID ${enterpriseId} não existe.`);
-      console.log(`Empresa encontrada: ${enterprise.name}`);
 
       
       const user = await this.userRepository.findById(userId);
       if (!user) throw new Error(`O usuário com ID ${userId} não foi encontrado.`);
-      console.log(`Usuário encontrado: ${user.firstName} ${user.lastName}`);
+
+      
+      const interest = await this.enterpriseRepository.findApprovedInterestByUserAndEnterprise(userId, enterpriseId);
+      if (!interest) {
+        throw new Error('O usuário não possui um interesse aprovado para esta empresa.');
+      }
+      console.log(`✅ Interesse aprovado encontrado para usuário ${userId} na empresa ${enterpriseId}.`);
 
       
       const template = await this.contractRepository.findTemplateByType(templateType);
@@ -54,7 +57,6 @@ export class GenerateContractUseCase {
       if (!fs.existsSync(filePath)) {
         throw new Error(`❌ O arquivo do template não foi encontrado: ${filePath}`);
       }
-      console.log(`Caminho do template verificado: ${filePath}`);
 
       
       const fileBuffer = fs.readFileSync(filePath);
@@ -62,9 +64,8 @@ export class GenerateContractUseCase {
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       console.log('Template carregado com sucesso.');
 
-      
       const placeholders: Record<string, string> = {
-        investor: `${user.firstName} ${user.lastName}`, 
+        investor: `${user.firstName} ${user.lastName}`,
         state: enterprise.state || 'Estado não informado',
         country: enterprise.country || 'País não informado',
         address: enterprise.address || 'Endereço não informado',
@@ -72,7 +73,6 @@ export class GenerateContractUseCase {
       };
       console.log('Placeholders definidos:', placeholders);
 
-      
       doc.setData(placeholders);
       try {
         doc.render();
@@ -90,7 +90,7 @@ export class GenerateContractUseCase {
       }
       console.log('Buffer do contrato preenchido gerado.');
 
-
+      
       const generatedContractsDir = path.join(process.cwd(), 'generated-contracts');
       if (!fs.existsSync(generatedContractsDir)) {
         fs.mkdirSync(generatedContractsDir, { recursive: true });
@@ -126,7 +126,7 @@ export class GenerateContractUseCase {
         enterprise,
         contract: {
           ...contract,
-          content: filledContractBuffer.toString('base64'), 
+          content: filledContractBuffer.toString('base64'),
         },
       });
       console.log(`Envelope criado no DocuSign com ID: ${envelopeId}`);

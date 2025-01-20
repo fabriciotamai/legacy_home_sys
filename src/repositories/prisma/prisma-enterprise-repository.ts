@@ -76,6 +76,18 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return images.map((img) => img.imageUrl);
   }
 
+  async findApprovedInterestByUserAndEnterprise(
+    userId: number,
+    enterpriseId: number
+  ): Promise<ContractInterest | null> {
+    return prisma.contractInterest.findFirst({
+      where: {
+        userId,
+        enterpriseId,
+        status: InterestStatus.APPROVED, 
+      },
+    });
+  }
   
 
   async countImagesByEnterpriseId(enterpriseId: number): Promise<number> {
@@ -165,7 +177,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       },
     });
   }
-
 
   async addInvestment(data: {
     userId: number;

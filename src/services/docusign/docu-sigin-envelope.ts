@@ -4,8 +4,31 @@ import { getDocusignAccessToken } from '../docusign/docu-sigin-auth';
 
 dotenv.config();
 
-const apiBasePath = process.env.DOCUSIGN_API_BASE_URL!;
-const accountId = process.env.DOCUSIGN_ACCOUNT_ID!;
+
+const apiBasePath = process.env.DOCUSIGN_API_BASE_URL;
+const accountId = process.env.DOCUSIGN_ACCOUNT_ID;
+
+if (!apiBasePath) {
+  throw new Error('❌ Erro: A variável de ambiente DOCUSIGN_API_BASE_URL não está definida.');
+}
+
+if (!accountId) {
+  throw new Error('❌ Erro: A variável de ambiente DOCUSIGN_ACCOUNT_ID não está definida.');
+}
+
+
+const safeApiBasePath: string = apiBasePath;
+const safeAccountId: string = accountId;
+
+
+function isValidBase64(str: string): boolean {
+  if (!str || typeof str !== 'string') return false;
+  try {
+    return Buffer.from(str, 'base64').toString('utf-8') !== '';
+  } catch (error) {
+    return false;
+  }
+}
 
 export async function createEnvelopeOnDocusign({
   userId,
@@ -18,38 +41,26 @@ export async function createEnvelopeOnDocusign({
   userEmail: string;
   userName: string;
   enterprise: any;
-  contract: any;
+  contract: { content: string; fileExtension?: string; id: string }; 
 }): Promise<string> {
   try {
     console.log('🔑 Obtendo token de acesso do DocuSign...');
     const accessToken = await getDocusignAccessToken();
-    console.log('✅ Token obtido com sucesso.');
+   
 
-    // Configurando o cliente da API do DocuSign
     const apiClient = new docusign.ApiClient();
-    apiClient.setBasePath(apiBasePath);
-    apiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
+    apiClient.setBasePath(safeApiBasePath);
+    apiClient.addDefaultHeader('Authorization', `Bearer ${accessToken}`);
 
     const envelopesApi = new docusign.EnvelopesApi(apiClient);
 
-    // Verificação do conteúdo do contrato
-    if (!contract.content || typeof contract.content !== 'string') {
-      throw new Error('❌ Erro: O conteúdo do contrato está vazio ou não é um Base64 válido.');
+   
+    if (!isValidBase64(contract.content)) {
+      throw new Error('❌ Erro: O contrato não está em um formato Base64 válido.');
     }
 
-    console.log('📄 Verificando se o contrato é um Base64 válido...');
-    const decodedContent = Buffer.from(contract.content, 'base64').toString();
+    console.log('📄 Validando o documento...');
 
-    console.log('🔍 Trecho do conteúdo decodificado:', decodedContent.slice(0, 300)); // Loga os primeiros 300 caracteres
-
-    // Se precisar verificar âncoras no DOCX, pode fazer isso aqui (se os placeholders forem visíveis)
-    if (!decodedContent.includes('[SIGN_HERE]')) {
-      console.warn('⚠️ Atenção: O placeholder [SIGN_HERE] não foi encontrado no documento.');
-    } else {
-      console.log('✅ Placeholder [SIGN_HERE] encontrado.');
-    }
-
-    // Configuração do signer
     const signer = {
       email: userEmail,
       name: userName,
@@ -59,23 +70,22 @@ export async function createEnvelopeOnDocusign({
       tabs: {
         signHereTabs: [
           {
-            anchorString: '[SIGN_HERE]', // Mantendo âncora genérica
+            anchorString: '[SIGN_HERE]',
             anchorUnits: 'pixels',
-            anchorXOffset: '0',
-            anchorYOffset: '0',
+            anchorXOffset: '20',
+            anchorYOffset: '-10',
           },
         ],
       },
     };
 
-    // Configuração do envelope
     const envelopeDefinition = {
       emailSubject: `Contrato para Assinatura - ID ${contract.id}`,
       documents: [
         {
-          documentBase64: contract.content, // O conteúdo precisa estar em Base64
-          name: 'Contrato.docx', // 🔹 Alterado para DOCX
-          fileExtension: 'docx', // 🔹 Mantendo a formatação original
+          documentBase64: contract.content,
+          name: 'Contrato.docx',
+          fileExtension: contract.fileExtension || 'docx', 
           documentId: '1',
         },
       ],
@@ -84,19 +94,27 @@ export async function createEnvelopeOnDocusign({
     };
 
     console.log('📄 Enviando envelope para DocuSign...');
-    console.log('Payload:', JSON.stringify(envelopeDefinition, null, 2));
+    const results = await envelopesApi.createEnvelope(safeAccountId, { envelopeDefinition });
 
-    // Chamada para criar o envelope
-    const results = await envelopesApi.createEnvelope(accountId, { envelopeDefinition });
+    if (!results || !results.envelopeId) {
+      throw new Error('❌ Erro ao criar envelope no DocuSign. Nenhum ID retornado.');
+    }
+
     console.log('✅ Envelope criado com sucesso. Envelope ID:', results.envelopeId);
-
-    return results.envelopeId ?? 'ENVELOPE_ID_NAO_DISPONIVEL';
+    return results.envelopeId;
   } catch (error: any) {
-    console.error('❌ Erro ao criar envelope no DocuSign:', error.response?.body || error.message);
+    console.error('❌ Erro ao criar envelope no DocuSign:', error);
 
-    // Repassa o erro para ser tratado pelo chamador
-    throw new Error(
-      error.response?.body?.message || 'Erro inesperado ao criar envelope no DocuSign.'
-    );
+    if (error.response?.status === 401) {
+      throw new Error('❌ Erro 401: Token inválido. Verifique suas credenciais do DocuSign.');
+    }
+    if (error.response?.status === 403) {
+      throw new Error('❌ Erro 403: Permissão negada. O usuário pode não ter acesso para criar envelopes.');
+    }
+    if (error.response?.status >= 500) {
+      throw new Error('❌ Erro 500+: Problema no servidor do DocuSign.');
+    }
+
+    throw new Error('Erro inesperado ao criar envelope no DocuSign.');
   }
 }

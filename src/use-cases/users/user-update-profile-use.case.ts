@@ -43,7 +43,7 @@ export class UpdateUserProfileUseCase {
       }
     }
 
- 
+
     const updatedUser = await this.usersRepository.updateUser(userId, updateData);
 
 

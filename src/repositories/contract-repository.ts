@@ -4,7 +4,12 @@ export interface ContractRepository {
   create(data: Prisma.ContractCreateInput): Promise<Contract>;  
   findById(contractId: string): Promise<Contract | null>;
   updateStatus(contractId: string, status: ContractStatus): Promise<Contract>;
-  setEnvelopeId(contractId: string, envelopeId: string): Promise<Contract>;
+  setEnvelopeId(
+    contractId: string, 
+    envelopeId: string, 
+    clientSigningUrl?: string, 
+    adminSigningUrl?: string
+  ): Promise<Contract>;
   createSignature(data: Prisma.ContractSignatureCreateInput): Promise<ContractSignature>;
   createTemplate(data: Prisma.ContractTemplateCreateInput): Promise<ContractTemplate>;
   listTemplates(): Promise<ContractTemplate[]>;

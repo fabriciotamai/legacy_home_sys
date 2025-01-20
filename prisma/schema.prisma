@@ -309,22 +309,24 @@ model EnterpriseImage {
 }
 
 model Contract {
-  id           String               @id @default(uuid())
-  type         ContractType
-  templateType ContractTemplateType
-  documentUrl  String?
-  isTemplate   Boolean              @default(false)
-  status       ContractStatus       @default(PENDING)
-  signedAt     DateTime?
-  filePath     String?
-  content      String?
-  user         User?                @relation(fields: [userId], references: [id])
-  userId       Int?
-  enterprise   Enterprise           @relation(fields: [enterpriseId], references: [id])
-  enterpriseId Int
-  signatures   ContractSignature[]
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  id               String               @id @default(uuid())
+  type             ContractType
+  templateType     ContractTemplateType
+  documentUrl      String?
+  isTemplate       Boolean              @default(false)
+  status           ContractStatus       @default(PENDING)
+  signedAt         DateTime?
+  filePath         String?
+  clientSigningUrl String?
+  adminSigningUrl  String?
+  content          String?
+  user             User?                @relation(fields: [userId], references: [id])
+  userId           Int?
+  enterprise       Enterprise           @relation(fields: [enterpriseId], references: [id])
+  enterpriseId     Int
+  signatures       ContractSignature[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
 }
 
 model ContractSignature {

@@ -23,10 +23,19 @@ export class PrismaContractRepository implements ContractRepository {
   }
 
   
-  async setEnvelopeId(contractId: string, envelopeId: string): Promise<Contract> {
+  async setEnvelopeId(
+    contractId: string,
+    envelopeId: string,
+    clientSigningUrl?: string,
+    adminSigningUrl?: string
+  ): Promise<Contract> {
     return prisma.contract.update({
       where: { id: contractId },
-      data: { documentUrl: envelopeId },
+      data: {
+        documentUrl: envelopeId, 
+        ...(clientSigningUrl && { clientSigningUrl }), 
+        ...(adminSigningUrl && { adminSigningUrl }),   
+      },
     });
   }
 

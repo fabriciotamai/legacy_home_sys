@@ -1,154 +1,158 @@
 import { ContractRepository } from '@/repositories/contract-repository';
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 import { UsersRepository } from '@/repositories/user-repository';
-import { getDocusignAccessToken } from '@/services/docusign/docu-sigin-auth';
 import { createEnvelopeOnDocusign } from '@/services/docusign/docu-sigin-envelope';
 import { getEmbeddedSigningUrl } from '@/services/docusign/docu-signin-signin';
-import { ContractStatus, ContractTemplateType, ContractType } from '@prisma/client';
+import {
+  ContractStatus,
+  ContractTemplateType,
+  ContractType,
+} from '@prisma/client';
+
 import Docxtemplater from 'docxtemplater';
 import fs from 'fs';
 import path from 'path';
 import PizZip from 'pizzip';
 
+
 interface GenerateContractInput {
   userId: number;
   enterpriseId: number;
   templateType: ContractTemplateType;
+  adminId: number;
+  adminEmail: string;
+  adminName: string;
 }
 
 interface GenerateContractOutput {
   contractId: string;
-  envelopeId?: string;
-  signingUrl?: string;
+  envelopeId: string;
+  clientSigningUrl: string;
+  adminSigningUrl: string;
 }
 
 export class GenerateContractUseCase {
   constructor(
     private readonly contractRepository: ContractRepository,
     private readonly enterpriseRepository: EnterpriseRepository,
-    private readonly userRepository: UsersRepository
+    private readonly userRepository: UsersRepository,
   ) {}
 
-  async execute({ userId, enterpriseId, templateType }: GenerateContractInput): Promise<GenerateContractOutput> {
-    try {  
+  async execute({
+    userId,
+    enterpriseId,
+    templateType,
+    adminId,
+    adminEmail,
+    adminName,
+  }: GenerateContractInput): Promise<GenerateContractOutput> {
+    try {
       
       const enterprise = await this.enterpriseRepository.findById(enterpriseId);
-      if (!enterprise) throw new Error(`A empresa com ID ${enterpriseId} não existe.`);
+      if (!enterprise) throw new Error(`Empresa ID ${enterpriseId} não existe.`);
 
-      
       const user = await this.userRepository.findById(userId);
-      if (!user) throw new Error(`O usuário com ID ${userId} não foi encontrado.`);
+      if (!user) throw new Error(`Usuário ID ${userId} não encontrado.`);
 
-      
       const interest = await this.enterpriseRepository.findApprovedInterestByUserAndEnterprise(userId, enterpriseId);
-      if (!interest) {
-        throw new Error('O usuário não possui um interesse aprovado para esta empresa.');
-      }
-      console.log(`✅ Interesse aprovado encontrado para usuário ${userId} na empresa ${enterpriseId}.`);
+      if (!interest) throw new Error('Usuário sem interesse aprovado para esta empresa.');
 
-      
+      console.log(`✅ Interesse aprovado para usuário ${userId} na empresa ${enterpriseId}.`);
+
+
       const template = await this.contractRepository.findTemplateByType(templateType);
-      if (!template || !template.filePath) throw new Error(`Template do tipo ${templateType} não encontrado.`);
-      console.log(`Template encontrado: ${template.filePath}`);
+      if (!template || !template.filePath) throw new Error(`Template ${templateType} não encontrado.`);
 
       const filePath = path.join(process.cwd(), template.filePath);
-      console.log(`Caminho completo do template: ${filePath}`);
+      if (!fs.existsSync(filePath)) throw new Error(`Arquivo template não encontrado: ${filePath}`);
 
-      if (!fs.existsSync(filePath)) {
-        throw new Error(`❌ O arquivo do template não foi encontrado: ${filePath}`);
-      }
+      console.log(`📄 Carregando template: ${filePath}`);
 
-      
       const fileBuffer = fs.readFileSync(filePath);
       const zip = new PizZip(fileBuffer);
-      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
-      console.log('Template carregado com sucesso.');
+      const doc = new Docxtemplater(zip, {
+        paragraphLoop: true,
+        linebreaks: true,
+      });
 
-      const placeholders: Record<string, string> = {
+      const placeholders = {
         investor: `${user.firstName} ${user.lastName}`,
         state: enterprise.state || 'Estado não informado',
         country: enterprise.country || 'País não informado',
         address: enterprise.address || 'Endereço não informado',
         description: 'Descrição do investimento',
       };
-      console.log('Placeholders definidos:', placeholders);
+  
 
-      doc.setData(placeholders);
-      try {
-        doc.render();
-        console.log('Renderização do documento concluída com sucesso.');
-      } catch (error: any) {
-        console.error('Erro durante a renderização do documento:', error);
-        throw new Error(`Erro durante a renderização do documento: ${error.message}`);
-      }
-
-      
+      doc.render(placeholders);
+     
       const filledContractBuffer = doc.getZip().generate({ type: 'nodebuffer' });
+      if (!filledContractBuffer || filledContractBuffer.length === 0) throw new Error('Erro: Arquivo gerado está vazio.');
 
-      if (!filledContractBuffer || filledContractBuffer.length === 0) {
-        throw new Error('Erro: O arquivo gerado está vazio.');
-      }
-      console.log('Buffer do contrato preenchido gerado.');
-
-      
       const generatedContractsDir = path.join(process.cwd(), 'generated-contracts');
-      if (!fs.existsSync(generatedContractsDir)) {
-        fs.mkdirSync(generatedContractsDir, { recursive: true });
-        console.log(`Diretório criado: ${generatedContractsDir}`);
-      }
+      if (!fs.existsSync(generatedContractsDir)) fs.mkdirSync(generatedContractsDir, { recursive: true });
 
-      
       const filledFilePath = path.join(generatedContractsDir, `${Date.now()}-${userId}.docx`);
       fs.writeFileSync(filledFilePath, filledContractBuffer);
-      console.log(`Contrato preenchido salvo em: ${filledFilePath}`);
 
-      
       const contract = await this.contractRepository.create({
         type: ContractType.MONEY,
         templateType,
         user: { connect: { id: userId } },
         enterprise: { connect: { id: enterpriseId } },
-        filePath: filledFilePath, 
+        filePath: filledFilePath,
         status: ContractStatus.PENDING,
       });
-      console.log(`Contrato criado no banco de dados com ID: ${contract.id}`);
 
-      
-      const accessToken = await getDocusignAccessToken();
-      if (!accessToken) throw new Error('Falha ao obter o token de acesso do DocuSign.');
-      console.log('Token de acesso do DocuSign obtido.');
-
-      
       const envelopeId = await createEnvelopeOnDocusign({
         userId,
         userEmail: user.email,
         userName: `${user.firstName} ${user.lastName}`,
+        adminId,
+        adminEmail,
+        adminName,
         enterprise,
         contract: {
           ...contract,
           content: filledContractBuffer.toString('base64'),
+          fileExtension: 'docx',
         },
       });
-      console.log(`Envelope criado no DocuSign com ID: ${envelopeId}`);
 
-      
-      await this.contractRepository.setEnvelopeId(contract.id, envelopeId);
-      console.log(`Envelope ID atualizado no contrato com ID: ${contract.id}`);
-
-      
-      const signingUrl = await getEmbeddedSigningUrl({
+    
+      const clientSigningUrl = await getEmbeddedSigningUrl({
         envelopeId,
         userId,
         userName: `${user.firstName} ${user.lastName}`,
         userEmail: user.email,
+        signerType: 'client',
       });
-      console.log(`URL de assinatura obtida: ${signingUrl}`);
+  
 
-      return { contractId: contract.id, envelopeId, signingUrl };
-
+      const adminSigningUrl = await getEmbeddedSigningUrl({
+        envelopeId,
+        userId: adminId,
+        userName: adminName,
+        userEmail: adminEmail,
+        signerType: 'admin',
+      });
+ 
+      await this.contractRepository.setEnvelopeId(
+        contract.id,
+        envelopeId,
+        clientSigningUrl,
+        adminSigningUrl
+      );
+    
+      return {
+        contractId: contract.id,
+        envelopeId,
+        clientSigningUrl,
+        adminSigningUrl,
+      };
     } catch (error: any) {
-      console.error(`❌ Erro ao gerar contrato: ${error.message}`, { stack: error.stack });
       throw new Error(`Erro ao gerar contrato: ${error.message}`);
     }
   }
 }
+

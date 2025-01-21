@@ -70,6 +70,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     });
     publicRoutes.get('/admin/faq/list', adminListFaqsHandler);
     publicRoutes.post('/webhook/docusign', docusignWebhookHandler);
+    publicRoutes.get('/admin/faq/categories', adminListFaqCategoriesHandler);
   });
 
   app.register(async (protectedRoutes) => {
@@ -93,7 +94,6 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/admin/faq/create-category', { preHandler: roleMiddleware }, adminCreateFaqCategoryHandler);
     protectedRoutes.post('/admin/faq/create', { preHandler: roleMiddleware }, adminCreateFaqHandler);
     
-    protectedRoutes.get('/admin/faq/categories', { preHandler: roleMiddleware }, adminListFaqCategoriesHandler);
     protectedRoutes.delete('/admin/faq/category/:categoryId', { preHandler: roleMiddleware }, adminDeleteFaqCategoryHandler);
     protectedRoutes.put('/admin/update/enterprise/:enterpriseId', { preHandler: roleMiddleware }, adminUpdateEnterpriseHandler);
 

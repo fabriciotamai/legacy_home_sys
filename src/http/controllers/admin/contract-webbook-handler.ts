@@ -1,73 +1,56 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { z } from 'zod';
-
 import { makeProcessContractSignatureUseCase } from '@/use-cases/factories/admin/make-process-contract-signature-use-case';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function docusignWebhookHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    if (!request.user) {
-      return reply.status(401).send({ error: 'Usuário não autenticado.' });
+    console.log('📩 Webhook DocuSign Recebido - RAW BODY:', JSON.stringify(request.body, null, 2));
+
+    const { event, data } = request.body as {
+      event?: string;
+      data?: {
+        envelopeId?: string;
+        recipientId?: string;
+      };
+    };
+
+    if (!event || !data?.envelopeId || !data?.recipientId) {
+      console.warn('⚠️ Webhook recebido sem `envelopeId` ou `recipientId`.');
+      return reply.status(400).send({ message: 'Webhook inválido: envelopeId ou recipientId ausente.' });
     }
 
-
-    const docusignWebhookSchema = z.object({
-      event: z.string(),
-      data: z.object({
-        envelopeId: z.string(),
-        status: z.string(),
-      }),
-    });
-
-    // Faz o parse e valida o corpo do webhook
-    const { event, data } = docusignWebhookSchema.parse(request.body);
-
-    console.log('📩 Webhook recebido do DocuSign:', JSON.stringify(request.body, null, 2));
-    console.log(`Evento recebido: ${event}`);
-    console.log(`Envelope ID: ${data.envelopeId}`);
-    console.log(`Status da assinatura: ${data.status}`);
-
-  
-    const userId = request.user.id;      
-    const userEmail = request.user.email; 
-
+    console.log(`✅ Evento recebido: ${event}`);
+    console.log(`📌 Envelope ID: ${data.envelopeId}`);
+    console.log(`📌 Recipient ID: ${data.recipientId}`);
 
     if (event === 'recipient-completed') {
-   
+      console.log('🎉 Um destinatário assinou o contrato!');
+
       const processContractSignatureUseCase = makeProcessContractSignatureUseCase();
 
- 
       const result = await processContractSignatureUseCase.execute({
         envelopeId: data.envelopeId,
-        signerEmail: userEmail, 
-        status: data.status,
+        recipientId: data.recipientId, // Passamos apenas o recipientId para que o Use Case decida quem assinou
+        status: 'completed',
       });
 
-     
       if (result.contract) {
         console.log('Contrato atualizado com sucesso:', result.contract.id);
-        return reply.status(200).send({
-          message: result.message,
-          contract: result.contract,
-        });
       }
 
-      return reply.status(200).send({ message: result.message });
+      return reply.status(200).send({
+        message: result.message,
+        contract: result.contract,
+      });
     }
 
-    console.log('⚠️ Evento não relevante para processamento. Ignorando.');
-    return reply.status(200).send({ message: 'Evento ignorado.' });
-    
+    console.log(`⚠️ Evento ignorado: ${event}`);
+    return reply.status(200).send({ message: `Evento ${event} ignorado.` });
+
   } catch (error) {
-  
-    if (error instanceof z.ZodError) {
-      console.error('Erro de validação:', error.errors);
-      return reply.status(400).send({ errors: error.errors });
-    }
-    return reply
-      .status(500)
-      .send({ message: '❌ Erro interno ao processar o Webhook.' });
+    console.error('❌ Erro inesperado no Webhook DocuSign:', error);
+    return reply.status(500).send({ message: '❌ Erro interno ao processar o Webhook.' });
   }
 }

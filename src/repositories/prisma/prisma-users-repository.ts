@@ -150,6 +150,26 @@ export class PrismaUsersRepository implements UsersRepository {
     });
   }
 
+  async getAllRecentEnterprises(): Promise<Enterprise[]> {
+    return prisma.enterprise.findMany({
+      orderBy: { createdAt: 'desc' }, 
+      include: {
+        contractInterests: true, 
+      },
+    });
+  }
+  
+
+  async getAllUserEnterprises(userId: number): Promise<Enterprise[]> {
+    return prisma.enterprise.findMany({
+      where: { investments: { some: { userId } } }, 
+      orderBy: { createdAt: 'desc' },
+      include: {
+        contractInterests: true, 
+      },
+    });
+  }
+
   async getUserRecentEnterprises(
     userId: number,
   ): Promise<(Enterprise & { interestStatus?: string })[]> {

@@ -1,16 +1,12 @@
-// src/use-cases/get-user-enterprises-use-case.ts
+
 
 import { EnterpriseRepository } from '@/repositories/enterprise-repository';
 
-interface GetUserEnterprisesInput {
-  userId: number;
-}
 
 export class GetUserEnterprisesUseCase {
   constructor(private readonly enterpriseRepository: EnterpriseRepository) {}
 
   async execute({ userId }: { userId: number }) {
-    //
     const enterprises = await this.enterpriseRepository.findByUserId(userId);
 
     

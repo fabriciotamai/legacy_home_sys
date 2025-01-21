@@ -48,6 +48,9 @@ export interface UsersRepository {
 
   resetPassword(email: string, hashedPassword: string): Promise<void>;
 
+ getAllRecentEnterprises(): Promise<Enterprise[]>;  
+  getAllUserEnterprises(userId: number): Promise<Enterprise[]>; 
+
   getUserFinancials(
     userId: number,
   ): Promise<{ totalValuation: number; totalInvested: number }>;

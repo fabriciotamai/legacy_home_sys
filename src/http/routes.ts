@@ -18,6 +18,7 @@ import { adminDeleteEnterpriseImagesHandler } from './controllers/admin/admin-de
 import { adminDeleteUserHandler } from './controllers/admin/admin-delete-user-handler';
 import { adminListFaqCategoriesHandler } from './controllers/admin/admin-list-faq-categories-handler';
 import { adminUpdateUserHandler } from './controllers/admin/admin-update-data-user-handler';
+import { docusignWebhookHandler } from './controllers/admin/contract-webbook-handler';
 import { adminCreateFaqCategoryHandler } from './controllers/admin/create-category-faq-handler';
 import { createEnterpriseHandler } from './controllers/admin/create-enterprise-handler';
 import { adminCreateFaqHandler } from './controllers/admin/create-faq-handler';
@@ -41,6 +42,7 @@ import { generatePasswordResetCodeHandler } from './controllers/users/generate-r
 import { generateEmailCodeHandler } from './controllers/users/generate-token-email-handler';
 import { getAllDepositsHandler } from './controllers/users/get-all-deposits-handler';
 import { getDashboardDataHandler } from './controllers/users/get-dashboard-handler';
+import { getDashboardWebHandler } from './controllers/users/get-dashboard-web-handler';
 import { getEnterprisesAvailableHandler } from './controllers/users/get-enterprise-available-handler';
 import { getUserEnterprisesHandler } from './controllers/users/get-user-enterprise-handler';
 import { getUserWithAddressHandler } from './controllers/users/get-user-with-address-handler';
@@ -61,14 +63,13 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     publicRoutes.post('/users/register', userRegisterHandler);
     publicRoutes.post('/users/code/forgot', resetPasswordHandler);
     publicRoutes.get(
-      '/admin/enterprise/images/:enterpriseId',
-
-      getEnterpriseImageUrlsHandler
+      '/admin/enterprise/images/:enterpriseId', getEnterpriseImageUrlsHandler
     );
     publicRoutes.get('/docusign/callback', async (request, reply) => {
       return reply.send('Consentimento DocuSign concedido. Você já pode fechar esta janela.');
     });
     publicRoutes.get('/admin/faq/list', adminListFaqsHandler);
+    publicRoutes.post('/webhook/docusign', docusignWebhookHandler);
   });
 
   app.register(async (protectedRoutes) => {
@@ -127,7 +128,8 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/interest-enterprise', interestEnterpriseHandler);
     protectedRoutes.get('/users/enterprise/available', getEnterprisesAvailableHandler);
     protectedRoutes.get('/users/geratetoken', generateEmailCodeHandler);
-    protectedRoutes.get('/users/dashboard', getDashboardDataHandler);
+    protectedRoutes.get('/users/appp/dashboard', getDashboardDataHandler);
+    protectedRoutes.get('/users/web/dashboard', getDashboardWebHandler);
     
     protectedRoutes.post('/users/deposit', createDepositHandler);
     protectedRoutes.get('/users/getalldeposit', getAllDepositsHandler);

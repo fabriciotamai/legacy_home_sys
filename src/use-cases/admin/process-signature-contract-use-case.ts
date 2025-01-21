@@ -1,9 +1,9 @@
 import { ContractRepository } from '@/repositories/contract-repository';
-import { Contract, ContractStatus } from '@prisma/client';
+import { Contract, ContractStatus, Role } from '@prisma/client';
 
 interface ProcessContractSignatureInput {
   envelopeId: string;
-  signerEmail: string;
+  recipientId: string;
   status: string;
 }
 
@@ -15,43 +15,55 @@ interface ProcessContractSignatureResponse {
 export class ProcessContractSignatureUseCase {
   constructor(private readonly contractRepository: ContractRepository) {}
 
-  async execute({ envelopeId, signerEmail, status }: ProcessContractSignatureInput): Promise<ProcessContractSignatureResponse> {
+  async execute({
+    envelopeId,
+    recipientId,
+    status,
+  }: ProcessContractSignatureInput): Promise<ProcessContractSignatureResponse> {
     try {
-      if (!envelopeId || !signerEmail || !status) {
+      if (!envelopeId || !recipientId || !status) {
         return { message: '❌ Webhook inválido. Faltam dados obrigatórios.' };
       }
 
-      console.log(`📩 Webhook recebido: envelopeId=${envelopeId}, signerEmail=${signerEmail}, status=${status}`);
+      console.log(`📩 Webhook recebido: envelopeId=${envelopeId}, recipientId=${recipientId}, status=${status}`);
 
-      // 🔍 Busca o contrato pelo envelopeId
+
       const contract = await this.contractRepository.findByEnvelopeId(envelopeId);
       if (!contract) {
         return { message: `❌ Contrato não encontrado para envelope ${envelopeId}.` };
       }
 
-      console.log(`📄 Contrato ${contract.id} encontrado. Status atual: ${contract.status}`);
-
-    
-      const signature = await this.contractRepository.findSignatureByContractAndEmail(contract.id, signerEmail);
-      if (!signature) {
-        return { message: `❌ Assinatura não encontrada para email ${signerEmail}.` };
+  
+      let role: Role;
+      if (recipientId === '1') {
+        role = Role.USER;  
+      } else if (recipientId === '2') {
+        role = Role.ADMIN;
+      } else {
+        console.warn(`⚠️ Recipient ID desconhecido: ${recipientId}`);
+        return { message: `⚠️ Recipient ID desconhecido: ${recipientId}` };
       }
 
+    
+      const signature = await this.contractRepository.findSignatureByContractAndRole(contract.id, role);
+      if (!signature) {
+        return { message: `❌ Assinatura não encontrada para role=${role} no contrato ${contract.id}.` };
+      }
+
+
       if (signature.signedAt) {
-        return { message: `⚠️ Assinatura já registrada anteriormente para ${signerEmail}.` };
+        return { message: `⚠️ Assinatura já registrada anteriormente (role=${role}).` };
       }
 
       const now = new Date();
 
-      // ✅ Atualiza a assinatura na tabela `ContractSignature`
+      
       await this.contractRepository.updateSignedAt(signature.id, now);
 
-      // ✅ Cria um log na `ContractSignatureLog`
-      await this.contractRepository.createSignatureLog(contract.id, signature.userId, signature.role, now);
+      
+      await this.contractRepository.createSignatureLog(contract.id, signature.userId ?? null, role, now);
 
-      console.log(`✅ ${signerEmail} assinou o contrato ${contract.id} como ${signature.role}`);
-
-      // ✅ Verifica se todas as assinaturas foram concluídas
+    
       const allSigned = await this.contractRepository.allSignaturesCompleted(contract.id);
       if (allSigned) {
         await this.contractRepository.updateStatus(contract.id, ContractStatus.SIGNED);
@@ -59,17 +71,17 @@ export class ProcessContractSignatureUseCase {
         return { contract, message: '🎉 Contrato finalizado com sucesso.' };
       }
 
-      return { contract, message: `✅ Assinatura registrada para ${signerEmail}, aguardando outras assinaturas.` };
+      return {
+        contract,
+        message: `✅ Assinatura registrada (role=${role}), aguardando outras assinaturas.`,
+      };
 
     } catch (error: unknown) {
       console.error('❌ Erro ao processar assinatura do contrato:', error);
-    
       if (error instanceof Error) {
         return { message: `❌ Erro interno ao processar a assinatura: ${error.message}` };
       }
-    
       return { message: '❌ Erro interno ao processar a assinatura.' };
     }
   }
 }
-

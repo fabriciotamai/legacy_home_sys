@@ -102,7 +102,13 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
       { preHandler: roleMiddleware },
       uploadContractTemplateHandler
     );
-    protectedRoutes.post(
+    protectedRoutes.post<{
+      Body: {
+        userId: number;
+        enterpriseId: number;
+        templateType: 'TYPE1' | 'TYPE2' | 'TYPE3';
+      };
+    }>(
       '/admin/contract/generate',
       { preHandler: roleMiddleware },
       adminGenerateContractHandler

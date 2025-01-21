@@ -322,6 +322,7 @@ model Contract {
   clientSigningUrl     String?
   adminSigningUrl      String?
   content              String?
+  envelopeId           String?                @unique(map: "unique_envelopeId")
   user                 User?                  @relation(fields: [userId], references: [id])
   userId               Int?
   enterprise           Enterprise             @relation(fields: [enterpriseId], references: [id])
@@ -330,12 +331,14 @@ model Contract {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   ContractSignatureLog ContractSignatureLog[]
+
+  @@unique([envelopeId])
 }
 
 model ContractSignatureLog {
   id         Int      @id @default(autoincrement())
   contractId String
-  contract   Contract @relation(fields: [contractId], references: [id])
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
   userId     Int?
   user       User?    @relation(fields: [userId], references: [id])
   role       Role
@@ -347,7 +350,7 @@ model ContractSignatureLog {
 
 model ContractSignature {
   id         Int       @id @default(autoincrement())
-  contract   Contract  @relation(fields: [contractId], references: [id])
+  contract   Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
   contractId String
   user       User?     @relation(fields: [userId], references: [id])
   userId     Int?

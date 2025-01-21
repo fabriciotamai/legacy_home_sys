@@ -106,6 +106,8 @@ export async function createEnvelopeOnDocusign({
    
     return results.envelopeId;
   } catch (error: any) {
+
+
     throw new Error(`Erro inesperado ao criar envelope no DocuSign: ${JSON.stringify(error.response?.data)}`);
   }
 }

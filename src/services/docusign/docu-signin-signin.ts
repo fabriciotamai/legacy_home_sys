@@ -42,7 +42,7 @@ export async function getEmbeddedSigningUrl({
 
    
     const recipientViewRequest = {
-      returnUrl: 'http://seusistema.com/aposAssinar', 
+      returnUrl: 'myapp://assinatura-concluida', 
       clientUserId: String(userId), 
       authenticationMethod: 'email',
       userName,

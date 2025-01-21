@@ -69,7 +69,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
       return reply.send('Consentimento DocuSign concedido. Você já pode fechar esta janela.');
     });
     publicRoutes.get('/admin/faq/list', adminListFaqsHandler);
-    publicRoutes.post('/webhook/docusign', docusignWebhookHandler);
+   
   });
 
   app.register(async (protectedRoutes) => {
@@ -121,6 +121,7 @@ export async function appRoutes(app: FastifyInstance): Promise<void> {
     protectedRoutes.post('/users/add-address', addAddressHandler);
     protectedRoutes.post('/users/send-document', sendDocumentsHandler);
     protectedRoutes.post('/users/address', addAddressHandler);
+    protectedRoutes.post('/webhook/docusign', docusignWebhookHandler);
     protectedRoutes.post('/users/validate-email', validateEmailHandler);
     protectedRoutes.post('/users/buy-enterprise', buyEntepriseHandler);
     protectedRoutes.get('/users/my-enterprise', getUserEnterprisesHandler);

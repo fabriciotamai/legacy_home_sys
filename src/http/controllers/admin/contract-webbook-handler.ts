@@ -1,34 +1,73 @@
-import { makeProcessContractSignatureUseCase } from '@/use-cases/factories/admin/make-process-contract-signature-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { z } from 'zod';
 
-export async function docusignWebhookHandler(req: FastifyRequest, res: FastifyReply) {
+import { makeProcessContractSignatureUseCase } from '@/use-cases/factories/admin/make-process-contract-signature-use-case';
+
+export async function docusignWebhookHandler(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
   try {
-    console.log('📩 Recebendo Webhook do Docusign:', req.body);
-
-    
-    const { envelopeId, signerEmail, status } = req.body as {
-      envelopeId?: string;
-      signerEmail?: string;
-      status?: string;
-    };
-
-    if (!envelopeId || !signerEmail || !status) {
-      console.warn('❌ Webhook recebido com dados inválidos:', req.body);
-      return res.status(400).send({ message: '❌ Webhook inválido. Faltam dados obrigatórios.' });
+    if (!request.user) {
+      return reply.status(401).send({ error: 'Usuário não autenticado.' });
     }
 
-    // ✅ Chama o UseCase via Factory
-    const processContractSignature = makeProcessContractSignatureUseCase();
-    const result = await processContractSignature.execute({ envelopeId, signerEmail, status });
 
-    console.log('✅ Webhook processado com sucesso:', result);
-
-    return res.status(200).send(result);
-  } catch (error) {
-    console.error('❌ Erro ao processar Webhook do Docusign:', error);
-
-    return res.status(500).send({
-      message: '❌ Erro interno ao processar o Webhook.',
+    const docusignWebhookSchema = z.object({
+      event: z.string(),
+      data: z.object({
+        envelopeId: z.string(),
+        status: z.string(),
+      }),
     });
+
+    // Faz o parse e valida o corpo do webhook
+    const { event, data } = docusignWebhookSchema.parse(request.body);
+
+    console.log('📩 Webhook recebido do DocuSign:', JSON.stringify(request.body, null, 2));
+    console.log(`Evento recebido: ${event}`);
+    console.log(`Envelope ID: ${data.envelopeId}`);
+    console.log(`Status da assinatura: ${data.status}`);
+
+  
+    const userId = request.user.id;      
+    const userEmail = request.user.email; 
+
+
+    if (event === 'recipient-completed') {
+   
+      const processContractSignatureUseCase = makeProcessContractSignatureUseCase();
+
+ 
+      const result = await processContractSignatureUseCase.execute({
+        envelopeId: data.envelopeId,
+        signerEmail: userEmail, 
+        status: data.status,
+      });
+
+     
+      if (result.contract) {
+        console.log('Contrato atualizado com sucesso:', result.contract.id);
+        return reply.status(200).send({
+          message: result.message,
+          contract: result.contract,
+        });
+      }
+
+      return reply.status(200).send({ message: result.message });
+    }
+
+    console.log('⚠️ Evento não relevante para processamento. Ignorando.');
+    return reply.status(200).send({ message: 'Evento ignorado.' });
+    
+  } catch (error) {
+  
+    if (error instanceof z.ZodError) {
+      console.error('Erro de validação:', error.errors);
+      return reply.status(400).send({ errors: error.errors });
+    }
+    return reply
+      .status(500)
+      .send({ message: '❌ Erro interno ao processar o Webhook.' });
   }
 }

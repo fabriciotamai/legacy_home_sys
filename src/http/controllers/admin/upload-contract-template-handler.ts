@@ -31,8 +31,12 @@ export async function uploadContractTemplateHandler(
       }
 
       if (part.type === 'field' && part.fieldname === 'templateType') {
-        templateType = part.value;
-        console.log('📄 Template Type:', templateType);
+        const value = String(part.value); // Converte para string
+        if (Object.values(ContractTemplateType).includes(value as ContractTemplateType)) {
+          templateType = value;
+        } else {
+          console.error('❌ Template type inválido:', value);
+        }
       }
     }
 
@@ -41,7 +45,7 @@ export async function uploadContractTemplateHandler(
       return;
     }
 
-    if (!templateType || !(templateType in ContractTemplateType)) {
+    if (!templateType) {
       reply.status(400).send({ error: 'Template type inválido.' });
       return;
     }

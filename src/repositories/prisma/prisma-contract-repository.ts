@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Contract, ContractSignature, ContractStatus, ContractTemplate, ContractTemplateType, ContractType, Prisma } from '@prisma/client';
+import { Contract, ContractSignature, ContractSignatureLog, ContractStatus, ContractTemplate, ContractTemplateType, ContractType, Prisma, Role } from '@prisma/client';
 import { ContractRepository } from '../contract-repository';
 
 export class PrismaContractRepository implements ContractRepository {
@@ -42,6 +42,55 @@ export class PrismaContractRepository implements ContractRepository {
   
   async createSignature(data: Prisma.ContractSignatureCreateInput): Promise<ContractSignature> {
     return prisma.contractSignature.create({ data });
+  }
+
+  async findByEnvelopeId(envelopeId: string): Promise<Contract | null> {
+    return await prisma.contract.findFirst({ where: { documentUrl: envelopeId } });
+  }
+
+  async findSignatureByContractAndEmail(contractId: string, signerEmail: string): Promise<ContractSignature | null> {
+    return prisma.contractSignature.findFirst({
+      where: {
+        contractId,
+        user: {
+          email: signerEmail,
+        },
+      },
+    });
+  }
+
+  async updateSignedAt(signatureId: number, signedAt: Date): Promise<ContractSignature> {
+    return prisma.contractSignature.update({
+      where: { id: signatureId },
+      data: { signedAt },
+    });
+  }
+
+  async allSignaturesCompleted(contractId: string): Promise<boolean> {
+    const unsignedSignatures = await prisma.contractSignature.count({
+      where: {
+        contractId,
+        signedAt: null,
+      },
+    });
+
+    return unsignedSignatures === 0; 
+  }
+
+  async createSignatureLog(
+    contractId: string,
+    userId: number | null, 
+    role: Role,
+    signedAt: Date
+  ): Promise<ContractSignatureLog> {
+    return prisma.contractSignatureLog.create({
+      data: {
+        contractId,
+        userId,
+        role,
+        signedAt,
+      },
+    });
   }
 
   

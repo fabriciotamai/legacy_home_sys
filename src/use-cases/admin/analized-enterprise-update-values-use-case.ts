@@ -38,13 +38,11 @@ export class AnalyzeEnterpriseUpdateImpactUseCase {
   async execute(input: AnalyzeEnterpriseUpdateImpactInput): Promise<AnalyzeEnterpriseUpdateImpactOutput> {
     const { enterpriseId, newFundingAmount, newTransferAmount } = input;
 
-  
     const enterprise = await this.enterpriseRepository.findById(enterpriseId);
     if (!enterprise) {
       throw new Error('Empreendimento não encontrado.');
     }
 
-  
     const investments = await this.enterpriseRepository.findInvestmentsByEnterpriseId(enterpriseId);
     if (investments.length === 0) {
       return {
@@ -58,30 +56,28 @@ export class AnalyzeEnterpriseUpdateImpactUseCase {
         impactDetails: [],
       };
     }
-    const investorIds = investments.map(inv => inv.userId);
+    const investorIds = investments.map((inv) => inv.userId);
     const investors = await this.usersRepository.findUsersByIds(investorIds);
 
-    
     const impactDetails: ImpactReport[] = [];
 
     for (const investor of investors) {
-      const investment = investments.find(inv => inv.userId === investor.id);
+      const investment = investments.find((inv) => inv.userId === investor.id);
       if (!investment) continue;
 
       const currentInvestedAmount = investment.investedAmount;
       const investedProportion = currentInvestedAmount / enterprise.fundingAmount;
 
+      const impactOnTotalInvested = newFundingAmount * investedProportion - currentInvestedAmount;
+      const impactOnTotalValuation =
+        newTransferAmount * investedProportion - enterprise.transferAmount * investedProportion;
 
-      const impactOnTotalInvested = (newFundingAmount * investedProportion) - currentInvestedAmount;
-      const impactOnTotalValuation = (newTransferAmount * investedProportion) - (enterprise.transferAmount * investedProportion);
-
-  
       impactDetails.push({
         userId: investor.id,
         username: investor.username,
-        currentWalletBalance: investor.walletBalance ?? 0,  
-        currentTotalInvested: investor.totalInvested ?? 0,  
-        currentTotalValuation: investor.totalValuation ?? 0,  
+        currentWalletBalance: investor.walletBalance ?? 0,
+        currentTotalInvested: investor.totalInvested ?? 0,
+        currentTotalValuation: investor.totalValuation ?? 0,
         impactOnWalletBalance: (investor.walletBalance ?? 0) - impactOnTotalInvested,
         impactOnTotalInvested: (investor.totalInvested ?? 0) + impactOnTotalInvested,
         impactOnTotalValuation: (investor.totalValuation ?? 0) + impactOnTotalValuation,

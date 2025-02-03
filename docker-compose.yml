@@ -6,7 +6,7 @@ services:
   fourhands_api:
     image: bitnami/postgresql
     ports:
-      - 5480:5432
+      - 5478:5432
     environment:
       - POSTGRESQL_USERNAME=docker
       - POSTGRESQL_PASSWORD=docker

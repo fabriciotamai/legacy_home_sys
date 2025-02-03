@@ -13,31 +13,19 @@ export class UpdateProgressUseCase {
   async execute(input: UpdateTaskStatusInput): Promise<void> {
     const { enterpriseId, phaseId, taskId, isCompleted } = input;
 
-    const taskWithPhase =
-      await this.enterpriseRepository.findTaskWithPhaseAndEnterprise(
-        enterpriseId,
-        taskId,
-      );
+    const taskWithPhase = await this.enterpriseRepository.findTaskWithPhaseAndEnterprise(enterpriseId, taskId);
 
     if (!taskWithPhase || taskWithPhase.phase.id !== phaseId) {
       throw new Error(
-        `Tarefa não encontrada ou não pertence à fase (${phaseId}) ou ao empreendimento (${enterpriseId}).`,
+        `Tarefa não encontrada ou não pertence à fase (${phaseId}) ou ao empreendimento (${enterpriseId}).`
       );
     }
 
     if (isCompleted) {
-      await this.enterpriseRepository.updateTaskStatus(
-        enterpriseId,
-        taskId,
-        isCompleted,
-      );
+      await this.enterpriseRepository.updateTaskStatus(enterpriseId, taskId, isCompleted);
       await this.recalculatePhaseProgress(enterpriseId, phaseId);
       await this.recalculateEnterpriseProgress(enterpriseId);
-      const phaseChanged = await this.moveToNextTaskOrPhase(
-        enterpriseId,
-        phaseId,
-        taskId,
-      );
+      const phaseChanged = await this.moveToNextTaskOrPhase(enterpriseId, phaseId, taskId);
 
       if (!phaseChanged) {
         await this.enterpriseRepository.addChangeLog({
@@ -65,80 +53,48 @@ export class UpdateProgressUseCase {
     }
   }
 
-  private async recalculatePhaseProgress(
-    enterpriseId: number,
-    phaseId: number,
-  ): Promise<number> {
-    const tasks = await this.enterpriseRepository.findTasksInPhaseByEnterprise(
-      enterpriseId,
-      phaseId,
-    );
+  private async recalculatePhaseProgress(enterpriseId: number, phaseId: number): Promise<number> {
+    const tasks = await this.enterpriseRepository.findTasksInPhaseByEnterprise(enterpriseId, phaseId);
 
     if (!tasks.length) {
-      throw new Error(
-        `Nenhuma tarefa encontrada para a fase (${phaseId}) e empreendimento (${enterpriseId}).`,
-      );
+      throw new Error(`Nenhuma tarefa encontrada para a fase (${phaseId}) e empreendimento (${enterpriseId}).`);
     }
 
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((task) => task.isCompleted).length;
 
-    const phaseProgress =
-      totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+    const phaseProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
-    await this.enterpriseRepository.updatePhaseProgress(
-      enterpriseId,
-      phaseId,
-      phaseProgress,
-    );
+    await this.enterpriseRepository.updatePhaseProgress(enterpriseId, phaseId, phaseProgress);
 
     return phaseProgress;
   }
 
-  private async recalculateEnterpriseProgress(
-    enterpriseId: number,
-  ): Promise<number> {
-    const phases =
-      await this.enterpriseRepository.findPhasesByEnterprise(enterpriseId);
+  private async recalculateEnterpriseProgress(enterpriseId: number): Promise<number> {
+    const phases = await this.enterpriseRepository.findPhasesByEnterprise(enterpriseId);
 
     if (!phases.length) {
       throw new Error('Nenhuma fase encontrada para o empreendimento.');
     }
 
     const totalPhases = phases.length;
-    const totalPhaseProgress = phases.reduce(
-      (sum, phase) => sum + phase.progress,
-      0,
-    );
-    const enterpriseProgress =
-      totalPhases > 0 ? totalPhaseProgress / totalPhases : 0;
+    const totalPhaseProgress = phases.reduce((sum, phase) => sum + phase.progress, 0);
+    const enterpriseProgress = totalPhases > 0 ? totalPhaseProgress / totalPhases : 0;
 
-    await this.enterpriseRepository.updateEnterpriseProgress(
-      enterpriseId,
-      enterpriseProgress,
-    );
+    await this.enterpriseRepository.updateEnterpriseProgress(enterpriseId, enterpriseProgress);
 
     return enterpriseProgress;
   }
 
-  private async moveToNextTaskOrPhase(
-    enterpriseId: number,
-    phaseId: number,
-    taskId: number,
-  ): Promise<boolean> {
-    const tasks = await this.enterpriseRepository.findTasksInPhaseByEnterprise(
-      enterpriseId,
-      phaseId,
-    );
+  private async moveToNextTaskOrPhase(enterpriseId: number, phaseId: number, taskId: number): Promise<boolean> {
+    const tasks = await this.enterpriseRepository.findTasksInPhaseByEnterprise(enterpriseId, phaseId);
 
     if (!tasks.length) {
       throw new Error('Nenhuma tarefa encontrada para a fase.');
     }
 
     const sortedTasks = tasks.sort((a, b) => a.task.id - b.task.id);
-    const currentTaskIndex = sortedTasks.findIndex(
-      (task) => task.task.id === taskId,
-    );
+    const currentTaskIndex = sortedTasks.findIndex((task) => task.task.id === taskId);
 
     if (currentTaskIndex === -1) {
       throw new Error('Tarefa atual não encontrada na fase.');
@@ -147,29 +103,18 @@ export class UpdateProgressUseCase {
     const nextTask = sortedTasks[currentTaskIndex + 1];
 
     if (nextTask) {
-      await this.enterpriseRepository.updateEnterprisePhaseAndTask(
-        enterpriseId,
-        phaseId,
-        nextTask.task.id,
-      );
+      await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterpriseId, phaseId, nextTask.task.id);
       return false;
     } else {
-      const allPhases =
-        await this.enterpriseRepository.findAllPhasesByEnterprise(enterpriseId);
+      const allPhases = await this.enterpriseRepository.findAllPhasesByEnterprise(enterpriseId);
       const currentPhaseIndex = allPhases.findIndex((p) => p.id === phaseId);
 
       const nextPhase = allPhases[currentPhaseIndex + 1];
       if (nextPhase) {
-        const nextPhaseFirstTask = nextPhase.tasks.sort(
-          (a, b) => a.id - b.id,
-        )[0];
+        const nextPhaseFirstTask = nextPhase.tasks.sort((a, b) => a.id - b.id)[0];
         const nextTaskId = nextPhaseFirstTask?.id ?? undefined;
 
-        await this.enterpriseRepository.updateEnterprisePhaseAndTask(
-          enterpriseId,
-          nextPhase.id,
-          nextTaskId,
-        );
+        await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterpriseId, nextPhase.id, nextTaskId);
 
         await this.enterpriseRepository.addChangeLog({
           enterpriseId,
@@ -190,15 +135,8 @@ export class UpdateProgressUseCase {
     }
   }
 
-  private async moveToPreviousTaskAndReset(
-    enterpriseId: number,
-    phaseId: number,
-    targetTaskId: number,
-  ): Promise<void> {
-    const tasks = await this.enterpriseRepository.findTasksInPhaseByEnterprise(
-      enterpriseId,
-      phaseId,
-    );
+  private async moveToPreviousTaskAndReset(enterpriseId: number, phaseId: number, targetTaskId: number): Promise<void> {
+    const tasks = await this.enterpriseRepository.findTasksInPhaseByEnterprise(enterpriseId, phaseId);
 
     if (!tasks.length) {
       throw new Error(`Nenhuma tarefa encontrada para a fase (${phaseId}).`);
@@ -207,25 +145,15 @@ export class UpdateProgressUseCase {
     const targetTask = tasks.find((task) => task.task.id === targetTaskId);
     if (!targetTask) {
       throw new Error(
-        `A tarefa (${targetTaskId}) não pertence à fase (${phaseId}) no empreendimento (${enterpriseId}).`,
+        `A tarefa (${targetTaskId}) não pertence à fase (${phaseId}) no empreendimento (${enterpriseId}).`
       );
     }
 
     await Promise.all(
-      tasks.map((task) =>
-        this.enterpriseRepository.updateTaskStatus(
-          enterpriseId,
-          task.task.id,
-          false,
-        ),
-      ),
+      tasks.map((task) => this.enterpriseRepository.updateTaskStatus(enterpriseId, task.task.id, false))
     );
 
-    await this.enterpriseRepository.updateEnterprisePhaseAndTask(
-      enterpriseId,
-      phaseId,
-      targetTaskId,
-    );
+    await this.enterpriseRepository.updateEnterprisePhaseAndTask(enterpriseId, phaseId, targetTaskId);
 
     await this.recalculatePhaseProgress(enterpriseId, phaseId);
 

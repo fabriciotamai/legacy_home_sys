@@ -33,12 +33,16 @@ module.exports = [
       "max-len": [
         "warn",
         {
-          code: 140,
+          code: 120,
           ignoreStrings: true,
           ignoreUrls: true,
           ignoreComments: true,
         },
       ],
+      
+      "linebreak-style": ["error", "unix"], 
+  
+      "eol-last": ["error", "always"],
       "prettier/prettier": "off", // 🔥 Desativando o Prettier dentro do ESLint
     },
   },

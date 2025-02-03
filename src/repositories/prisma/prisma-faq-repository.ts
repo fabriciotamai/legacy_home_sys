@@ -10,7 +10,7 @@ export class PrismaFaqRepository implements FaqRepository {
       data: {
         question,
         answer,
-        categoryId, 
+        categoryId,
       },
     });
   }
@@ -18,7 +18,7 @@ export class PrismaFaqRepository implements FaqRepository {
   async createCategory(name: string): Promise<FaqCategory> {
     return prisma.faqCategory.create({
       data: {
-        name
+        name,
       },
     });
   }
@@ -29,7 +29,7 @@ export class PrismaFaqRepository implements FaqRepository {
       data: {
         question: question || undefined,
         answer: answer || undefined,
-        categoryId: categoryId || undefined, 
+        categoryId: categoryId || undefined,
       },
     });
   }
@@ -38,18 +38,18 @@ export class PrismaFaqRepository implements FaqRepository {
     return prisma.fAQ.findMany({
       where: categoryId ? { categoryId } : {},
       include: {
-        category: true, 
-      }
+        category: true,
+      },
     });
   }
 
   async deleteCategory(categoryId: number): Promise<void> {
     await prisma.faqCategory.delete({
-      where: { id: categoryId }
+      where: { id: categoryId },
     });
   }
 
-  async  listCategories(): Promise<(FaqCategory & { faqs: { id: number; question: string; answer: string }[] })[]> {
+  async listCategories(): Promise<(FaqCategory & { faqs: { id: number; question: string; answer: string }[] })[]> {
     return prisma.faqCategory.findMany({
       include: {
         faqs: {
@@ -67,8 +67,8 @@ export class PrismaFaqRepository implements FaqRepository {
     return prisma.fAQ.findUnique({
       where: { id },
       include: {
-        category: true, 
-      }
+        category: true,
+      },
     });
   }
 

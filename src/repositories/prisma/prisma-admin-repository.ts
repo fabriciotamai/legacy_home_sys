@@ -1,9 +1,4 @@
-import {
-  Prisma,
-  Address as PrismaAddress,
-  User as PrismaUser,
-  User,
-} from '@prisma/client';
+import { Prisma, Address as PrismaAddress, User as PrismaUser, User } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { AdminRepository } from '../admin-repository';
 
@@ -42,27 +37,18 @@ export class PrismaAdminRepository implements AdminRepository {
 
   async deleteUser(userId: number): Promise<void> {
     await prisma.user.delete({
-      where: { id: userId }
+      where: { id: userId },
     });
   }
 
-
-  
-
-  async updateUser(
-    userId: number,
-    data: Prisma.UserUpdateInput,
-  ): Promise<PrismaUser> {
+  async updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<PrismaUser> {
     return await prisma.user.update({
       where: { id: userId },
       data,
     });
   }
 
-  async addAddress(
-    userId: number,
-    data: Prisma.AddressCreateInput,
-  ): Promise<PrismaAddress> {
+  async addAddress(userId: number, data: Prisma.AddressCreateInput): Promise<PrismaAddress> {
     return await prisma.address.create({
       data: {
         ...data,

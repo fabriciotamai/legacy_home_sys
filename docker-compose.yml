@@ -10,4 +10,4 @@ services:
     environment:
       - POSTGRESQL_USERNAME=docker
       - POSTGRESQL_PASSWORD=docker
-      - POSTGRESQL_DATABASE=4hands
+      - POSTGRESQL_DATABASE=legacy

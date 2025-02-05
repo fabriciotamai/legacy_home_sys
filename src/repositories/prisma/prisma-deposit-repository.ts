@@ -3,11 +3,7 @@ import { Deposit } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaDepositsRepository implements DepositsRepository {
-  async create(data: {
-    userId: number;
-    amount: number;
-    proofUrl?: string;
-  }): Promise<Deposit> {
+  async create(data: { userId: number; amount: number; proofUrl?: string }): Promise<Deposit> {
     const status = data.proofUrl ? 'PENDING' : 'WAITING_PROOF';
     return prisma.deposit.create({
       data: {
@@ -38,7 +34,7 @@ export class PrismaDepositsRepository implements DepositsRepository {
   async updateStatus(
     depositId: number,
     status: 'PENDING' | 'APPROVED' | 'REJECTED',
-    adminComment?: string,
+    adminComment?: string
   ): Promise<Deposit> {
     return prisma.deposit.update({
       where: { id: depositId },
@@ -46,9 +42,7 @@ export class PrismaDepositsRepository implements DepositsRepository {
     });
   }
 
-  async findAll(
-    status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_PROOF',
-  ): Promise<Deposit[]> {
+  async findAll(status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_PROOF'): Promise<Deposit[]> {
     return prisma.deposit.findMany({
       where: status ? { status } : {},
       include: {

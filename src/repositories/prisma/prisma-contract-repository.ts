@@ -9,13 +9,11 @@ import {
   ContractType,
   Enterprise,
   Prisma,
-  Role
+  Role,
 } from '@prisma/client';
 import { ContractRepository } from '../contract-repository';
 
 export class PrismaContractRepository implements ContractRepository {
-
-
   async create(data: Prisma.ContractUncheckedCreateInput): Promise<Contract> {
     return prisma.contract.create({
       data: {
@@ -26,11 +24,9 @@ export class PrismaContractRepository implements ContractRepository {
     });
   }
 
- 
   async findById(contractId: string): Promise<Contract | null> {
     return prisma.contract.findUnique({ where: { id: contractId } });
   }
-
 
   async updateStatus(contractId: string, status: ContractStatus): Promise<Contract> {
     return prisma.contract.update({
@@ -40,7 +36,6 @@ export class PrismaContractRepository implements ContractRepository {
     });
   }
 
-
   async setEnvelopeId(
     contractId: string,
     envelopeId: string,
@@ -48,11 +43,11 @@ export class PrismaContractRepository implements ContractRepository {
     adminSigningUrl?: string
   ): Promise<Contract> {
     return prisma.contract.update({
-      where: { id: contractId }, 
+      where: { id: contractId },
       data: {
-        envelopeId, 
-        ...(clientSigningUrl ? { clientSigningUrl } : {}), 
-        ...(adminSigningUrl ? { adminSigningUrl } : {}),   
+        envelopeId,
+        ...(clientSigningUrl ? { clientSigningUrl } : {}),
+        ...(adminSigningUrl ? { adminSigningUrl } : {}),
       },
     });
   }
@@ -61,20 +56,17 @@ export class PrismaContractRepository implements ContractRepository {
     return prisma.contractSignature.create({ data });
   }
 
-
   async findSignatureByContractAndUserId(contractId: string, userId: number): Promise<ContractSignature | null> {
     return prisma.contractSignature.findFirst({
       where: { contractId, userId },
     });
   }
 
-
   async findSignatureByContractAndRole(contractId: string, role: Role): Promise<ContractSignature | null> {
     return prisma.contractSignature.findFirst({
       where: { contractId, role },
     });
   }
-
 
   async findByEnvelopeId(envelopeId: string): Promise<(Contract & { enterprise: Enterprise | null }) | null> {
     return prisma.contract.findUnique({
@@ -85,7 +77,6 @@ export class PrismaContractRepository implements ContractRepository {
     });
   }
 
-  
   async findSignatureByContractAndEmail(contractId: string, signerEmail: string): Promise<ContractSignature | null> {
     return prisma.contractSignature.findFirst({
       where: {
@@ -97,14 +88,12 @@ export class PrismaContractRepository implements ContractRepository {
     });
   }
 
-
   async updateSignedAt(signatureId: number, signedAt: Date): Promise<ContractSignature> {
     return prisma.contractSignature.update({
       where: { id: signatureId },
       data: { signedAt },
     });
   }
-
 
   async allSignaturesCompleted(contractId: string): Promise<boolean> {
     const unsignedSignatures = await prisma.contractSignature.count({
@@ -115,7 +104,6 @@ export class PrismaContractRepository implements ContractRepository {
     });
     return unsignedSignatures === 0;
   }
-
 
   async createSignatureLog(
     contractId: string,
@@ -133,16 +121,13 @@ export class PrismaContractRepository implements ContractRepository {
     });
   }
 
- 
   async createTemplate(data: Prisma.ContractTemplateCreateInput): Promise<ContractTemplate> {
     return prisma.contractTemplate.create({ data });
   }
 
-
   async listTemplates(): Promise<ContractTemplate[]> {
     return prisma.contractTemplate.findMany();
   }
-
 
   async findTemplateByType(templateType: ContractTemplateType): Promise<ContractTemplate | null> {
     return prisma.contractTemplate.findFirst({
@@ -150,7 +135,6 @@ export class PrismaContractRepository implements ContractRepository {
     });
   }
 
- 
   async generateContractFromTemplate(templateId: string, userId: number, enterpriseId: number): Promise<Contract> {
     const template = await prisma.contractTemplate.findUnique({
       where: { id: templateId },
@@ -178,7 +162,6 @@ export class PrismaContractRepository implements ContractRepository {
       },
     });
   }
-
 
   async updateContractContent(contractId: string, newContent: string): Promise<Contract> {
     return prisma.contract.update({

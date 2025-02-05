@@ -3,7 +3,7 @@ import { ContractTemplateType } from '@prisma/client';
 
 interface UploadContractTemplateInput {
   templateType: ContractTemplateType;
-  filePath: string; 
+  filePath: string;
   fileMimeType: string;
   adminId: number;
 }
@@ -17,16 +17,19 @@ interface UploadContractTemplateOutput {
 export class UploadContractTemplateUseCase {
   constructor(private readonly contractRepository: PrismaContractRepository) {}
 
-  async execute({ templateType, filePath, fileMimeType, adminId }: UploadContractTemplateInput): Promise<UploadContractTemplateOutput> {
+  async execute({
+    templateType,
+    filePath,
+    fileMimeType,
+    adminId,
+  }: UploadContractTemplateInput): Promise<UploadContractTemplateOutput> {
     try {
-  
       const contractTemplate = await this.contractRepository.createTemplate({
         name: `Template ${templateType}`,
         type: templateType,
-        filePath, 
+        filePath,
         fileMimeType,
         admin: { connect: { id: adminId } },
-      
       });
 
       console.log('✅ Template criado com sucesso:', contractTemplate.id);

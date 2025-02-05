@@ -1,4 +1,4 @@
-import { seedPhasesAndTasks } from '../prisma/seed';
+import { main } from '../prisma/seed';
 import { app } from './app';
 import { env } from './env';
 
@@ -12,7 +12,7 @@ const iniciarServidor = async () => {
 
     console.log('🔹 Verificando e rodando seed...');
     try {
-      await seedPhasesAndTasks();
+      await main();
       console.log('✅ Seed concluído.');
     } catch (seedError) {
       console.warn('⚠️ Aviso: Falha ao executar seed:', seedError);
@@ -25,7 +25,6 @@ const iniciarServidor = async () => {
   } catch (err) {
     console.error('❌ Erro ao iniciar o servidor:', err);
 
-  
     if ((err as any).code === 'EADDRINUSE') {
       console.error(`🚨 Porta ${env.PORT} já está em uso. Escolha outra porta.`);
     }
@@ -35,5 +34,3 @@ const iniciarServidor = async () => {
 };
 
 void iniciarServidor();
-
-

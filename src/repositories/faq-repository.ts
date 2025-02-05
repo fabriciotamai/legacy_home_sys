@@ -9,6 +9,6 @@ export interface FaqRepository {
   findById(id: number): Promise<FAQ | null>;
   delete(id: number): Promise<void>;
   createCategory(name: string): Promise<FaqCategory>;
-  listCategories(): Promise<FaqCategory[]>; 
+  listCategories(): Promise<FaqCategory[]>;
   deleteCategory(categoryId: number): Promise<void>;
 }

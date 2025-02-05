@@ -1,4 +1,4 @@
-import { ComplianceStatus, Phase, Prisma, Address as PrismaAddress } from '@prisma/client';
+import { ComplianceStatus, Prisma, Address as PrismaAddress } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { AddressRepository } from '../address-repository';
 
@@ -13,18 +13,18 @@ export class PrismaAddressRepository implements AddressRepository {
     });
   }
 
-  async findPhasesByEnterprise(enterpriseId: number): Promise<Phase[]> {
-    return prisma.phase.findMany({
-      where: {
-        enterprises: {
-          some: { id: enterpriseId },
-        },
-      },
-      include: {
-        tasks: true,
-      },
-    });
-  }
+  // async findPhasesByEnterprise(enterpriseId: number): Promise<[]> {
+  //   return prisma.phase.findMany({
+  //     where: {
+  //       enterprises: {
+  //         some: { id: enterpriseId },
+  //       },
+  //     },
+  //     include: {
+  //       tasks: true,
+  //     },
+  //   });
+  // }
 
   async updateUserComplianceStatus(userId: number, status: ComplianceStatus): Promise<void> {
     await prisma.user.update({

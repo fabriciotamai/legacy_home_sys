@@ -1,5 +1,5 @@
 {
-  "name": "legacy_home_sys",
+  "name": "legacy-home-api",
   "version": "1.0.0",
   "description": "",
   "main": "build/src/server.js",

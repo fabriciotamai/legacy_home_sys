@@ -1,6 +1,9 @@
+// src/repositories/users-repository.ts
+
 import type { UsersRepository } from '@/repositories/user-repository';
 import { PrismaUserWithAddress } from '@/types';
 import type { ConstructionType, Enterprise, Prisma, User as PrismaUser, WalletTransactionType } from '@prisma/client';
+import Decimal from 'decimal.js';
 import { prisma } from '../../lib/prisma';
 
 export class PrismaUsersRepository implements UsersRepository {
@@ -36,6 +39,7 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     });
   }
+
   async verifyPasswordResetCode(email: string, code: string): Promise<boolean> {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -51,6 +55,7 @@ export class PrismaUsersRepository implements UsersRepository {
     }
     return true;
   }
+
   async resetPassword(email: string, hashedPassword: string): Promise<void> {
     await prisma.user.update({
       where: { email },
@@ -85,11 +90,11 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async getWalletBalance(userId: number): Promise<number> {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { walletBalance: true },
+    const wallet = await prisma.wallet.findUnique({
+      where: { userId },
+      select: { fiatBalance: true },
     });
-    return user?.walletBalance ?? 0;
+    return wallet ? new Decimal(wallet.fiatBalance).toNumber() : 0;
   }
 
   async countEnterprisesByType(userId: number, type: ConstructionType): Promise<number> {
@@ -155,8 +160,6 @@ export class PrismaUsersRepository implements UsersRepository {
         OR: [{ contracts: { some: { userId } } }, { contractInterests: { some: { userId } } }],
       },
       include: {
-        currentPhase: true,
-        currentTask: true,
         contractInterests: {
           where: { userId },
           select: { status: true },
@@ -191,23 +194,31 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async updateWalletBalance(userId: number, newBalance: number): Promise<void> {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { walletBalance: newBalance },
+    await prisma.wallet.update({
+      where: { userId },
+      data: {
+        fiatBalance: new Decimal(newBalance).toString(),
+      },
     });
   }
 
   async updateUserFinancials(
     userId: number,
-    walletBalance: number,
+    newFiatBalance: number,
     investedIncrement: number,
     valuationIncrement: number,
     tx?: Prisma.TransactionClient
   ): Promise<void> {
+    await (tx ?? prisma).wallet.update({
+      where: { userId },
+      data: {
+        fiatBalance: new Decimal(newFiatBalance).toString(),
+      },
+    });
+
     await (tx ?? prisma).user.update({
       where: { id: userId },
       data: {
-        walletBalance,
         totalInvested: {
           increment: investedIncrement,
         },
@@ -217,6 +228,7 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     });
   }
+
   async findByDocument(document: string): Promise<PrismaUser | null> {
     return prisma.user.findUnique({
       where: { numberDocument: document },
@@ -234,17 +246,27 @@ export class PrismaUsersRepository implements UsersRepository {
     },
     tx?: Prisma.TransactionClient
   ): Promise<void> {
+    const wallet = await (tx ?? prisma).wallet.findUnique({
+      where: { userId: data.userId },
+      select: { id: true },
+    });
+
+    if (!wallet) {
+      throw new Error('Wallet not found for userId: ' + data.userId);
+    }
+
     await (tx ?? prisma).walletTransaction.create({
       data: {
-        userId: data.userId,
+        walletId: wallet.id,
         type: data.type,
-        amount: data.amount,
-        balanceBefore: data.balanceBefore,
-        balanceAfter: data.balanceAfter,
+        amount: new Decimal(data.amount).toString(),
+        balanceBefore: new Decimal(data.balanceBefore).toString(),
+        balanceAfter: new Decimal(data.balanceAfter).toString(),
         description: data.description,
       },
     });
   }
+
   async getUserFinancials(userId: number): Promise<{ totalValuation: number; totalInvested: number }> {
     const user = await prisma.user.findUnique({
       where: { id: userId },

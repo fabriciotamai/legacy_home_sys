@@ -1,21 +1,20 @@
 import { prisma } from '@/lib/prisma';
 import { TokenRepository } from '@/repositories/token-repository';
 import { Token, TokenHolder, TokenTransaction } from '@prisma/client';
+import Decimal from 'decimal.js';
 
 export class PrismaTokenRepository implements TokenRepository {
-  // Cria um token para uma enterprise com totalSupply e preço unitário
-  async createToken(enterpriseId: number, name: string, totalSupply: number, price: number): Promise<Token> {
+  async createToken(enterpriseId: number, name: string, totalSupply: number, price: Decimal): Promise<Token> {
     return prisma.token.create({
       data: {
         enterpriseId,
         name,
         totalSupply,
-        price, // Caso o campo seja do tipo Decimal, verifique se a conversão é necessária
+        price: price.toString(),
       },
     });
   }
 
-  // Retorna o token associado à enterprise, incluindo os titulares (holders)
   async findTokenByEnterprise(enterpriseId: number): Promise<Token | null> {
     return prisma.token.findUnique({
       where: { enterpriseId },
@@ -23,35 +22,38 @@ export class PrismaTokenRepository implements TokenRepository {
     });
   }
 
-  // Atualiza os dados de um token (nome, totalSupply e/ou preço)
-  async updateToken(id: number, data: { name?: string; totalSupply?: number; price?: number }): Promise<Token> {
+  async updateToken(id: number, data: { name?: string; totalSupply?: number; price?: Decimal }): Promise<Token> {
+    const updateData: any = { ...data };
+    if (data.price) {
+      updateData.price = data.price.toString();
+    }
     return prisma.token.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 
-  // Cria um registro para um usuário que detém tokens (inicialmente com um balance opcional)
-  async createTokenHolder(tokenId: number, userId: number, initialBalance: number = 0): Promise<TokenHolder> {
+  async createTokenHolder(
+    tokenId: number,
+    userId: number,
+    initialBalance: Decimal = new Decimal(0)
+  ): Promise<TokenHolder> {
     return prisma.tokenHolder.create({
       data: {
         tokenId,
         userId,
-        balance: initialBalance,
+        balance: initialBalance.toString(),
       },
     });
   }
 
-  // Atualiza o saldo (balance) do TokenHolder (usuário) para um token específico
-  async updateTokenHolder(tokenId: number, userId: number, balance: number): Promise<TokenHolder> {
+  async updateTokenHolder(tokenId: number, userId: number, balance: Decimal): Promise<TokenHolder> {
     return prisma.tokenHolder.update({
-      // É necessário referenciar a chave única composta definida no modelo
       where: { tokenId_userId: { tokenId, userId } },
-      data: { balance },
+      data: { balance: balance.toString() },
     });
   }
 
-  // Retorna a lista de holders (usuários) para um token, incluindo os dados do usuário
   async getTokenHolders(tokenId: number): Promise<TokenHolder[]> {
     return prisma.tokenHolder.findMany({
       where: { tokenId },
@@ -59,31 +61,60 @@ export class PrismaTokenRepository implements TokenRepository {
     });
   }
 
-  // Calcula a soma dos balances de todos os holders para um token (quantidade em circulação)
-  async getCirculation(tokenId: number): Promise<number> {
+  async getCirculation(tokenId: number): Promise<Decimal> {
     const result = await prisma.tokenHolder.aggregate({
       _sum: { balance: true },
       where: { tokenId },
     });
-    return result._sum.balance || 0;
+
+    return new Decimal(result._sum.balance || '0');
   }
 
-  // Cria uma transação de token (compra, venda ou transferência)
   async createTokenTransaction(
     tokenId: number,
     userId: number,
-    type: string, // Idealmente, este parâmetro seria do tipo TokenTransactionType (enum)
-    amount: number,
-    totalValue: number
+    type: string,
+    amount: Decimal,
+    totalValue: Decimal
   ): Promise<TokenTransaction> {
     return prisma.tokenTransaction.create({
       data: {
         tokenId,
         userId,
-        type: type as any, // se o campo for do tipo enum, certifique-se de passar o valor correto
-        amount,
-        totalValue,
+        type: type as any,
+        amount: amount.toString(),
+        totalValue: totalValue.toString(),
       },
     });
+  }
+
+  async getTokenAvailablePercentage(tokenId: number): Promise<Decimal> {
+    const token = await prisma.token.findUnique({
+      where: { id: tokenId },
+      select: { totalSupply: true },
+    });
+    if (!token) {
+      throw new Error('Token não encontrado');
+    }
+
+    const totalSupply = new Decimal(token.totalSupply);
+    const circulation = await this.getCirculation(tokenId);
+
+    const percentageSold = circulation.dividedBy(totalSupply).times(100);
+    const percentageAvailable = new Decimal(100).minus(percentageSold);
+    return percentageAvailable;
+  }
+
+  async getTokenHolderValueInUSD(tokenHolder: TokenHolder): Promise<Decimal> {
+    const token = await prisma.token.findUnique({
+      where: { id: tokenHolder.tokenId },
+      select: { price: true },
+    });
+    if (!token) {
+      throw new Error('Token não encontrado');
+    }
+    const balance = new Decimal(tokenHolder.balance);
+    const price = new Decimal(token.price);
+    return balance.times(price);
   }
 }

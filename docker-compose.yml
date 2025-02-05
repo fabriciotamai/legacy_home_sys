@@ -1,10 +1,11 @@
 ##docker run --name api-firstPatters-pg -e POSTGRESQL_USERNAME=docker  -e POSTGRESQL_PASSWORD=docker -e POSTGRESQL_DATABASE=firstPatters -p 5432:5432  bitnami/postgresql
 
-version: "3"
+version: '3'
 
 services:
   fourhands_api:
     image: bitnami/postgresql
+    container_name: legacy-home
     ports:
       - 5478:5432
     environment:

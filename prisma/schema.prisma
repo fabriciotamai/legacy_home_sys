@@ -23,6 +23,12 @@ enum ContractType {
   HYBRID
 }
 
+enum TokenTransactionType {
+  BUY
+  SELL
+  TRANSFER
+}
+
 enum DepositStatus {
   WAITING_PROOF
   PENDING
@@ -144,12 +150,14 @@ model User {
   walletTransactions       WalletTransaction[]
   investments              Investment[]
   interestLogs             InterestLog[]
-  Deposit                  Deposit[]
+  deposits                 Deposit[]
   createdAt                DateTime               @default(now())
   updatedAt                DateTime               @updatedAt
-  Notification             Notification[]
-  ContractTemplate         ContractTemplate[]
-  ContractSignatureLog     ContractSignatureLog[]
+  notifications            Notification[]
+  contractTemplates        ContractTemplate[]
+  contractSignatureLogs    ContractSignatureLog[]
+  tokenHolders             TokenHolder[]
+  tokenTransactions        TokenTransaction[]
 
   @@index([isApproved])
 }
@@ -259,40 +267,36 @@ model FAQRevision {
 }
 
 model Enterprise {
-  id                Int                     @id @default(autoincrement())
-  name              String                  @unique
+  id                Int                   @id @default(autoincrement())
+  name              String                @unique
   corporateName     String
   description       String
-  status            EnterpriseStatus        @default(NEW)
-  isAvailable       Boolean                 @default(false)
+  status            EnterpriseStatus      @default(NEW)
+  isAvailable       Boolean               @default(false)
   investmentType    InvestmentType
   constructionType  ConstructionType
-  fundingAmount     Float                   @default(0.0)
+  fundingAmount     Float                 @default(0.0)
   state             String?
   country           String?
-  transferAmount    Float                   @default(0.0)
+  transferAmount    Float                 @default(0.0)
   coverImageUrl     String?
   postalCode        String
   address           String
   city              String
   squareMeterValue  Float
   area              Float
-  progress          Float                   @default(0.0)
+  progress          Float                 @default(0.0)
   floors            Int?
   completionDate    DateTime?
   startDate         DateTime?
-  currentPhaseId    Int?
-  currentPhase      Phase?                  @relation(fields: [currentPhaseId], references: [id])
-  currentTaskId     Int?
-  currentTask       Task?                   @relation(fields: [currentTaskId], references: [id])
-  taskStatuses      EnterpriseTaskStatus[]
-  phaseStatuses     EnterprisePhaseStatus[]
+  // Relações de fases e tarefas foram removidas
   contracts         Contract[]
   contractInterests ContractInterest[]
   investments       Investment[]
+  token             Token?
   changeLogs        EnterpriseChangeLog[]
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
   InterestLog       InterestLog[]
   images            EnterpriseImage[]
 
@@ -387,52 +391,42 @@ model ContractInterest {
   @@index([enterpriseId, status])
 }
 
-model Phase {
-  id                    Int                     @id @default(autoincrement())
-  phaseName             String
-  description           String
-  order                 Int
-  tasks                 Task[]
-  enterprises           Enterprise[]
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  EnterprisePhaseStatus EnterprisePhaseStatus[]
+model Token {
+  id           Int                @id @default(autoincrement())
+  enterprise   Enterprise         @relation(fields: [enterpriseId], references: [id])
+  enterpriseId Int                @unique
+  name         String
+  totalSupply  Float
+  price        Decimal            @default(0.0)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  holders      TokenHolder[]
+  transactions TokenTransaction[]
 }
 
-model EnterprisePhaseStatus {
-  enterpriseId Int
-  phaseId      Int
-  progress     Float      @default(0.0)
-  updatedAt    DateTime   @updatedAt
-  createdAt    DateTime   @default(now())
-  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
-  phase        Phase      @relation(fields: [phaseId], references: [id])
+model TokenHolder {
+  id        Int      @id @default(autoincrement())
+  token     Token    @relation(fields: [tokenId], references: [id])
+  tokenId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  balance   Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@id([enterpriseId, phaseId])
+  @@unique([tokenId, userId])
 }
 
-model Task {
-  id           Int                    @id @default(autoincrement())
-  taskName     String
-  description  String
-  phaseId      Int
-  phase        Phase                  @relation(fields: [phaseId], references: [id])
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  taskProgress EnterpriseTaskStatus[]
-  Enterprise   Enterprise[]
-}
-
-model EnterpriseTaskStatus {
-  enterpriseId Int
-  taskId       Int
-  isCompleted  Boolean    @default(false)
-  updatedAt    DateTime   @updatedAt
-  createdAt    DateTime   @default(now())
-  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id], onDelete: Cascade)
-  task         Task       @relation(fields: [taskId], references: [id])
-
-  @@id([enterpriseId, taskId])
+model TokenTransaction {
+  id         Int                  @id @default(autoincrement())
+  token      Token                @relation(fields: [tokenId], references: [id])
+  tokenId    Int
+  user       User                 @relation(fields: [userId], references: [id])
+  userId     Int
+  type       TokenTransactionType
+  amount     Float
+  totalValue Float
+  createdAt  DateTime             @default(now())
 }
 
 model Notification {

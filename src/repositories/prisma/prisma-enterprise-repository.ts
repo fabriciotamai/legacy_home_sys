@@ -4,13 +4,10 @@ import {
   ContractInterest,
   Enterprise,
   EnterpriseStatus,
-  EnterpriseTaskStatus,
   InterestStatus,
   Investment,
-  Phase,
   Prisma,
   Role,
-  Task,
 } from '@prisma/client';
 import { EnterpriseRepository } from '../enterprise-repository';
 
@@ -20,17 +17,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   async findById(enterpriseId: number, tx?: Prisma.TransactionClient): Promise<Enterprise> {
     return getClient(tx).enterprise.findUniqueOrThrow({
       where: { id: enterpriseId },
-      include: { currentPhase: true, currentTask: true },
-    });
-  }
-
-  async findPhasesByEnterprise(enterpriseId: number): Promise<{ phaseId: number; progress: number }[]> {
-    return prisma.enterprisePhaseStatus.findMany({
-      where: { enterpriseId },
-      select: {
-        phaseId: true,
-        progress: true,
-      },
     });
   }
 
@@ -49,15 +35,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       include: { user: true },
     });
   }
-
-  // async findPhaseWithTasks(
-  //   phaseId: number,
-  // ): Promise<(Phase & { tasks: Task[] }) | null> {
-  //   return prisma.phase.findUnique({
-  //     where: { id: phaseId },
-  //     include: { tasks: true },
-  //   });
-  // }
 
   async findImageUrlsByEnterpriseId(enterpriseId: number, skip: number = 0, take: number = 10): Promise<string[]> {
     const images = await prisma.enterpriseImage.findMany({
@@ -111,34 +88,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       images: images.map((img) => img.imageUrl),
       total,
     };
-  }
-
-  async findTasksInPhaseByEnterprise(
-    enterpriseId: number,
-    phaseId: number
-  ): Promise<(EnterpriseTaskStatus & { task: Task })[]> {
-    return prisma.enterpriseTaskStatus.findMany({
-      where: {
-        enterpriseId,
-        task: { phaseId },
-      },
-      include: { task: true },
-    });
-  }
-
-  async findTaskWithPhaseAndEnterprise(
-    enterpriseId: number,
-    taskId: number
-  ): Promise<(Task & { phase: Phase }) | null> {
-    const taskStatus = await prisma.enterpriseTaskStatus.findFirst({
-      where: { enterpriseId, taskId },
-      include: {
-        task: {
-          include: { phase: true },
-        },
-      },
-    });
-    return taskStatus ? taskStatus.task : null;
   }
 
   async addInterestLog(
@@ -195,13 +144,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return prisma.enterprise.findMany({
       where,
       include: {
-        currentPhase: true,
-        currentTask: true,
         contractInterests: true,
         investments: true,
       },
       orderBy: { createdAt: 'desc' },
-    });
+    }) as Promise<EnterpriseWithRelations[]>;
   }
 
   async create(data: Prisma.EnterpriseCreateInput): Promise<Enterprise> {
@@ -225,12 +172,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     return images.map((img) => img.imageUrl);
   }
 
-  // async deleteAllByEnterpriseId(enterpriseId: number): Promise<void> {
-  //   await prisma.enterpriseImage.deleteMany({
-  //     where: { enterpriseId },
-  //   });
-  // }
-
   async deleteEnterprise(enterpriseId: number): Promise<void> {
     await prisma.enterprise.delete({ where: { id: enterpriseId } });
   }
@@ -240,26 +181,11 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
   }
 
   async updateEnterpriseProgress(enterpriseId: number, progress: number): Promise<void> {
-    await prisma.enterprise.update({ where: { id: enterpriseId }, data: { progress } });
+    await prisma.enterprise.update({
+      where: { id: enterpriseId },
+      data: { progress },
+    });
   }
-
-  // async initializeEnterprisePhasesAndTasks(enterpriseId: number): Promise<void> {
-  //   const phases = await prisma.phase.findMany({ include: { tasks: true } });
-  //   await prisma.$transaction(async (tx) => {
-  //     for (const phase of phases) {
-  //       await tx.enterprisePhaseStatus.create({
-  //         data: { enterpriseId, phaseId: phase.id, progress: 0 },
-  //       });
-  //       await tx.enterpriseTaskStatus.createMany({
-  //         data: phase.tasks.map((task) => ({
-  //           enterpriseId,
-  //           taskId: task.id,
-  //           isCompleted: false,
-  //         })),
-  //       });
-  //     }
-  //   });
-  // }
 
   async linkUserToEnterprise(
     userId: number,
@@ -271,21 +197,6 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
       data: { userId, enterpriseId, status },
     });
   }
-
-  // async findInterestById(interestId: string): Promise<ContractInterest | null> {
-  //   return prisma.contractInterest.findUnique({ where: { interestId } });
-  // }
-
-  // async updateInterestStatus(
-  //   interestId: string,
-  //   status: InterestStatus,
-  //   tx?: Prisma.TransactionClient
-  // ): Promise<ContractInterest> {
-  //   return getClient(tx).contractInterest.update({
-  //     where: { interestId },
-  //     data: { status },
-  //   });
-  // }
 
   async removeOtherInterests(enterpriseId: number, interestId: string, tx?: Prisma.TransactionClient): Promise<void> {
     await getClient(tx).contractInterest.updateMany({
@@ -343,13 +254,13 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
           select: {
             clientSigningUrl: true,
             adminSigningUrl: true,
-            signatures: { select: { userId: true, role: true, signedAt: true } },
+            signatures: {
+              select: { userId: true, role: true, signedAt: true },
+            },
           },
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
-        currentPhase: true,
-        currentTask: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -371,107 +282,7 @@ export class PrismaEnterpriseRepository implements EnterpriseRepository {
     });
   }
 
-  async updateEnterprisePhaseAndTask(enterpriseId: number, phaseId: number, taskId?: number): Promise<Enterprise> {
-    return prisma.enterprise.update({
-      where: { id: enterpriseId },
-      data: { currentPhaseId: phaseId, currentTaskId: taskId || null },
-      include: { currentPhase: true, currentTask: true },
-    });
-  }
-
-  // async findPhaseById(phaseId: number): Promise<Phase | null> {
-  //   return prisma.phase.findUnique({
-  //     where: { id: phaseId },
-  //     include: { tasks: true },
-  //   });
-  // }
-
-  async findAllPhasesWithTasks(): Promise<(Phase & { tasks: Task[] })[]> {
-    return prisma.phase.findMany({ include: { tasks: true } });
-  }
-
-  async findAllPhasesByEnterprise(enterpriseId: number): Promise<(Phase & { tasks: Task[] })[]> {
-    return prisma.phase.findMany({
-      where: { enterprises: { some: { id: enterpriseId } } },
-      include: { tasks: true },
-    });
-  }
-
-  async updatePhaseProgress(
-    enterpriseId: number,
-    phaseId: number,
-    progress: number,
-    tx?: Prisma.TransactionClient
-  ): Promise<void> {
-    await getClient(tx).enterprisePhaseStatus.update({
-      where: { enterpriseId_phaseId: { enterpriseId, phaseId } },
-      data: { progress },
-    });
-  }
-
-  async createPhase(data: Prisma.PhaseCreateInput): Promise<Phase> {
-    return prisma.phase.create({ data });
-  }
-
-  // async findTaskById(taskId: number): Promise<Task | null> {
-  //   return prisma.task.findUnique({ where: { id: taskId } });
-  // }
-
-  async findTaskWithPhase(taskId: number): Promise<(Task & { phase: Phase }) | null> {
-    return prisma.task.findUnique({
-      where: { id: taskId },
-      include: { phase: true },
-    });
-  }
-
-  async createTask(data: Prisma.TaskCreateInput): Promise<Task> {
-    return prisma.task.create({ data });
-  }
-
-  // async associateTasksToEnterprise(
-  //   enterpriseId: number,
-  //   taskIds: number[],
-  //   tx?: Prisma.TransactionClient
-  // ): Promise<void> {
-  //   const updates = taskIds.map((taskId) =>
-  //     getClient(tx).enterpriseTaskStatus.create({
-  //       data: { enterpriseId, taskId, isCompleted: false },
-  //     })
-  //   );
-  //   await Promise.all(updates);
-  // }
-
-  async updateTaskStatus(
-    enterpriseId: number,
-    taskId: number,
-    isCompleted: boolean,
-    tx?: Prisma.TransactionClient
-  ): Promise<void> {
-    await getClient(tx).enterpriseTaskStatus.updateMany({
-      where: { enterpriseId, taskId },
-      data: { isCompleted },
-    });
-  }
-
-  async createPhaseProgress(
-    data: { enterpriseId: number; phaseId: number; progress: number },
-    tx?: Prisma.TransactionClient
-  ): Promise<void> {
-    await getClient(tx).enterprisePhaseStatus.create({
-      data: { enterpriseId: data.enterpriseId, phaseId: data.phaseId, progress: data.progress },
-    });
-  }
-
   async findSingleInvestmentByEnterpriseId(enterpriseId: number): Promise<Investment | null> {
     return prisma.investment.findFirst({ where: { enterpriseId } });
-  }
-
-  async createTaskProgress(
-    data: { enterpriseId: number; taskId: number; isCompleted: boolean },
-    tx?: Prisma.TransactionClient
-  ): Promise<void> {
-    await getClient(tx).enterpriseTaskStatus.create({
-      data: { enterpriseId: data.enterpriseId, taskId: data.taskId, isCompleted: data.isCompleted },
-    });
   }
 }

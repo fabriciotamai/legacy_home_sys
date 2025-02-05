@@ -1,11 +1,10 @@
 import { PrismaUserWithAddress } from '@/types';
-import type {
+import {
   ConstructionType,
   ContractInterest,
   Enterprise,
   Prisma,
   User as PrismaUser,
-  User,
   WalletTransactionType,
 } from '@prisma/client';
 
@@ -14,7 +13,7 @@ export interface UsersRepository {
   findByEmail(email: string): Promise<PrismaUser | null>;
   findByUsername(username: string): Promise<PrismaUser | null>;
   findByDocument(document: string): Promise<PrismaUser | null>;
-  findById(userId: number, tx?: Prisma.TransactionClient): Promise<User | null>;
+  findById(userId: number, tx?: Prisma.TransactionClient): Promise<PrismaUser | null>;
   updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<PrismaUser>;
   updatePassword(userId: number, hashedPassword: string): Promise<PrismaUser>;
   findUserWithAddress(id: number): Promise<PrismaUserWithAddress | null>;
@@ -30,7 +29,7 @@ export interface UsersRepository {
   updateWalletBalance(userId: number, newBalance: number): Promise<void>;
   updateUserFinancials(
     userId: number,
-    walletBalance: number,
+    newFiatBalance: number,
     investedIncrement: number,
     valuationIncrement: number,
     tx?: Prisma.TransactionClient
@@ -46,15 +45,11 @@ export interface UsersRepository {
     },
     tx?: Prisma.TransactionClient
   ): Promise<void>;
-  findUsersByIds(userIds: number[]): Promise<User[]>;
+  findUsersByIds(userIds: number[]): Promise<PrismaUser[]>;
   updatePasswordResetCode(email: string, resetCode: string, expiresAt: Date): Promise<void>;
-
   verifyPasswordResetCode(email: string, code: string): Promise<boolean>;
-
   resetPassword(email: string, hashedPassword: string): Promise<void>;
-
   getAllRecentEnterprises(): Promise<Enterprise[]>;
   getAllUserEnterprises(userId: number): Promise<Enterprise[]>;
-
   getUserFinancials(userId: number): Promise<{ totalValuation: number; totalInvested: number }>;
 }

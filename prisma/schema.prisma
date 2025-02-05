@@ -137,7 +137,6 @@ model User {
   complianceStatus         ComplianceStatus       @default(PENDING_ADDRESS)
   twoFA                    String?
   isActive                 Boolean                @default(true)
-  walletBalance            Float?                 @default(0.0)
   totalInvested            Float?                 @default(0.0)
   totalValuation           Float?                 @default(0.0)
   emailVerified            Boolean                @default(false)
@@ -147,17 +146,17 @@ model User {
   contracts                Contract[]
   contractInterests        ContractInterest[]
   contractSignatures       ContractSignature[]
-  walletTransactions       WalletTransaction[]
   investments              Investment[]
   interestLogs             InterestLog[]
   deposits                 Deposit[]
-  createdAt                DateTime               @default(now())
-  updatedAt                DateTime               @updatedAt
   notifications            Notification[]
   contractTemplates        ContractTemplate[]
   contractSignatureLogs    ContractSignatureLog[]
   tokenHolders             TokenHolder[]
   tokenTransactions        TokenTransaction[]
+  wallet                   Wallet?
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
 
   @@index([isApproved])
 }
@@ -178,18 +177,28 @@ model Address {
   updatedAt    DateTime @updatedAt
 }
 
+model Wallet {
+  id           Int                 @id @default(autoincrement())
+  userId       Int                 @unique
+  user         User                @relation(fields: [userId], references: [id])
+  fiatBalance  Decimal             @default(0.0)
+  transactions WalletTransaction[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
 model WalletTransaction {
   id            Int                   @id @default(autoincrement())
-  userId        Int
-  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletId      Int
+  wallet        Wallet                @relation(fields: [walletId], references: [id], onDelete: Cascade)
   type          WalletTransactionType
-  amount        Float
-  balanceBefore Float
-  balanceAfter  Float
+  amount        Decimal               @default(0.0)
+  balanceBefore Decimal               @default(0.0)
+  balanceAfter  Decimal               @default(0.0)
   description   String
   createdAt     DateTime              @default(now())
 
-  @@index([userId, createdAt])
+  @@index([walletId, createdAt])
 }
 
 model Investment {
@@ -287,18 +296,15 @@ model Enterprise {
   area              Float
   progress          Float                 @default(0.0)
   floors            Int?
-  completionDate    DateTime?
-  startDate         DateTime?
-  // Relações de fases e tarefas foram removidas
   contracts         Contract[]
   contractInterests ContractInterest[]
   investments       Investment[]
   token             Token?
   changeLogs        EnterpriseChangeLog[]
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
   InterestLog       InterestLog[]
   images            EnterpriseImage[]
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
 
   @@index([status, createdAt])
 }
@@ -332,9 +338,9 @@ model Contract {
   enterprise           Enterprise             @relation(fields: [enterpriseId], references: [id])
   enterpriseId         Int
   signatures           ContractSignature[]
+  ContractSignatureLog ContractSignatureLog[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
-  ContractSignatureLog ContractSignatureLog[]
 
   @@unique([envelopeId])
 }
@@ -410,7 +416,7 @@ model TokenHolder {
   tokenId   Int
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
-  balance   Float    @default(0)
+  balance   Decimal  @default("0.0")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -424,8 +430,8 @@ model TokenTransaction {
   user       User                 @relation(fields: [userId], references: [id])
   userId     Int
   type       TokenTransactionType
-  amount     Float
-  totalValue Float
+  amount     Decimal
+  totalValue Decimal
   createdAt  DateTime             @default(now())
 }
 
